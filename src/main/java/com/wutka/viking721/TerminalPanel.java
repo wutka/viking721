@@ -21,6 +21,7 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
     int [][]blockBanks;
     byte[] charmap;
     byte[] portData = new byte[256];
+    Timer[] timers;
     public static final int VIDEO_RAM = 0xe000;
     long lastBlinkTime;
     boolean blinkOn = false;
@@ -74,7 +75,10 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
             keyboardUart = new Uart8250("Keyboard", this, 5);
             commUart = new Uart8250("Comm", this, 1);
 
-            portData[0x25] = 0x60;
+            timers = new Timer[4];
+            for (int i=0; i < 4; i++) {
+                timers[i] = new Timer(this, 6);
+            }
             z80 = new Z80Core(this, this);
 
             (new Thread(this)).start();
@@ -219,7 +223,7 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
         data = data & 0xff;
 
         if ((address >= 0x00) && (address <= 0x03)) {
-
+            timers[address].writeRegister(data);
         } else if ((address >= 0x20) && (address <= 0x27)) {
             keyboardUart.writeRegister(address - 0x20, data);
         } else if ((address >= 0x30) && (address <= 33)) {
@@ -278,6 +282,8 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
             z80.setRegisterValue(CPUConstants.RegisterNames.IY, 0xffff);
             z80.setRegisterValue(CPUConstants.RegisterNames.F, 0x40);
             z80.setRegisterValue(CPUConstants.RegisterNames.F_ALT, 0x80);
+
+            long lastTicks = z80.getTStates();
             for (;;) {
                 /*
                 System.out.printf("PC:%04x OP: %02x  Flags: %02x  A: %02x  B: %02x  C: %02x  D: %02x  E: %02x  H: %02x  L: %02x  IX: %04x  IY: %04x  SP: %04x  SF: %02x\n",
@@ -304,6 +310,11 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
                     z80.setIRQ(false);
                 }
                 z80.executeOneInstruction();
+                long ticks = z80.getTStates() - lastTicks;
+                for (int i=0; i < 4; i++) {
+                    timers[i].tick(ticks);
+                }
+                lastTicks = z80.getTStates();
                 if (writeToVideoRam) {
                     this.validate();
                     this.repaint();
