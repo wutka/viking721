@@ -7,6 +7,11 @@ import com.codingrodent.microprocessor.Z80.Z80Core;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -26,6 +31,9 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
     Uart8250 keyboardUart;
     Uart8250 commUart;
     int pendingInterrupts;
+    InputStream connIn;
+    OutputStream connOut;
+    long ticks;
 
     public TerminalPanel() {
         try {
@@ -63,8 +71,8 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
 
             pendingInterrupts = 0;
 
-            keyboardUart = new Uart8250(this, 5);
-            commUart = new Uart8250(this, 1);
+            keyboardUart = new Uart8250("Keyboard", this, 5);
+            commUart = new Uart8250("Comm", this, 1);
 
             portData[0x25] = 0x60;
             z80 = new Z80Core(this, this);
@@ -72,6 +80,17 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
             (new Thread(this)).start();
 
             writeToVideoRam = false;
+
+            Socket sock = new Socket("localhost", 6610);
+            connIn = sock.getInputStream();
+            connOut = sock.getOutputStream();
+
+            (new Thread(new CommSender())).start();
+            (new Thread(new CommReceiver())).start();
+
+            setFocusable(true);
+            requestFocusInWindow();
+            addKeyListener(new KeyHandler());
 
         } catch (Exception exc) {
             exc.printStackTrace();
@@ -187,11 +206,11 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
     public int IORead(int address) {
         address = address & 0xff;
         if ((address >= 0x20) && (address <= 0x27)) {
-            return keyboardUart.readRegister(address - 0x20);
+            return keyboardUart.readRegister(address - 0x20) & 0xff;
         } else if ((address >= 0x40) && (address <= 0x47)) {
-            return commUart.readRegister(address - 0x40);
+            return commUart.readRegister(address - 0x40) & 0xff;
         }
-        return portData[address];
+        return portData[address] & 0xff;
     }
 
     @Override
@@ -199,8 +218,12 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
         address = address & 0xff;
         data = data & 0xff;
 
-        if ((address >= 0x20) && (address <= 0x27)) {
+        if ((address >= 0x00) && (address <= 0x03)) {
+
+        } else if ((address >= 0x20) && (address <= 0x27)) {
             keyboardUart.writeRegister(address - 0x20, data);
+        } else if ((address >= 0x30) && (address <= 33)) {
+            System.out.printf("Writing %02x to ppi register %02x\n", data, address - 0x30);
         } else if ((address >= 0x40) && (address <= 0x47)) {
             commUart.writeRegister(address - 0x40, data);
         } else if (address == 0x70) {
@@ -296,6 +319,7 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
     public int getINTACK() {
         for (int i=0; i < 8; i++) {
             if ((pendingInterrupts & (1 << i)) != 0) {
+                pendingInterrupts -= (1 << i);
                 return i * 2;
             }
         }
@@ -311,6 +335,61 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
     public void clearInterruptLine(int line) {
         if ((pendingInterrupts & (1 << line)) != 0) {
             pendingInterrupts -= (1 << line);
+        }
+    }
+
+    class KeyHandler implements KeyListener {
+        @Override
+        public void keyTyped(KeyEvent keyEvent) {
+            System.out.printf("Got key %c\n", keyEvent.getKeyChar());
+            keyboardUart.writeInputByte((byte) keyEvent.getKeyChar());
+        }
+
+        @Override
+        public void keyPressed(KeyEvent keyEvent) {
+
+        }
+
+        @Override
+        public void keyReleased(KeyEvent keyEvent) {
+
+        }
+    }
+
+    class CommReceiver implements Runnable {
+        public void run() {
+            try {
+                byte[] buff = new byte[1];
+                for (;;) {
+                    int n = connIn.read(buff);
+                    if (n <= 0) {
+                        System.out.printf("Connection closed");
+                        return;
+                    }
+                    commUart.writeInputByte(buff[0]);
+                }
+            } catch (Exception exc) {
+                exc.printStackTrace();
+            }
+        }
+    }
+
+    class CommSender implements Runnable {
+        public void run() {
+            try {
+                byte[] buff = new byte[1];
+
+                for (;;) {
+                    if (commUart.hasOutputByte()) {
+                        buff[0] = commUart.readOutputByte();
+                        connOut.write(buff);
+                    } else {
+                        Thread.sleep(100);
+                    }
+                }
+            } catch (Exception exc) {
+                exc.printStackTrace();
+            }
         }
     }
 }
