@@ -510,10 +510,10 @@ skip_copy:
 	jp 03d00h		;01c1	c3 00 3d 	. . = 
 	di			;01c4	f3 	. 
 	ld sp,0e000h		;01c5	31 00 e0 	1 . . 
-	call 00269h		;01c8	cd 69 02 	. i . 
+	call init_ppic		;01c8	cd 69 02 	. i . 
 	ld a,(LIGHTS)		;01cb	3a ce e0 	: . . 
 	push af			;01ce	f5 	. 
-	call 0027eh		;01cf	cd 7e 02 	. ~ . 
+	call clear_buffers		;01cf	cd 7e 02 	. ~ . 
 	pop af			;01d2	f1 	. 
 	ld (LIGHTS),a		;01d3	32 ce e0 	2 . . 
 	ld a,04fh		;01d6	3e 4f 	> O 
@@ -595,6 +595,9 @@ init_ppic:
 	out (0ffh),a		; ??
 	ret
 
+; This seems to zero out the areas where the buffer pointers
+; and some of the host-loadable area
+clear_buffers:
 	ld hl,BDATAR		;027e	21 80 e0 	! . . 
 	ld de,CDATAR		;0281	11 81 e0 	. . . 
 	ld bc,0007bh		;0284	01 7b 00 	. { . 
@@ -606,6 +609,7 @@ init_ppic:
 	ld (hl),000h		;0294	36 00 	6 . 
 	ldir		;0296	ed b0 	. . 
 	ret			;0298	c9 	. 
+
 	ld h,e			;0299	63 	c 
 	cp (hl)			;029a	be 	. 
 	ld (hl),l			;029b	75 	u 
