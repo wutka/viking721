@@ -332,6 +332,26 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
                 z80.executeOneInstruction();
                 int pc = z80.getProgramCounter() & 0xffff;
 
+                /*
+                if ((pc >= 0x2925) && (pc <= 0x2946)) {
+                    System.out.printf("PC:%04x OP: %02x  Flags: %02x  A: %02x  B: %02x  C: %02x  D: %02x  E: %02x  H: %02x  L: %02x  IX: %04x  IY: %04x  SP: %04x  SF: %02x\n",
+                            z80.getRegisterValue(CPUConstants.RegisterNames.PC),
+                            readByte(z80.getRegisterValue(CPUConstants.RegisterNames.PC)),
+                            z80.getRegisterValue(CPUConstants.RegisterNames.F),
+                            z80.getRegisterValue(CPUConstants.RegisterNames.A),
+                            (z80.getRegisterValue(CPUConstants.RegisterNames.BC) >> 8) & 0xff,
+                            z80.getRegisterValue(CPUConstants.RegisterNames.BC) & 0xff,
+                            (z80.getRegisterValue(CPUConstants.RegisterNames.DE) >> 8) & 0xff,
+                            z80.getRegisterValue(CPUConstants.RegisterNames.DE) & 0xff,
+                            (z80.getRegisterValue(CPUConstants.RegisterNames.HL) >> 8) & 0xff,
+                            z80.getRegisterValue(CPUConstants.RegisterNames.HL) & 0xff,
+                            z80.getRegisterValue(CPUConstants.RegisterNames.IX),
+                            z80.getRegisterValue(CPUConstants.RegisterNames.IY),
+                            z80.getRegisterValue(CPUConstants.RegisterNames.SP),
+                            z80.getRegisterValue(CPUConstants.RegisterNames.F_ALT) & 0xff
+                    );
+                }
+                 */
                 if (!initialized && pc == 0x4781) {
                     Socket sock = new Socket("localhost", 6610);
                     connIn = sock.getInputStream();
