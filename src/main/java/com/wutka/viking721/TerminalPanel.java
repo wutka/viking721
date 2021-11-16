@@ -23,7 +23,6 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
     int [][]blockBanks;
     byte[] charmap;
     byte[] portData = new byte[256];
-    Timer[] timers;
     public static final int VIDEO_RAM = 0xe000;
     long lastBlinkTime;
     boolean blinkOn = false;
@@ -91,10 +90,6 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
             receiveData = new ArrayDeque<>();
             sendData = new ArrayDeque<>();
 
-            timers = new Timer[4];
-            for (int i=0; i < 4; i++) {
-                timers[i] = new Timer(this, 6);
-            }
             z80 = new Z80Core(this, this);
 
             (new Thread(this)).start();
@@ -215,6 +210,9 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
     @Override
     public int IORead(int address) {
         address = address & 0xff;
+        if (address == 0x46) {
+            return 0xb0;
+        }
         return portData[address] & 0xff;
     }
 
@@ -224,7 +222,7 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
         data = data & 0xff;
 
         if (address == 0x70) {
-            for (int blockNum=0; blockNum < 4; blockNum++) {
+            for (int blockNum = 0; blockNum < 4; blockNum++) {
                 blocks[blockNum] = banks[blockBanks[blockNum][data & 3]];
                 data = data >> 2;
             }
@@ -236,6 +234,17 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
     @Override
     public int readByte(int address) {
         address = address & 0xffff;
+        if (address == 0xe0fe) {
+            return 7;
+        } else if (initialized && (address == 0xe0ae)) {
+            return 0xff;
+        } else if (initialized && (address == 0xe0f0)) {
+            return 1;
+        } else if (initialized && (address == 0xe0f7)) {
+            return 0;
+        } else if ((address >= 0xe093) && (address <= 0xe09e)) {
+            return 0x00;
+        }
         Memory block = blocks[address >> 14];
         return block.getData(address & 0x3fff);
     }
@@ -315,10 +324,12 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
                     }
                 }
 
+                boolean newCommData = false;
                 synchronized (receiveData) {
                     while (receiveQueueSafe() && !receiveData.isEmpty() && receiveQueue.canAccept()) {
                         byte b = receiveData.remove();
                         receiveQueue.put(b);
+                        newCommData = true;
                     }
                 }
 
@@ -329,11 +340,30 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
                     }
                 }
 
-                z80.executeOneInstruction();
+                z80.setIRQ(newCommData);
+                newCommData = false;
+
+                boolean showPC = false;
                 int pc = z80.getProgramCounter() & 0xffff;
 
-                /*
-                if ((pc >= 0x2925) && (pc <= 0x2946)) {
+                if (pc == 0x2946) {
+                    System.out.printf("Returning from 2946\n");
+                    showPC = true;
+                } else if (pc == 0x1f11) {
+                    System.out.printf("Processing char from comm buffer %04x\n", pc);
+                } else if (pc == 0x2db3) {
+                    System.out.printf("At %04x\n", pc);
+                }
+
+                z80.executeOneInstruction();
+
+                pc = z80.getProgramCounter() & 0xffff;
+                if (showPC) {
+                    System.out.printf("PC is now %04x\n", pc);
+                }
+
+//                if ((pc >= 0x2925) && (pc <= 0x2946)) {
+                if (initialized) {
                     System.out.printf("PC:%04x OP: %02x  Flags: %02x  A: %02x  B: %02x  C: %02x  D: %02x  E: %02x  H: %02x  L: %02x  IX: %04x  IY: %04x  SP: %04x  SF: %02x\n",
                             z80.getRegisterValue(CPUConstants.RegisterNames.PC),
                             readByte(z80.getRegisterValue(CPUConstants.RegisterNames.PC)),
@@ -351,8 +381,8 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
                             z80.getRegisterValue(CPUConstants.RegisterNames.F_ALT) & 0xff
                     );
                 }
-                 */
-                if (!initialized && pc == 0x4781) {
+//                if (!initialized && pc == 0x4781) {
+                if (!initialized && pc == 0x3d49) {
                     Socket sock = new Socket("localhost", 6610);
                     connIn = sock.getInputStream();
                     connOut = sock.getOutputStream();
@@ -365,17 +395,8 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
                     addKeyListener(new KeyHandler());
 
                     initialized = true;
+                    z80.setIRQ(true);
                 }
-                if (pc == 0x2925) {
-                    if ((keyboardQueue.readNumVals() & 0xff) > 0) {
-                        System.out.printf("KINPUT - keyboard queue size = %d\n", keyboardQueue.readNumVals());
-                    }
-                }
-                long ticks = z80.getTStates() - lastTicks;
-                for (int i=0; i < 4; i++) {
-                    timers[i].tick(ticks);
-                }
-                lastTicks = z80.getTStates();
                 if (writeToVideoRam) {
                     this.validate();
                     this.repaint();
@@ -450,13 +471,16 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
         @Override
         public void keyTyped(KeyEvent keyEvent) {
             synchronized (keyboardData) {
-                keyboardData.add((byte) keyEvent.getKeyChar());
+                if ((keyEvent.getKeyChar() == 0x0a) || (keyEvent.getKeyChar() == 0x0d)) {
+                    keyboardData.add((byte)0x66);
+                } else {
+                    keyboardData.add((byte) keyEvent.getKeyChar());
+                }
             }
         }
 
         @Override
         public void keyPressed(KeyEvent keyEvent) {
-
         }
 
         @Override
@@ -500,6 +524,7 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
                     }
 
                     if (send) {
+                        System.out.printf("Sending %02x\n", buff[0]);
                         connOut.write(buff);
                     } else {
                         Thread.sleep(100);
