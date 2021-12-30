@@ -6,17 +6,14 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayDeque;
-import java.util.Deque;
 
 public class TerminalPanel extends JPanel implements Runnable {
 
     public static final int ATTR_BLANK = 1;
     public static final int ATTR_UNDERLINE = 2;
-    public static final int ATTR_REVERSE = 4;
+    public static final int ATTR_INVERSE = 4;
     public static final int ATTR_BLINK = 8;
     public static final int ATTR_DIM = 16;
     public static final int ATTR_PROTECTED = 32;
@@ -51,6 +48,8 @@ public class TerminalPanel extends JPanel implements Runnable {
 
 
     public TerminalPanel(InputStream connIn, OutputStream connOut) {
+        this.connIn = connIn;
+        this.connOut = connOut;
         try {
             charmap = Files.readAllBytes(Path.of("chargen.bin"));
             lastBlinkTime = System.currentTimeMillis();
@@ -102,7 +101,7 @@ public class TerminalPanel extends JPanel implements Runnable {
                             bits = 0;
                         } else if (((attr & ATTR_UNDERLINE) != 0) && (scanlineRow == 14)) {
                             bits = 0xff;
-                        } else if ((attr & ATTR_REVERSE) != 0) {
+                        } else if ((attr & ATTR_INVERSE) != 0) {
                             bits = (bits ^ 0xff) & 0xff;
                         } else if ((attr & ATTR_BLINK) != 0) {
                             if (System.currentTimeMillis() + blinkInterval > lastBlinkTime) {
@@ -247,26 +246,7 @@ public class TerminalPanel extends JPanel implements Runnable {
                     }
                     requestScreenUpdate();
                 } else if (large && chr == 0x09) {
-                    boolean hasFields = fieldsExist();
-                    for (; ; ) {
-                        cursorCol++;
-                        if (cursorCol >= highestCol()) {
-                            cursorCol = 0;
-                            if (cursorRow == highestRow()) {
-                                if (hasFields) {
-                                    cursorRow = 0;
-                                } else {
-                                    scrollBottom();
-                                }
-                            }
-                        }
-                        if (((cursorCol & 8) == 0) && !isProtected(cursorCol, cursorRow)) break;
-
-                        if (hasFields && !isProtected(cursorCol, cursorRow) && isDim(cursorCol, cursorRow)) {
-                            break;
-                        }
-                        requestScreenUpdate();
-                    }
+                    doTab();
                 } else if (!large && chr == 0x0a) {
                     cursorCol = 0;
                     requestScreenUpdate();
@@ -395,7 +375,21 @@ public class TerminalPanel extends JPanel implements Runnable {
                         }
                         doAutoTab();
                         clearCell(cursorCol, cursorRow, blockMode);
+                        requestScreenUpdate();
                     }
+                } else if (chr == 0x1e) {
+                    int chr2 = connIn.read();
+                    if (chr2 == 0x01) {
+                        // print form not supported yet
+                    } else if (chr == 0x02) {
+                        // page print not supported yet
+                    } else if (chr == 0x04) {
+                        if (!large) {
+                            doTab();
+                        }
+                    }
+                } else {
+                    writeChar(chr);
                 }
             }
         } catch (Exception exc) {
@@ -403,6 +397,70 @@ public class TerminalPanel extends JPanel implements Runnable {
         }
     }
 
+    public void writeChar(int ch) {
+        int attr = ATTR_MODIFIED;
+        if (dimChar) {
+            attr |= ATTR_DIM;
+        }
+        if (blinkChar) {
+            attr |= ATTR_BLINK;
+        }
+        if (inverseChar) {
+            attr |= ATTR_INVERSE;
+        }
+        if (underscoreChar) {
+            attr |= ATTR_UNDERLINE;
+        }
+        if (protectChar) {
+            attr |= ATTR_PROTECTED;
+        }
+        int pos = cursorRow * 132 + cursorCol;
+        screenRam[pos][0] = (byte) attr;
+        screenRam[pos][1] = (byte) (ch& 0xff);
+
+        advanceCursor();
+    }
+
+    public void advanceCursor() {
+        cursorCol++;
+        if (cursorCol > highestCol()) {
+            cursorCol = 0;
+            cursorRow++;
+            if (cursorRow > highestRow()) {
+                if (!rollEnabled) {
+                    cursorRow = 0;
+                    doAutoTab();
+                } else {
+                    cursorRow = highestRow();
+                    scrollBottom();
+                }
+            }
+        }
+        requestScreenUpdate();
+    }
+
+    public void doTab() {
+        boolean hasFields = fieldsExist();
+        for (; ; ) {
+            cursorCol++;
+            if (cursorCol >= highestCol()) {
+                cursorCol = 0;
+                if (cursorRow == highestRow()) {
+                    if (hasFields) {
+                        cursorRow = 0;
+                    } else {
+                        scrollBottom();
+                    }
+                }
+            }
+            if (((cursorCol & 8) == 0) && !isProtected(cursorCol, cursorRow)) break;
+
+            if (hasFields && !isProtected(cursorCol, cursorRow) && isDim(cursorCol, cursorRow)) {
+                break;
+            }
+        }
+        requestScreenUpdate();
+    }
     public void doAutoTab() {
         if (isProtected(cursorCol, cursorRow) && autotab) {
             while (isProtected(cursorCol, cursorRow) && autotab) {
@@ -427,6 +485,7 @@ public class TerminalPanel extends JPanel implements Runnable {
             screenRam[highestRow() * 132 + col][0] = 0;
             screenRam[highestRow() * 132 + col][1] = ' ';
         }
+        requestScreenUpdate();
     }
 
     public boolean hasAttr(int col, int row, int attrMask) {
