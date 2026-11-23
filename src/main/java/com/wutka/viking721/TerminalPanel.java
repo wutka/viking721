@@ -210,9 +210,6 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
     @Override
     public int IORead(int address) {
         address = address & 0xff;
-        if (address == 0x46) {
-            return 0xb0;
-        }
         return portData[address] & 0xff;
     }
 
@@ -234,17 +231,6 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
     @Override
     public int readByte(int address) {
         address = address & 0xffff;
-        if (address == 0xe0fe) {
-            return 7;
-        } else if (initialized && (address == 0xe0ae)) {
-            return 0xff;
-        } else if (initialized && (address == 0xe0f0)) {
-            return 1;
-        } else if (initialized && (address == 0xe0f7)) {
-            return 0;
-        } else if ((address >= 0xe093) && (address <= 0xe09e)) {
-            return 0x00;
-        }
         Memory block = blocks[address >> 14];
         return block.getData(address & 0x3fff);
     }
@@ -280,11 +266,6 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
     @Override
     public void run() {
         try {
-            z80.setRegisterValue(CPUConstants.RegisterNames.IX, 0xffff);
-            z80.setRegisterValue(CPUConstants.RegisterNames.IY, 0xffff);
-            z80.setRegisterValue(CPUConstants.RegisterNames.F, 0x40);
-            z80.setRegisterValue(CPUConstants.RegisterNames.F_ALT, 0x80);
-
             long lastTicks = z80.getTStates();
 
             for (;;) {
@@ -340,20 +321,10 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
                     }
                 }
 
-                z80.setIRQ(newCommData);
                 newCommData = false;
 
                 boolean showPC = false;
                 int pc = z80.getProgramCounter() & 0xffff;
-
-                if (pc == 0x2946) {
-                    System.out.printf("Returning from 2946\n");
-                    showPC = true;
-                } else if (pc == 0x1f11) {
-                    System.out.printf("Processing char from comm buffer %04x\n", pc);
-                } else if (pc == 0x2db3) {
-                    System.out.printf("At %04x\n", pc);
-                }
 
                 z80.executeOneInstruction();
 
@@ -380,22 +351,6 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
                             z80.getRegisterValue(CPUConstants.RegisterNames.SP),
                             z80.getRegisterValue(CPUConstants.RegisterNames.F_ALT) & 0xff
                     );
-                }
-//                if (!initialized && pc == 0x4781) {
-                if (!initialized && pc == 0x3d49) {
-                    Socket sock = new Socket("localhost", 6610);
-                    connIn = sock.getInputStream();
-                    connOut = sock.getOutputStream();
-
-                    (new Thread(new CommSender())).start();
-                    (new Thread(new CommReceiver())).start();
-
-                    setFocusable(true);
-                    requestFocusInWindow();
-                    addKeyListener(new KeyHandler());
-
-                    initialized = true;
-                    z80.setIRQ(true);
                 }
                 if (writeToVideoRam) {
                     this.validate();
