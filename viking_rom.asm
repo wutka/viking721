@@ -2093,7 +2093,7 @@ clear_buffers:
 	ld (0401eh),a		;1042	32 1e 40 	2 . @ 
 	call 0104bh		;1045	cd 4b 10 	. K . 
 	jp 00f6eh		;1048	c3 6e 0f 	. n . 
-	xor a			;104b	af 	. 
+	xor a			;104b	af 	.                 COMPUTE NVRAM CHECKSUM
 	ld (0401fh),a		;104c	32 1f 40 	2 . @ 
 	ld c,00fh		;104f	0e 0f 	. . 
 	ld hl,04000h		;1051	21 00 40 	! . @ 
