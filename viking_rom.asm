@@ -1,6 +1,6 @@
 ; z80dasm 1.1.5
 ; command line: z80dasm -t -g 0 resident.bin
-
+; formatted with tab width of 8
     ;****************************************************
     ;
     ; M O D E   I N S T A L L A T I O N   R A M / E Q U
@@ -444,15 +444,15 @@ NVRAM_INIT:
     defb 34h, 13h, 23h, 03h, 02h, 02h, 02h, 02h; 159-160
 
 ; INIT - INITIALIZATION
-	ld a,080h		;8255 bit 7 = 1 for I/O mode, all pors output
+	ld a,080h		;161h 8255 bit 7 = 1 for I/O mode, all ports output
 	out (PPIC+PPIC_CONTROL),a		;0163	d3 33 	. 3 
-	ld sp,0e000h    ;stack at DFC0-DFFF
+	ld sp,0e000h    	;stack at DFC0-DFFF
 	call 00269h		; set up memory banks
-	ld a,(0401dh)	; look up something in NV ram
+	ld a,(0401dh)		; look up something in NV ram
 	and 00fh		;016e	e6 0f 	. . 
-	cp 009h		;0170	fe 09 	. . 
-	jr nz,initnv	; if it wasn't zero, initialize NVRAM
-	ld a,(0401eh)   ; load another value from NVRAM
+	cp 009h			;0170	fe 09 	. . 
+	jr nz,initnv		; if it wasn't zero, initialize NVRAM
+	ld a,(0401eh)   	; load another value from NVRAM
 	and 00fh		; look at bottom 4 bits
 	cp 006h		
 	jr z,skip_copy		; if bottom 4 weren't 0110, skip copy
@@ -476,21 +476,21 @@ initnv1:
 	ld (hl),a			;018c	77 	w 
 	inc hl			;018d	23 	# 
 	inc de			;018e	13 	. 
-	djnz initnv1	;018f	10 f4 	. . 
+	djnz initnv1		;018f	10 f4 	. . 
 
 ;; Now that the NV ram has been copied, switch
 ;; pages so that 8000 points to the graphic ram bank
 	ld a,030h		;0191	3e 30
-	out (BANKSELECT),a		;0193	d3 70 	. p 
+	out (BANKSELECT),a	;0193	d3 70 	. p 
 	ld a,099h		;0195	3e 99   try storing 99h there
 	ld (08000h),a		;0197	32 00 80
 	ld a,(08000h)		;019a	3a 00 80
-	cp 099h		;019d	fe 99  did we get 99 back?
+	cp 099h			;019d	fe 99  did we get 99 back?
 	jr nz,$+24		;019f	if not, there is no RAM here
 	ld a,066h		;01a1	try writing 66h there
 	ld (08000h),a		;01a3	32 00 80 	2 . . 
 	ld a,(08000h)		;01a6	3a 00 80 	: . . 
-	cp 066h		;01a9	fe 66 	did we get 66h back?
+	cp 066h			;01a9	fe 66 	did we get 66h back?
 	jr nz,$+12		;01ab	20 0a if not, no RAM here
     ; set some NVRAM flags to indicate that the
     ; graphic ram page is available
@@ -502,7 +502,7 @@ initnv1:
 
     ; switch pages back to default
 	xor a			;01b7	af 	. 
-	out (BANKSELECT),a		;01b8	d3 70 	. p 
+	out (BANKSELECT),a	;01b8	d3 70 	. p 
 skip_copy:
 	call 0025dh		;01ba	mirror NVRAM to e060
 	ld ix,001c4h		;01bd	dd 21 c4 01 	. ! . . 
@@ -513,7 +513,7 @@ skip_copy:
 	call init_ppic		;01c8	cd 69 02 	. i . 
 	ld a,(LIGHTS)		;01cb	3a ce e0 	: . . 
 	push af			;01ce	f5 	. 
-	call clear_buffers		;01cf	cd 7e 02 	. ~ . 
+	call clear_buffers	;01cf	cd 7e 02 	. ~ . 
 	pop af			;01d2	f1 	. 
 	ld (LIGHTS),a		;01d3	32 ce e0 	2 . . 
 	ld a,04fh		;01d6	3e 4f 	> O 
@@ -528,22 +528,23 @@ skip_copy:
 	ld a,(TBYTE4)		;01ec	3a 63 e0 	: c . 
 	and 001h		;01ef	e6 01 	. . 
 	jp z,00c92h		;01f1	ca 92 0c 	. . . 
-	jp 00d65h		;01f4	c3 65 0d 	. e . 
+	jp 00d65h		;01f4	c3 65 0d 	. e .
+INIT00:	
 	xor a			;01f7	af 	. 
 	ld (T3RUN),a		;01f8	32 f3 e0 	2 . . 
-	out (PPIC+PPIC_CONTROL),a		;01fb	d3 03 	. . 
+	out (PPIC+PPIC_CONTROL),a	;01fb	d3 03 	. . 
 	ld a,033h		;01fd	3e 33 	> 3 
-	out (PPIC+PPIC_CONTROL),a		;01ff	d3 03 	. . 
+	out (PPIC+PPIC_CONTROL),a	;01ff	d3 03 	. . 
 	ld a,0bbh		;0201	3e bb 	> . 
 	ld (T3TCV),a		;0203	32 f4 e0 	2 . . 
 	call 01636h		;0206	cd 36 16 	. 6 . 
 	ld hl,0086ch		;0209	21 6c 08 	! l . 
 	ld de,0e100h		;020c	11 00 e1 	. . . 
 	ld bc,00010h		;020f	01 10 00 	. . . 
-	ldir		;0212	ed b0 	. . 
+	ldir			;0212	ed b0 	. . 
 	ld a,0e1h		;0214	3e e1 	> . 
-	ld i,a		;0216	ed 47 	. G 
-	im 2		;0218	ed 5e 	. ^ 
+	ld i,a			;0216	ed 47 	. G 
+	im 2			;0218	ed 5e 	. ^ 
 	call 004bdh		;021a	cd bd 04 	. . . 
 	ld a,060h		;021d	3e 60 	> ` 
 	ld (INTMSK),a		;021f	32 a0 e0 	2 . . 
@@ -560,7 +561,8 @@ skip_copy:
 	ld a,00bh		;0235	3e 0b 	> . 
 	out (033h),a		;0237	d3 33 	. 3 
 	ld a,008h		;0239	3e 08 	> . 
-	out (033h),a		;023b	d3 33 	. 3 
+	out (033h),a		;023b	d3 33 	. 3
+INIT02:	
 	ld hl,00000h		;023d	21 00 00 	! . . 
 	ld (BFCNT),hl		;0240	22 83 e0 	" . . 
 	ld hl,0db20h		;0243	21 20 db 	!   . 
@@ -576,15 +578,16 @@ skip_copy:
 
 ; mirror NV ram to e060h
 mirror_nvram:
+TIPRAM:				; MOVE TERMINAL INSTALLATION
 	ld hl,04000h		;025d	21 00 40 	! . @ 
 	ld de,TBYTE1		;0260	11 60 e0 	. ` . 
 	ld bc,00020h		;0263	01 20 00 	.   . 
-	ldir		;0266	ed b0 	. . 
+	ldir			;0266	ed b0 	. . 
 	ret			;0268	c9 	. 
 init_ppic:
 ; Set lower 4 bits of PPIC Port C to Input(?)
 	ld a,001h		;0269	3e 01 	> . 
-	out (PPIC+PPIC_CONTROL),a		;026b	d3 33 	. 3 
+	out (PPIC+PPIC_CONTROL),a	;026b	d3 33 	. 3 
 	xor a			; a = 0
 	out (BANKSELECT),a	; bank select 0,6,5,4 (default)
 	ld (BANKS),a	; store A in banks selected
@@ -602,27 +605,27 @@ clear_buffers:
 	ld de,CDATAR		;0281	11 81 e0 	. . . 
 	ld bc,0007bh		;0284	01 7b 00 	. { . 
 	ld (hl),000h		;0287	36 00 	6 . 
-	ldir		;0289	ed b0 	. . 
+	ldir			;0289	ed b0 	. . 
 	ld hl,0d810h		;028b	21 10 d8 	! . . 
 	ld de,0d811h		;028e	11 11 d8 	. . . 
 	ld bc,002ffh		;0291	01 ff 02 	. . . 
 	ld (hl),000h		;0294	36 00 	6 . 
-	ldir		;0296	ed b0 	. . 
+	ldir			;0296	ed b0 	. . 
 	ret			;0298	c9 	. 
 
 	ld h,e			;0299	63 	c 
 	cp (hl)			;029a	be 	. 
-	ld (hl),l			;029b	75 	u 
+	ld (hl),l		;029b	75 	u 
 	ld d,a			;029c	57 	W 
 	dec c			;029d	0d 	. 
 	dec hl			;029e	2b 	+ 
 	ld bc,0be63h		;029f	01 63 be 	. c . 
-	ld (hl),l			;02a2	75 	u 
+	ld (hl),l		;02a2	75 	u 
 	ld e,l			;02a3	5d 	] 
 	dec c			;02a4	0d 	. 
 	inc de			;02a5	13 	. 
 	ld bc,0e79fh		;02a6	01 9f e7 	. . . 
-	ld (hl),a			;02a9	77 	w 
+	ld (hl),a		;02a9	77 	w 
 	ld d,a			;02aa	57 	W 
 	dec c			;02ab	0d 	. 
 	dec hl			;02ac	2b 	+ 
@@ -634,7 +637,8 @@ clear_buffers:
 	ld bc,0493ah		;02b4	01 3a 49 	. : I 
 	ret po			;02b7	e0 	. 
 	and 002h		;02b8	e6 02 	. . 
-	jr nz,$+30		;02ba	20 1c 	  . 
+	jr nz,$+30		;02ba	20 1c 	  .
+CRT80:				; SET CRT TO 80 CHR/LINE
 	ld a,006h		;02bc	3e 06 	> . 
 	out (033h),a		;02be	d3 33 	. 3 
 	ld a,04fh		;02c0	3e 4f 	> O 
@@ -646,7 +650,8 @@ clear_buffers:
 	jr z,$+35		;02cf	28 21 	( ! 
 	ld b,01dh		;02d1	06 1d 	. . 
 	ld hl,002a0h		;02d3	21 a0 02 	! . . 
-	jr $+28		;02d6	18 1a 	. . 
+	jr $+28			;02d6	18 1a 	. .
+CRT132:				; SET CRT TO 132 CHR/LINE
 	ld a,007h		;02d8	3e 07 	> . 
 	out (033h),a		;02da	d3 33 	. 3 
 	ld a,083h		;02dc	3e 83 	> . 
@@ -659,49 +664,50 @@ clear_buffers:
 	ld b,01dh		;02ed	06 1d 	. . 
 	ld hl,002aeh		;02ef	21 ae 02 	! . . 
 	ld a,b			;02f2	78 	x 
-	ld (LASTLN),a		;02f3	32 cd e0 	2 . . 
+	ld (LASTLN),a		;02f3	32 cd e0 	2 . .
+CRTOUT:				; OUTPUT VALUES TO 5037 CRT CONTROLLER
 	xor a			;02f6	af 	. 
 	out (01eh),a		;02f7	d3 1e 	. . 
 	out (01ah),a		;02f9	d3 1a 	. . 
 	ld c,010h		;02fb	0e 10 	. . 
-	outi		;02fd	ed a3 	. . 
+	outi			;02fd	ed a3 	. . 
 	inc c			;02ff	0c 	. 
 	ld a,(XDELTA)		;0300	3a 67 e0 	: g . 
-	bit 2,a		;0303	cb 57 	. W 
+	bit 2,a			;0303	cb 57 	. W 
 	jr z,$+10		;0305	28 08 	( . 
 	and 003h		;0307	e6 03 	. . 
 	rlca			;0309	07 	. 
 	rlca			;030a	07 	. 
 	rlca			;030b	07 	. 
-	add a,(hl)			;030c	86 	. 
-	jr $+7		;030d	18 05 	. . 
+	add a,(hl)		;030c	86 	. 
+	jr $+7			;030d	18 05 	. . 
 	and 003h		;030f	e6 03 	. . 
 	ld d,a			;0311	57 	W 
-	ld a,(hl)			;0312	7e 	~ 
+	ld a,(hl)		;0312	7e 	~ 
 	sub d			;0313	92 	. 
 	out (c),a		;0314	ed 79 	. y 
 	inc hl			;0316	23 	# 
 	inc c			;0317	0c 	. 
-	outi		;0318	ed a3 	. . 
+	outi			;0318	ed a3 	. . 
 	inc c			;031a	0c 	. 
-	outi		;031b	ed a3 	. . 
+	outi			;031b	ed a3 	. . 
 	inc c			;031d	0c 	. 
-	outi		;031e	ed a3 	. . 
+	outi			;031e	ed a3 	. . 
 	inc c			;0320	0c 	. 
 	ld a,(YDELTA)		;0321	3a 68 e0 	: h . 
-	bit 3,a		;0324	cb 5f 	. _ 
+	bit 3,a			;0324	cb 5f 	. _ 
 	jr z,$+7		;0326	28 05 	( . 
 	and 007h		;0328	e6 07 	. . 
-	add a,(hl)			;032a	86 	. 
-	jr $+7		;032b	18 05 	. . 
+	add a,(hl)		;032a	86 	. 
+	jr $+7			;032b	18 05 	. . 
 	and 007h		;032d	e6 07 	. . 
 	ld d,a			;032f	57 	W 
-	ld a,(hl)			;0330	7e 	~ 
+	ld a,(hl)		;0330	7e 	~ 
 	sub d			;0331	92 	. 
 	out (c),a		;0332	ed 79 	. y 
 	inc hl			;0334	23 	# 
 	inc c			;0335	0c 	. 
-	outi		;0336	ed a3 	. . 
+	outi			;0336	ed a3 	. . 
 	xor a			;0338	af 	. 
 	out (01ah),a		;0339	d3 1a 	. . 
 	out (01eh),a		;033b	d3 1e 	. . 
@@ -713,7 +719,7 @@ clear_buffers:
 	nop			;0345	00 	. 
 	inc bc			;0346	03 	. 
 	ld b,b			;0347	40 	@ 
-	ld (bc),a			;0348	02 	. 
+	ld (bc),a		;0348	02 	. 
 	add a,b			;0349	80 	. 
 	ld bc,000c0h		;034a	01 c0 00 	. . . 
 	ld h,b			;034d	60 	` 
@@ -721,7 +727,7 @@ clear_buffers:
 	ld b,b			;034f	40 	@ 
 	nop			;0350	00 	. 
 	jr nc,$+2		;0351	30 00 	0 . 
-	jr $+2		;0353	18 00 	. . 
+	jr $+2			;0353	18 00 	. . 
 	inc c			;0355	0c 	. 
 	nop			;0356	00 	. 
 	ld b,000h		;0357	06 00 	. . 
@@ -729,34 +735,35 @@ clear_buffers:
 	ld b,000h		;035b	06 00 	. . 
 	ld b,000h		;035d	06 00 	. . 
 	ld b,000h		;035f	06 00 	. . 
-	ex af,af'			;0361	08 	. 
+	ex af,af'		;0361	08 	. 
 	ret nz			;0362	c0 	. 
-	ex af,af'			;0363	08 	. 
+	ex af,af'		;0363	08 	. 
 	add a,e			;0364	83 	. 
-	ex af,af'			;0365	08 	. 
+	ex af,af'		;0365	08 	. 
 	ld h,b			;0366	60 	` 
-	ex af,af'			;0367	08 	. 
+	ex af,af'		;0367	08 	. 
 	ld c,b			;0368	48 	H 
-	ld (bc),a			;0369	02 	. 
+	ld (bc),a		;0369	02 	. 
 	ret nz			;036a	c0 	. 
-	ld (bc),a			;036b	02 	. 
+	ld (bc),a		;036b	02 	. 
 	ld h,b			;036c	60 	` 
-	ld (bc),a			;036d	02 	. 
+	ld (bc),a		;036d	02 	. 
 	jr nc,$+4		;036e	30 02 	0 . 
 	jr nz,$+4		;0370	20 02 	  . 
-	jr $+4		;0372	18 02 	. . 
+	jr $+4			;0372	18 02 	. . 
 	inc c			;0374	0c 	. 
-	ld (bc),a			;0375	02 	. 
+	ld (bc),a		;0375	02 	. 
 	ld b,002h		;0376	06 02 	. . 
 	inc bc			;0378	03 	. 
-	ld (bc),a			;0379	02 	. 
+	ld (bc),a		;0379	02 	. 
 	inc bc			;037a	03 	. 
-	ld (bc),a			;037b	02 	. 
+	ld (bc),a		;037b	02 	. 
 	inc bc			;037c	03 	. 
-	ld (bc),a			;037d	02 	. 
+	ld (bc),a		;037d	02 	. 
 	inc bc			;037e	03 	. 
-	ld (bc),a			;037f	02 	. 
-	inc bc			;0380	03 	. 
+	ld (bc),a		;037f	02 	. 
+	inc bc			;0380	03 	.
+CINIT:				;COMM INITIALIZATION
 	ld de,00617h		;0381	11 17 06 	. . . 
 	ld b,002h		;0384	06 02 	. . 
 	ld c,001h		;0386	0e 01 	. . 
@@ -794,28 +801,28 @@ clear_buffers:
 	ld hl,00361h		;03cb	21 61 03 	! a . 
 	ld e,a			;03ce	5f 	_ 
 	ld d,000h		;03cf	16 00 	. . 
-	add hl,de			;03d1	19 	. 
-	ld a,(hl)			;03d2	7e 	~ 
+	add hl,de		;03d1	19 	. 
+	ld a,(hl)		;03d2	7e 	~ 
 	out (001h),a		;03d3	d3 01 	. . 
 	ld a,057h		;03d5	3e 57 	> W 
 	out (002h),a		;03d7	d3 02 	. . 
 	inc hl			;03d9	23 	# 
-	ld a,(hl)			;03da	7e 	~ 
+	ld a,(hl)		;03da	7e 	~ 
 	out (002h),a		;03db	d3 02 	. . 
 	ld b,002h		;03dd	06 02 	. . 
 	ld a,(MBYTE3)		;03df	3a 42 e0 	: B . 
-	bit 0,a		;03e2	cb 47 	. G 
+	bit 0,a			;03e2	cb 47 	. G 
 	jr z,$+4		;03e4	28 02 	( . 
-	set 0,b		;03e6	cb c0 	. . 
-	bit 1,a		;03e8	cb 4f 	. O 
+	set 0,b			;03e6	cb c0 	. . 
+	bit 1,a			;03e8	cb 4f 	. O 
 	jr z,$+4		;03ea	28 02 	( . 
-	set 3,b		;03ec	cb d8 	. . 
-	bit 2,a		;03ee	cb 57 	. W 
+	set 3,b			;03ec	cb d8 	. . 
+	bit 2,a			;03ee	cb 57 	. W 
 	jr z,$+4		;03f0	28 02 	( . 
-	set 4,b		;03f2	cb e0 	. . 
-	bit 3,a		;03f4	cb 5f 	. _ 
+	set 4,b			;03f2	cb e0 	. . 
+	bit 3,a			;03f4	cb 5f 	. _ 
 	jr z,$+4		;03f6	28 02 	( . 
-	set 2,b		;03f8	cb d0 	. . 
+	set 2,b			;03f8	cb d0 	. . 
 	call 004abh		;03fa	cd ab 04 	. . . 
 	ld b,005h		;03fd	06 05 	. . 
 	ld a,(CDATAR)		;03ff	3a 81 e0 	: . . 
@@ -850,7 +857,7 @@ clear_buffers:
 	out (050h),a		;0437	d3 50 	. P 
 	call 0045ch		;0439	cd 5c 04 	. \ . 
 	ret			;043c	c9 	. 
-	ld (hl),c			;043d	71 	q 
+	ld (hl),c		;043d	71 	q 
 	push bc			;043e	c5 	. 
 	ld b,080h		;043f	06 80 	. . 
 	ld a,003h		;0441	3e 03 	> . 
@@ -864,11 +871,11 @@ clear_buffers:
 	ld hl,00341h		;044c	21 41 03 	! A . 
 	ld e,a			;044f	5f 	_ 
 	ld d,000h		;0450	16 00 	. . 
-	add hl,de			;0452	19 	. 
-	ld b,(hl)			;0453	46 	F 
+	add hl,de		;0452	19 	. 
+	ld b,(hl)		;0453	46 	F 
 	out (c),b		;0454	ed 41 	. A 
 	inc hl			;0456	23 	# 
-	ld b,(hl)			;0457	46 	F 
+	ld b,(hl)		;0457	46 	F 
 	inc c			;0458	0c 	. 
 	out (c),b		;0459	ed 41 	. A 
 	ret			;045b	c9 	. 
@@ -879,7 +886,7 @@ clear_buffers:
 	and 001h		;0466	e6 01 	. . 
 	jr z,$+6		;0468	28 04 	( . 
 	ld b,000h		;046a	06 00 	. . 
-	jr $+29		;046c	18 1b 	. . 
+	jr $+29			;046c	18 1b 	. . 
 	ld b,001h		;046e	06 01 	. . 
 	ld a,(OBYTE4)		;0470	3a 49 e0 	: I . 
 	and 001h		;0473	e6 01 	. . 
@@ -899,13 +906,13 @@ clear_buffers:
 	call 004afh		;048d	cd af 04 	. . . 
 	ret			;0490	c9 	. 
 	ld c,000h		;0491	0e 00 	. . 
-	jr $+16		;0493	18 0e 	. . 
+	jr $+16			;0493	18 0e 	. . 
 	ld c,003h		;0495	0e 03 	. . 
-	jr $+12		;0497	18 0a 	. . 
+	jr $+12			;0497	18 0a 	. . 
 	ld c,005h		;0499	0e 05 	. . 
-	jr $+8		;049b	18 06 	. . 
+	jr $+8			;049b	18 06 	. . 
 	ld c,004h		;049d	0e 04 	. . 
-	jr $+4		;049f	18 02 	. . 
+	jr $+4			;049f	18 02 	. . 
 	ld c,006h		;04a1	0e 06 	. . 
 	ld a,(CDATAR)		;04a3	3a 81 e0 	: . . 
 	add a,c			;04a6	81 	. 
@@ -913,15 +920,16 @@ clear_buffers:
 	in a,(c)		;04a8	ed 78 	. x 
 	ret			;04aa	c9 	. 
 	ld c,003h		;04ab	0e 03 	. . 
-	jr $+8		;04ad	18 06 	. . 
+	jr $+8			;04ad	18 06 	. . 
 	ld c,004h		;04af	0e 04 	. . 
-	jr $+4		;04b1	18 02 	. . 
+	jr $+4			;04b1	18 02 	. . 
 	ld c,000h		;04b3	0e 00 	. . 
 	ld a,(CDATAR)		;04b5	3a 81 e0 	: . . 
 	add a,c			;04b8	81 	. 
 	ld c,a			;04b9	4f 	O 
 	out (c),b		;04ba	ed 41 	. A 
-	ret			;04bc	c9 	. 
+	ret			;04bc	c9 	.
+KINIT:				; KEYBOARD INITIALIZATION
 	xor a			;04bd	af 	. 
 	ld (KBCNT),a		;04be	32 89 e0 	2 . . 
 	ld hl,0db10h		;04c1	21 10 db 	! . . 
@@ -939,19 +947,19 @@ clear_buffers:
 	out (021h),a		;04dc	d3 21 	. ! 
 	ld b,000h		;04de	06 00 	. . 
 	ld a,(LANG)		;04e0	3a 69 e0 	: i . 
-	bit 0,a		;04e3	cb 47 	. G 
+	bit 0,a			;04e3	cb 47 	. G 
 	jr nz,$+4		;04e5	20 02 	  . 
-	set 3,b		;04e7	cb d8 	. . 
-	bit 1,a		;04e9	cb 4f 	. O 
+	set 3,b			;04e7	cb d8 	. . 
+	bit 1,a			;04e9	cb 4f 	. O 
 	jr nz,$+4		;04eb	20 02 	  . 
-	set 2,b		;04ed	cb d0 	. . 
-	bit 2,a		;04ef	cb 57 	. W 
+	set 2,b			;04ed	cb d0 	. . 
+	bit 2,a			;04ef	cb 57 	. W 
 	jr nz,$+4		;04f1	20 02 	  . 
-	set 0,b		;04f3	cb c0 	. . 
+	set 0,b			;04f3	cb c0 	. . 
 	ld a,(OBYTE1)		;04f5	3a 46 e0 	: F . 
 	and 008h		;04f8	e6 08 	. . 
 	jr z,$+4		;04fa	28 02 	( . 
-	set 1,b		;04fc	cb c8 	. . 
+	set 1,b			;04fc	cb c8 	. . 
 	ld a,b			;04fe	78 	x 
 	out (024h),a		;04ff	d3 24 	. $ 
 	call 02963h		;0501	cd 63 29 	. c ) 
@@ -960,9 +968,9 @@ clear_buffers:
 	and 01fh		;0509	e6 1f 	. . 
 	ret z			;050b	c8 	. 
 	in a,(020h)		;050c	db 20 	.   
-	jr $-7		;050e	18 f7 	. . 
+	jr $-7			;050e	18 f7 	. . 
 	di			;0510	f3 	. 
-	add hl,hl			;0511	29 	) 
+	add hl,hl		;0511	29 	) 
 	add a,e			;0512	83 	. 
 	ld hl,(02b13h)		;0513	2a 13 2b 	* . + 
 	and e			;0516	a3 	. 
@@ -971,21 +979,24 @@ clear_buffers:
 	ld hl,00510h		;0519	21 10 05 	! . . 
 	ld de,KNSNC		;051c	11 a1 e0 	. . . 
 	ld bc,00008h		;051f	01 08 00 	. . . 
-	ldir		;0522	ed b0 	. . 
+	ldir			;0522	ed b0 	. . 
 	pop bc			;0524	c1 	. 
-	ret			;0525	c9 	. 
+	ret			;0525	c9 	.
+PINIT:				; PRINTER INITIALIZATION
 	ld hl,PDATAR		;0526	21 82 e0 	! . . 
 	ld a,(CHAPAR)		;0529	3a 6e e0 	: n . 
 	ld (SAVEA),a		;052c	32 e2 e0 	2 . . 
 	and 008h		;052f	e6 08 	. . 
-	jr nz,$+9		;0531	20 07 	  . 
+	jr nz,$+9		;0531	20 07 	  .
+PABI:				; PORT A BIDIRECTIONAL
 	ld c,080h		;0533	0e 80 	. . 
 	ld a,(CHABD)		;0535	3a 6f e0 	: o . 
-	jr $+17		;0538	18 0f 	. . 
+	jr $+17			;0538	18 0f 	. . 
 	ld a,(CHBPAR)		;053a	3a 70 e0 	: p . 
 	ld (SAVEA),a		;053d	32 e2 e0 	2 . . 
 	and 008h		;0540	e6 08 	. . 
-	jr nz,$+77		;0542	20 4b 	  K 
+	jr nz,$+77		;0542	20 4b 	  K
+PBBI:				; PORT B BIDIRECTIONAL
 	ld c,090h		;0544	0e 90 	. . 
 	ld a,(CHBBD)		;0546	3a 71 e0 	: q . 
 	ld b,a			;0549	47 	G 
@@ -1033,23 +1044,24 @@ clear_buffers:
 	ld (NOPTR),a		;0599	32 f8 e0 	2 . . 
 	ret			;059c	c9 	. 
 	ld a,(BDATAR)		;059d	3a 80 e0 	: . . 
-	jr $+45		;05a0	18 2b 	. + 
+	jr $+45			;05a0	18 2b 	. + 
 	ld a,(BDATAR)		;05a2	3a 80 e0 	: . . 
 	add a,005h		;05a5	c6 05 	. . 
-	jr $+38		;05a7	18 24 	. $ 
+	jr $+38			;05a7	18 24 	. $ 
 	ld a,(BDATAR)		;05a9	3a 80 e0 	: . . 
 	add a,006h		;05ac	c6 06 	. . 
-	jr $+31		;05ae	18 1d 	. . 
+	jr $+31			;05ae	18 1d 	. . 
 	ld a,(BDATAR)		;05b0	3a 80 e0 	: . . 
-	jr $+33		;05b3	18 1f 	. . 
+	jr $+33			;05b3	18 1f 	. . 
 	ld a,(BDATAR)		;05b5	3a 80 e0 	: . . 
 	add a,001h		;05b8	c6 01 	. . 
-	jr $+26		;05ba	18 18 	. . 
+	jr $+26			;05ba	18 18 	. . 
 	ld a,(PDATAR)		;05bc	3a 82 e0 	: . . 
-	jr $+14		;05bf	18 0c 	. . 
+	jr $+14			;05bf	18 0c 	. .
+PILSR:				; INPUT PRINTER LSR
 	ld a,(PDATAR)		;05c1	3a 82 e0 	: . . 
 	add a,005h		;05c4	c6 05 	. . 
-	jr $+7		;05c6	18 05 	. . 
+	jr $+7			;05c6	18 05 	. . 
 	ld a,(PDATAR)		;05c8	3a 82 e0 	: . . 
 	add a,006h		;05cb	c6 06 	. . 
 	ld c,a			;05cd	4f 	O 
@@ -1058,38 +1070,40 @@ clear_buffers:
 	ld a,(PDATAR)		;05d1	3a 82 e0 	: . . 
 	ld c,a			;05d4	4f 	O 
 	push bc			;05d5	c5 	. 
-	cp 080h		;05d6	fe 80 	. . 
+	cp 080h			;05d6	fe 80 	. . 
 	jr nz,$+7		;05d8	20 05 	  . 
 	ld a,(CHAPAR)		;05da	3a 6e e0 	: n . 
-	jr $+9		;05dd	18 07 	. . 
-	cp 090h		;05df	fe 90 	. . 
+	jr $+9			;05dd	18 07 	. . 
+	cp 090h			;05df	fe 90 	. . 
 	jr nz,$+13		;05e1	20 0b 	  . 
 	ld a,(CHBPAR)		;05e3	3a 70 e0 	: p . 
-	res 7,b		;05e6	cb b8 	. . 
+	res 7,b			;05e6	cb b8 	. . 
 	and 002h		;05e8	e6 02 	. . 
 	jr z,$+4		;05ea	28 02 	( . 
-	set 7,b		;05ec	cb f8 	. . 
+	set 7,b			;05ec	cb f8 	. . 
 	out (c),b		;05ee	ed 41 	. A 
 	pop bc			;05f0	c1 	. 
-	ret			;05f1	c9 	. 
+	ret			;05f1	c9 	.
+INTDIR:				; INTERRUPT DISABLE
 	push hl			;05f2	e5 	. 
 	ld a,b			;05f3	78 	x 
 	cpl			;05f4	2f 	/ 
 	ld hl,INTMSK		;05f5	21 a0 e0 	! . . 
-	and (hl)			;05f8	a6 	. 
+	and (hl)		;05f8	a6 	. 
 	ld (INTMSK),a		;05f9	32 a0 e0 	2 . . 
 	cpl			;05fc	2f 	/ 
 	out (031h),a		;05fd	d3 31 	. 1 
 	pop hl			;05ff	e1 	. 
-	ret			;0600	c9 	. 
+	ret			;0600	c9 	.
+INTENA:				; INTERRUPT ENABLE
 	push hl			;0601	e5 	. 
 	ld a,c			;0602	79 	y 
 	rlca			;0603	07 	. 
 	ld h,0e1h		;0604	26 e1 	& . 
 	ld l,a			;0606	6f 	o 
-	ld (hl),e			;0607	73 	s 
+	ld (hl),e		;0607	73 	s 
 	inc hl			;0608	23 	# 
-	ld (hl),d			;0609	72 	r 
+	ld (hl),d		;0609	72 	r 
 	ld a,b			;060a	78 	x 
 	ld hl,INTMSK		;060b	21 a0 e0 	! . . 
 	or (hl)			;060e	b6 	. 
@@ -1097,10 +1111,12 @@ clear_buffers:
 	cpl			;0612	2f 	/ 
 	out (031h),a		;0613	d3 31 	. 1 
 	pop hl			;0615	e1 	. 
-	ret			;0616	c9 	. 
+	ret			;0616	c9 	.
+CMTRAP:				; COMM INTERRUPT TRAP
 	call 0061ch		;0617	cd 1c 06 	. . . 
 	ei			;061a	fb 	. 
-	ret			;061b	c9 	. 
+	ret			;061b	c9 	.
+CMTRPU:				; COMM INTERRUPT TRAP-USER
 	push af			;061c	f5 	. 
 	push bc			;061d	c5 	. 
 	push de			;061e	d5 	. 
@@ -1141,7 +1157,7 @@ clear_buffers:
 	call 01519h		;065d	cd 19 15 	. . . 
 	call 0045ch		;0660	cd 5c 04 	. \ . 
 	call 0024ch		;0663	cd 4c 02 	. L . 
-	jr $+7		;0666	18 05 	. . 
+	jr $+7			;0666	18 05 	. . 
 	ld a,d			;0668	7a 	z 
 	and 00eh		;0669	e6 0e 	. . 
 	jr z,$+4		;066b	28 02 	( . 
@@ -1149,7 +1165,7 @@ clear_buffers:
 	ld hl,(BFCNT)		;066f	2a 83 e0 	* . . 
 	inc hl			;0672	23 	# 
 	ld a,h			;0673	7c 	| 
-	cp 003h		;0674	fe 03 	. . 
+	cp 003h			;0674	fe 03 	. . 
 	jr nz,$+14		;0676	20 0c 	  . 
 	push hl			;0678	e5 	. 
 	push bc			;0679	c5 	. 
@@ -1157,14 +1173,14 @@ clear_buffers:
 	pop bc			;067d	c1 	. 
 	pop hl			;067e	e1 	. 
 	ld a,l			;067f	7d 	} 
-	cp 0dfh		;0680	fe df 	. . 
+	cp 0dfh			;0680	fe df 	. . 
 	jr z,$+21		;0682	28 13 	( . 
 	ld (BFCNT),hl		;0684	22 83 e0 	" . . 
 	ld hl,(BFINAD)		;0687	2a 85 e0 	* . . 
-	ld (hl),b			;068a	70 	p 
+	ld (hl),b		;068a	70 	p 
 	inc hl			;068b	23 	# 
 	ld a,h			;068c	7c 	| 
-	cp 0dfh		;068d	fe df 	. . 
+	cp 0dfh			;068d	fe df 	. . 
 	jr nz,$+5		;068f	20 03 	  . 
 	ld hl,0db20h		;0691	21 20 db 	!   . 
 	ld (BFINAD),hl		;0694	22 85 e0 	" . . 
@@ -1189,10 +1205,12 @@ clear_buffers:
 	pop de			;06b4	d1 	. 
 	pop bc			;06b5	c1 	. 
 	pop af			;06b6	f1 	. 
-	ret			;06b7	c9 	. 
+	ret			;06b7	c9 	.
+KBTRAP:				; KEYBOARD INTERRUPT TRAP
 	call 006bdh		;06b8	cd bd 06 	. . . 
 	ei			;06bb	fb 	. 
-	ret			;06bc	c9 	. 
+	ret			;06bc	c9 	.
+KBTRPU:				; KEYBOARD INTERRUPT TRAP-USER
 	push af			;06bd	f5 	. 
 	push bc			;06be	c5 	. 
 	push hl			;06bf	e5 	. 
@@ -1205,62 +1223,66 @@ clear_buffers:
 	jr z,$+32		;06ca	28 1e 	( . 
 	ld hl,(KBINAD)		;06cc	2a 8a e0 	* . . 
 	in a,(020h)		;06cf	db 20 	.   
-	cp 067h		;06d1	fe 67 	. g 
+	cp 067h			;06d1	fe 67 	. g 
 	jr z,$+26		;06d3	28 18 	( . 
-	cp 0e7h		;06d5	fe e7 	. . 
+	cp 0e7h			;06d5	fe e7 	. . 
 	jr z,$+22		;06d7	28 14 	( . 
-	ld (hl),a			;06d9	77 	w 
+	ld (hl),a		;06d9	77 	w 
 	inc hl			;06da	23 	# 
 	ld a,l			;06db	7d 	} 
-	cp 020h		;06dc	fe 20 	.   
+	cp 020h			;06dc	fe 20 	.   
 	jr nz,$+5		;06de	20 03 	  . 
 	ld hl,0db10h		;06e0	21 10 db 	! . . 
 	ld (KBINAD),hl		;06e3	22 8a e0 	" . . 
 	ld hl,KBCNT		;06e6	21 89 e0 	! . . 
-	inc (hl)			;06e9	34 	4 
+	inc (hl)		;06e9	34 	4 
 	call 00507h		;06ea	cd 07 05 	. . . 
 	pop hl			;06ed	e1 	. 
 	pop bc			;06ee	c1 	. 
 	pop af			;06ef	f1 	. 
-	ret			;06f0	c9 	. 
+	ret			;06f0	c9 	.
+PTTRAP:				; PRINTER INPUT TRAP
 	call 005bch		;06f1	cd bc 05 	. . . 
-	cp 011h		;06f4	fe 11 	. . 
+	cp 011h			;06f4	fe 11 	. . 
 	jr z,$+16		;06f6	28 0e 	( . 
-	cp 013h		;06f8	fe 13 	. . 
+	cp 013h			;06f8	fe 13 	. . 
 	ret nz			;06fa	c0 	. 
 	ld a,(OBYTE1)		;06fb	3a 46 e0 	: F . 
 	and 002h		;06fe	e6 02 	. . 
 	jr z,$+6		;0700	28 04 	( . 
 	ld a,001h		;0702	3e 01 	> . 
-	jr $+3		;0704	18 01 	. . 
+	jr $+3			;0704	18 01 	. . 
 	xor a			;0706	af 	. 
 	ld (0e0f7h),a		;0707	32 f7 e0 	2 . . 
-	ret			;070a	c9 	. 
+	ret			;070a	c9 	.
+ST_TM:				; START DELAY TIMER
 	ld a,(T3RUN)		;070b	3a f3 e0 	: . . 
 	and a			;070e	a7 	. 
 	ret nz			;070f	c0 	. 
 	inc a			;0710	3c 	< 
 	ld (T3RUN),a		;0711	32 f3 e0 	2 . . 
 	ld a,0b7h		;0714	3e b7 	> . 
-	out (PPIC+PPIC_CONTROL),a		;0716	d3 03 	. . 
+	out (PPIC+PPIC_CONTROL),a	;0716	d3 03 	. . 
 	ld a,(T3TCV)		;0718	3a f4 e0 	: . . 
-	out (PPIC+PPIC_CONTROL),a		;071b	d3 03 	. . 
-	ret			;071d	c9 	. 
+	out (PPIC+PPIC_CONTROL),a	;071b	d3 03 	. . 
+	ret			;071d	c9 	.
+TMTRAP:				; TIMER INTERRUPT TRAP
 	push af			;071e	f5 	. 
 	push bc			;071f	c5 	. 
 	push de			;0720	d5 	. 
 	push hl			;0721	e5 	. 
 	ld a,033h		;0722	3e 33 	> 3 
-	out (PPIC+PPIC_CONTROL),a		;0724	d3 03 	. . 
+	out (PPIC+PPIC_CONTROL),a	;0724	d3 03 	. . 
 	ei			;0726	fb 	. 
 	call 00733h		;0727	cd 33 07 	. 3 . 
 	pop hl			;072a	e1 	. 
 	pop de			;072b	d1 	. 
 	pop bc			;072c	c1 	. 
 	pop af			;072d	f1 	. 
-	ret			;072e	c9 	. 
+	ret			;072e	c9 	.
+TMTTRPU:			; TIMER INTERRUPT TRAP-USER
 	ld a,033h		;072f	3e 33 	> 3 
-	out (PPIC+PPIC_CONTROL),a		;0731	d3 03 	. . 
+	out (PPIC+PPIC_CONTROL),a	;0731	d3 03 	. . 
 	xor a			;0733	af 	. 
 	ld (T3RUN),a		;0734	32 f3 e0 	2 . . 
 	ld a,(UD2ACT)		;0737	3a 9d e0 	: . . 
@@ -1271,7 +1293,7 @@ clear_buffers:
 	jr nz,$+10		;0741	20 08 	  . 
 	ld hl,(UD2ADD)		;0743	2a 9e e0 	* . . 
 	call 022f6h		;0746	cd f6 22 	. . " 
-	jr $+5		;0749	18 03 	. . 
+	jr $+5			;0749	18 03 	. . 
 	call 0070bh		;074b	cd 0b 07 	. . . 
 	ld a,(KBDACT)		;074e	3a 95 e0 	: . . 
 	and a			;0751	a7 	. 
@@ -1289,7 +1311,7 @@ clear_buffers:
 	ld (KBRACT),a		;0769	32 96 e0 	2 . . 
 	jr nz,$+22		;076c	20 14 	  . 
 	ld a,(LOCKLT)		;076e	3a d0 e0 	: . . 
-	or 001h		;0771	f6 01 	. . 
+	or 001h			;0771	f6 01 	. . 
 	out (020h),a		;0773	d3 20 	.   
 	call 026f6h		;0775	cd f6 26 	. . & 
 	ld a,(LOCKLT)		;0778	3a d0 e0 	: . . 
@@ -1305,7 +1327,7 @@ clear_buffers:
 	jr nz,$+8		;078f	20 06 	  . 
 	ld a,001h		;0791	3e 01 	> . 
 	out (033h),a		;0793	d3 33 	. 3 
-	jr $+5		;0795	18 03 	. . 
+	jr $+5			;0795	18 03 	. . 
 	call 0070bh		;0797	cd 0b 07 	. . . 
 	ld a,(TXDACT)		;079a	3a 99 e0 	: . . 
 	and a			;079d	a7 	. 
@@ -1332,7 +1354,7 @@ clear_buffers:
 	ld (BRKACT),a		;07c7	32 94 e0 	2 . . 
 	jr nz,$+7		;07ca	20 05 	  . 
 	call 003ddh		;07cc	cd dd 03 	. . . 
-	jr $+5		;07cf	18 03 	. . 
+	jr $+5			;07cf	18 03 	. . 
 	call 0070bh		;07d1	cd 0b 07 	. . . 
 	ld a,(UD1ACT)		;07d4	3a 9a e0 	: . . 
 	and a			;07d7	a7 	. 
@@ -1345,19 +1367,19 @@ clear_buffers:
 	ret			;07e5	c9 	. 
 	call 0070bh		;07e6	cd 0b 07 	. . . 
 	ret			;07e9	c9 	. 
-	ld a,(bc)			;07ea	0a 	. 
+	ld a,(bc)		;07ea	0a 	. 
 	ld c,012h		;07eb	0e 12 	. . 
 	ld d,01ah		;07ed	16 1a 	. . 
 	ld e,022h		;07ef	1e 22 	. " 
 	ld h,02ah		;07f1	26 2a 	& * 
 	ld l,032h		;07f3	2e 32 	. 2 
-	dec (hl)			;07f5	35 	5 
-	add hl,sp			;07f6	39 	9 
+	dec (hl)		;07f5	35 	5 
+	add hl,sp		;07f6	39 	9 
 	dec a			;07f7	3d 	= 
 	ld b,c			;07f8	41 	A 
 	ld b,l			;07f9	45 	E 
 	inc de			;07fa	13 	. 
-	add hl,de			;07fb	19 	. 
+	add hl,de		;07fb	19 	. 
 	jr nz,$+40		;07fc	20 26 	  & 
 	inc l			;07fe	2c 	, 
 	ld (03f38h),a		;07ff	32 38 3f 	2 8 ? 
@@ -1365,13 +1387,15 @@ clear_buffers:
 	ld c,e			;0803	4b 	K 
 	ld d,c			;0804	51 	Q 
 	ld d,a			;0805	57 	W 
-	ld e,(hl)			;0806	5e 	^ 
+	ld e,(hl)		;0806	5e 	^ 
 	ld h,h			;0807	64 	d 
 	ld l,d			;0808	6a 	j 
-	ld (hl),b			;0809	70 	p 
+	ld (hl),b		;0809	70 	p
+TPTRAP:				; TOUCHPAD INTERRUPT TRAP
 	call 0080fh		;080a	cd 0f 08 	. . . 
 	ei			;080d	fb 	. 
-	ret			;080e	c9 	. 
+	ret			;080e	c9 	.
+TPTRUP:				; TOUCHPAD INTERRUPT TRAP-USER
 	push af			;080f	f5 	. 
 	push bc			;0810	c5 	. 
 	push de			;0811	d5 	. 
@@ -1386,7 +1410,8 @@ clear_buffers:
 	pop de			;0825	d1 	. 
 	pop bc			;0826	c1 	. 
 	pop af			;0827	f1 	. 
-	ret			;0828	c9 	. 
+	ret			;0828	c9 	.
+TPINP:				; TOUCHPANEL INPUT
 	in a,(0fch)		;0829	db fc 	. . 
 	ld b,a			;082b	47 	G 
 	rrca			;082c	0f 	. 
@@ -1401,8 +1426,8 @@ clear_buffers:
 	and 002h		;083b	e6 02 	. . 
 	jr z,$+5		;083d	28 03 	( . 
 	ld hl,007fah		;083f	21 fa 07 	! . . 
-	add hl,de			;0842	19 	. 
-	ld d,(hl)			;0843	56 	V 
+	add hl,de		;0842	19 	. 
+	ld d,(hl)		;0843	56 	V 
 	ld e,000h		;0844	1e 00 	. . 
 	ld a,(OBYTE4)		;0846	3a 49 e0 	: I . 
 	and 004h		;0849	e6 04 	. . 
@@ -1410,20 +1435,20 @@ clear_buffers:
 	ld a,b			;084d	78 	x 
 	cpl			;084e	2f 	/ 
 	and 00fh		;084f	e6 0f 	. . 
-	cp 00eh		;0851	fe 0e 	. . 
+	cp 00eh			;0851	fe 0e 	. . 
 	jr nc,$+17		;0853	30 0f 	0 . 
 	sub 002h		;0855	d6 02 	. . 
 	ret m			;0857	f8 	. 
 	rlca			;0858	07 	. 
 	inc a			;0859	3c 	< 
-	jr $+16		;085a	18 0e 	. . 
+	jr $+16			;085a	18 0e 	. . 
 	ld a,b			;085c	78 	x 
 	cpl			;085d	2f 	/ 
 	and 00fh		;085e	e6 0f 	. . 
-	cp 00fh		;0860	fe 0f 	. . 
+	cp 00fh			;0860	fe 0f 	. . 
 	jr nz,$+7		;0862	20 05 	  . 
 	ld a,(LASTLN)		;0864	3a cd e0 	: . . 
-	jr $+3		;0867	18 01 	. . 
+	jr $+3			;0867	18 01 	. . 
 	rlca			;0869	07 	. 
 	ld e,a			;086a	5f 	_ 
 	ret			;086b	c9 	. 
@@ -1432,8 +1457,8 @@ clear_buffers:
 	ld b,09ch		;086f	06 9c 	. . 
 	ld b,03eh		;0871	06 3e 	. > 
 	dec h			;0873	25 	% 
-	ld a,(bc)			;0874	0a 	. 
-	ex af,af'			;0875	08 	. 
+	ld a,(bc)		;0874	0a 	. 
+	ex af,af'		;0875	08 	. 
 	cp b			;0876	b8 	. 
 	ld b,01eh		;0877	06 1e 	. . 
 	rlca			;0879	07 	. 
@@ -1532,12 +1557,8 @@ clear_buffers:
         defm "(Freturn FCONFIG FCONFIG FCONFIG FCONFIG (FAS X Y  FL  ID  FPORT B Finstl"
         defm " 1       2       3       4       5       6       7       9       9      10"
         defb 06h
-        ld l,l			;0a39	6d 	m 
-	ld l,a			;0a3a	6f 	o 
-	ld h,h			;0a3b	64 	d 
-	ld h,l			;0a3c	65 	e 
-	jr nz,$+112		;0a3d	20 6e 	  n 
-	jr z,$+2		;0a3f	28 00 	( . 
+	defm "mode n("
+	defb 00h
 	inc b			;0a41	04 	. 
 	inc b			;0a42	04 	. 
 	inc b			;0a43	04 	. 
@@ -1698,39 +1719,39 @@ clear_buffers:
 	ld hl,00d5dh		;0d02	21 5d 0d 	! ] . 
 	ld e,a			;0d05	5f 	_ 
 	ld d,000h		;0d06	16 00 	. . 
-	add hl,de			;0d08	19 	. 
-	ld a,(hl)			;0d09	7e 	~ 
+	add hl,de		;0d08	19 	. 
+	ld a,(hl)		;0d09	7e 	~ 
 	ld (CHRCNT),a		;0d0a	32 b1 e0 	2 . . 
 	call 03203h		;0d0d	cd 03 32 	. . 2 
 	ld hl,(CURSOR)		;0d10	2a b7 e0 	* . . 
 	ld (hl),02ah		;0d13	36 2a 	6 * 
-	jr $+5		;0d15	18 03 	. . 
+	jr $+5			;0d15	18 03 	. . 
 	call 01519h		;0d17	cd 19 15 	. . . 
 	ld a,085h		;0d1a	3e 85 	> . 
 	out (01ch),a		;0d1c	d3 1c 	. . 
 	call 02925h		;0d1e	cd 25 29 	. % ) 
 	ld a,b			;0d21	78 	x 
-	bit 7,b		;0d22	cb 78 	. x 
+	bit 7,b			;0d22	cb 78 	. x 
 	jr z,$+12		;0d24	28 0a 	( . 
-	cp 0a5h		;0d26	fe a5 	. . 
+	cp 0a5h			;0d26	fe a5 	. . 
 	jr nz,$-10		;0d28	20 f4 	  . 
 	xor a			;0d2a	af 	. 
 	ld (CONT),a		;0d2b	32 b5 e0 	2 . . 
-	jr $-16		;0d2e	18 ee 	. . 
-	cp 025h		;0d30	fe 25 	. % 
+	jr $-16			;0d2e	18 ee 	. . 
+	cp 025h			;0d30	fe 25 	. % 
 	jp nz,00d3ch		;0d32	c2 3c 0d 	. < . 
 	ld a,001h		;0d35	3e 01 	> . 
 	ld (CONT),a		;0d37	32 b5 e0 	2 . . 
-	jr $-28		;0d3a	18 e2 	. . 
-	cp 018h		;0d3c	fe 18 	. . 
+	jr $-28			;0d3a	18 e2 	. . 
+	cp 018h			;0d3c	fe 18 	. . 
 	jr nz,$+9		;0d3e	20 07 	  . 
 	ld a,(CONT)		;0d40	3a b5 e0 	: . . 
 	rra			;0d43	1f 	. 
 	jp c,00ed6h		;0d44	da d6 0e 	. . . 
 	call 02947h		;0d47	cd 47 29 	. G ) 
-	cp 081h		;0d4a	fe 81 	. . 
+	cp 081h			;0d4a	fe 81 	. . 
 	jr c,$-53		;0d4c	38 c9 	8 . 
-	cp 089h		;0d4e	fe 89 	. . 
+	cp 089h			;0d4e	fe 89 	. . 
 	jr nc,$-57		;0d50	30 c5 	0 . 
 	push af			;0d52	f5 	. 
 	call 02069h		;0d53	cd 69 20 	. i   
@@ -1745,10 +1766,10 @@ clear_buffers:
 	and 007h		;0d68	e6 07 	. . 
 	jr nz,$+6		;0d6a	20 04 	  . 
 	inc a			;0d6c	3c 	< 
-	jr $+3		;0d6d	18 01 	. . 
+	jr $+3			;0d6d	18 01 	. . 
 	ld a,b			;0d6f	78 	x 
 	ld (MDACT),a		;0d70	32 fe e0 	2 . . 
-	cp 007h		;0d73	fe 07 	. . 
+	cp 007h			;0d73	fe 07 	. . 
 	jp z,00e32h		;0d75	ca 32 0e 	. 2 . 
 	rrca			;0d78	0f 	. 
 	rrca			;0d79	0f 	. 
@@ -1758,14 +1779,15 @@ clear_buffers:
 	ld de,MBYTE1		;0d7f	11 40 e0 	. @ . 
 	ld bc,00020h		;0d82	01 20 00 	.   . 
 	ld (MODEST),hl		;0d85	22 d9 e0 	" . . 
-	ldir		;0d88	ed b0 	. . 
+	ldir			;0d88	ed b0 	. . 
 	ld a,(OBYTE4)		;0d8a	3a 49 e0 	: I . 
 	ld (CHRSAV),a		;0d8d	32 b2 e0 	2 . . 
-	or 004h		;0d90	f6 04 	. . 
+	or 004h			;0d90	f6 04 	. . 
 	ld (OBYTE4),a		;0d92	32 49 e0 	2 I . 
 	ld a,(MBYTE1)		;0d95	3a 40 e0 	: @ . 
 	and 001h		;0d98	e6 01 	. . 
-	jr nz,$+31		;0d9a	20 1d 	  . 
+	jr nz,$+31		;0d9a	20 1d 	  .
+MODENE:				; DISPLAY MODE NOT ENABLED
 	call 0026dh		;0d9c	cd 6d 02 	. m . 
 	ld d,000h		;0d9f	16 00 	. . 
 	ld e,01ah		;0da1	1e 1a 	. . 
@@ -1791,33 +1813,33 @@ clear_buffers:
 	xor a			;0dd6	af 	. 
 	ld (ERROR),a		;0dd7	32 bd e0 	2 . . 
 	push hl			;0dda	e5 	. 
-	ld a,(hl)			;0ddb	7e 	~ 
+	ld a,(hl)		;0ddb	7e 	~ 
 	call 01137h		;0ddc	cd 37 11 	. 7 . 
 	ld c,a			;0ddf	4f 	O 
 	call 02925h		;0de0	cd 25 29 	. % ) 
-	bit 7,b		;0de3	cb 78 	. x 
+	bit 7,b			;0de3	cb 78 	. x 
 	jr nz,$-5		;0de5	20 f9 	  . 
 	call 02947h		;0de7	cd 47 29 	. G ) 
-	cp 050h		;0dea	fe 50 	. P 
+	cp 050h			;0dea	fe 50 	. P 
 	jr c,$+4		;0dec	38 02 	8 . 
 	sub 020h		;0dee	d6 20 	.   
 	cp c			;0df0	b9 	. 
 	jr z,$+10		;0df1	28 08 	( . 
 	ld a,(ERROR)		;0df3	3a bd e0 	: . . 
-	or 001h		;0df6	f6 01 	. . 
+	or 001h			;0df6	f6 01 	. . 
 	ld (ERROR),a		;0df8	32 bd e0 	2 . . 
 	ld a,058h		;0dfb	3e 58 	> X 
 	ld de,(CURSOR)		;0dfd	ed 5b b7 e0 	. [ . . 
-	ld (de),a			;0e01	12 	. 
+	ld (de),a		;0e01	12 	. 
 	inc de			;0e02	13 	. 
 	xor a			;0e03	af 	. 
-	ld (de),a			;0e04	12 	. 
+	ld (de),a		;0e04	12 	. 
 	call 00e8eh		;0e05	cd 8e 0e 	. . . 
 	pop hl			;0e08	e1 	. 
 	inc hl			;0e09	23 	# 
 	jr z,$-48		;0e0a	28 ce 	( . 
 	ld a,(ERROR)		;0e0c	3a bd e0 	: . . 
-	cp 001h		;0e0f	fe 01 	. . 
+	cp 001h			;0e0f	fe 01 	. . 
 	jr nz,$+20		;0e11	20 12 	  . 
 	call 014bdh		;0e13	cd bd 14 	. . . 
 	call 014bdh		;0e16	cd bd 14 	. . . 
@@ -1833,7 +1855,7 @@ clear_buffers:
 	and 040h		;0e34	e6 40 	. @ 
 	jp z,00d9ch		;0e36	ca 9c 0d 	. . . 
 	ld a,(08006h)		;0e39	3a 06 80 	: . . 
-	cp 0c3h		;0e3c	fe c3 	. . 
+	cp 0c3h			;0e3c	fe c3 	. . 
 	jp nz,00d9ch		;0e3e	c2 9c 0d 	. . . 
 	call 08006h		;0e41	cd 06 80 	. . . 
 	jp 00161h		;0e44	c3 61 01 	. a . 
@@ -1844,7 +1866,7 @@ clear_buffers:
 	ld hl,0087ch		;0e53	21 7c 08 	! | . 
 	call 00e6eh		;0e56	cd 6e 0e 	. n . 
 	ret			;0e59	c9 	. 
-	ld a,(de)			;0e5a	1a 	. 
+	ld a,(de)		;0e5a	1a 	. 
 	and 007h		;0e5b	e6 07 	. . 
 	rlca			;0e5d	07 	. 
 	rlca			;0e5e	07 	. 
@@ -1852,10 +1874,10 @@ clear_buffers:
 	rlca			;0e60	07 	. 
 	ld c,a			;0e61	4f 	O 
 	inc de			;0e62	13 	. 
-	ld a,(de)			;0e63	1a 	. 
+	ld a,(de)		;0e63	1a 	. 
 	and 00fh		;0e64	e6 0f 	. . 
 	or c			;0e66	b1 	. 
-	ld (hl),a			;0e67	77 	w 
+	ld (hl),a		;0e67	77 	w 
 	inc de			;0e68	13 	. 
 	inc hl			;0e69	23 	# 
 	inc hl			;0e6a	23 	# 
@@ -1863,22 +1885,22 @@ clear_buffers:
 	ret			;0e6d	c9 	. 
 	ld de,(CURSOR)		;0e6e	ed 5b b7 e0 	. [ . . 
 	inc de			;0e72	13 	. 
-	ld b,(hl)			;0e73	46 	F 
+	ld b,(hl)		;0e73	46 	F 
 	inc hl			;0e74	23 	# 
-	ld a,(de)			;0e75	1a 	. 
+	ld a,(de)		;0e75	1a 	. 
 	and 040h		;0e76	e6 40 	. @ 
 	or (hl)			;0e78	b6 	. 
-	ld (de),a			;0e79	12 	. 
+	ld (de),a		;0e79	12 	. 
 	inc de			;0e7a	13 	. 
 	inc de			;0e7b	13 	. 
 	inc hl			;0e7c	23 	# 
 	djnz $-8		;0e7d	10 f6 	. . 
 	ret			;0e7f	c9 	. 
 	ld de,(CURSOR)		;0e80	ed 5b b7 e0 	. [ . . 
-	ld b,(hl)			;0e84	46 	F 
+	ld b,(hl)		;0e84	46 	F 
 	inc hl			;0e85	23 	# 
-	ld a,(hl)			;0e86	7e 	~ 
-	ld (de),a			;0e87	12 	. 
+	ld a,(hl)		;0e86	7e 	~ 
+	ld (de),a		;0e87	12 	. 
 	inc de			;0e88	13 	. 
 	inc de			;0e89	13 	. 
 	inc hl			;0e8a	23 	# 
@@ -1886,7 +1908,7 @@ clear_buffers:
 	ret			;0e8d	c9 	. 
 	xor a			;0e8e	af 	. 
 	ld (BSCRPE),a		;0e8f	32 ad e0 	2 . . 
-	jr $+7		;0e92	18 05 	. . 
+	jr $+7			;0e92	18 05 	. . 
 	ld a,001h		;0e94	3e 01 	> . 
 	ld (BSCRPE),a		;0e96	32 ad e0 	2 . . 
 	push bc			;0e99	c5 	. 
@@ -1900,29 +1922,29 @@ clear_buffers:
 	rra			;0ea7	1f 	. 
 	jr c,$+17		;0ea8	38 0f 	8 . 
 	ld a,b			;0eaa	78 	x 
-	cp 04fh		;0eab	fe 4f 	. O 
+	cp 04fh			;0eab	fe 4f 	. O 
 	jr z,$+35		;0ead	28 21 	( ! 
 	inc b			;0eaf	04 	. 
 	inc hl			;0eb0	23 	# 
 	inc hl			;0eb1	23 	# 
-	ld a,(hl)			;0eb2	7e 	~ 
-	bit 7,a		;0eb3	cb 7f 	.  
+	ld a,(hl)		;0eb2	7e 	~ 
+	bit 7,a			;0eb3	cb 7f 	.  
 	jr z,$-11		;0eb5	28 f3 	( . 
-	jr $+15		;0eb7	18 0d 	. . 
+	jr $+15			;0eb7	18 0d 	. . 
 	ld a,b			;0eb9	78 	x 
-	cp 000h		;0eba	fe 00 	. . 
+	cp 000h			;0eba	fe 00 	. . 
 	jr z,$+20		;0ebc	28 12 	( . 
 	dec b			;0ebe	05 	. 
 	dec hl			;0ebf	2b 	+ 
 	dec hl			;0ec0	2b 	+ 
-	ld a,(hl)			;0ec1	7e 	~ 
-	bit 7,a		;0ec2	cb 7f 	.  
+	ld a,(hl)		;0ec1	7e 	~ 
+	bit 7,a			;0ec2	cb 7f 	.  
 	jr z,$-11		;0ec4	28 f3 	( . 
 	ld a,b			;0ec6	78 	x 
 	ld (CHRCNT),a		;0ec7	32 b1 e0 	2 . . 
 	call 03203h		;0eca	cd 03 32 	. . 2 
 	xor a			;0ecd	af 	. 
-	jr $+4		;0ece	18 02 	. . 
+	jr $+4			;0ece	18 02 	. . 
 	xor a			;0ed0	af 	. 
 	inc a			;0ed1	3c 	< 
 	pop hl			;0ed2	e1 	. 
@@ -1933,7 +1955,7 @@ clear_buffers:
 	ld (TIPE),a		;0ed8	32 ee e0 	2 . . 
 	ld hl,04000h		;0edb	21 00 40 	! . @ 
 	ld (MODEST),hl		;0ede	22 d9 e0 	" . . 
-	jr $+6		;0ee1	18 04 	. . 
+	jr $+6			;0ee1	18 04 	. . 
 	xor a			;0ee3	af 	. 
 	ld (TIPE),a		;0ee4	32 ee e0 	2 . . 
 	call 00e47h		;0ee7	cd 47 0e 	. G . 
@@ -1985,24 +2007,24 @@ clear_buffers:
 	call 0112bh		;0f60	cd 2b 11 	. + . 
 	call 021cah		;0f63	cd ca 21 	. . ! 
 	call 00e8eh		;0f66	cd 8e 0e 	. . . 
-	jr $+5		;0f69	18 03 	. . 
+	jr $+5			;0f69	18 03 	. . 
 	call 01519h		;0f6b	cd 19 15 	. . . 
 	call 02925h		;0f6e	cd 25 29 	. % ) 
-	bit 7,b		;0f71	cb 78 	. x 
+	bit 7,b			;0f71	cb 78 	. x 
 	jr nz,$-5		;0f73	20 f9 	  . 
 	ld a,b			;0f75	78 	x 
-	cp 06fh		;0f76	fe 6f 	. o 
+	cp 06fh			;0f76	fe 6f 	. o 
 	jp z,0100fh		;0f78	ca 0f 10 	. . . 
 	call 02947h		;0f7b	cd 47 29 	. G ) 
-	cp 020h		;0f7e	fe 20 	.   
+	cp 020h			;0f7e	fe 20 	.   
 	jr z,$+85		;0f80	28 53 	( S 
-	cp 0e1h		;0f82	fe e1 	. . 
+	cp 0e1h			;0f82	fe e1 	. . 
 	jr nz,$+7		;0f84	20 05 	  . 
 	call 00e94h		;0f86	cd 94 0e 	. . . 
-	jr $+79		;0f89	18 4d 	. M 
-	cp 08bh		;0f8b	fe 8b 	. . 
+	jr $+79			;0f89	18 4d 	. M 
+	cp 08bh			;0f8b	fe 8b 	. . 
 	jr nc,$-34		;0f8d	30 dc 	0 . 
-	cp 081h		;0f8f	fe 81 	. . 
+	cp 081h			;0f8f	fe 81 	. . 
 	jr c,$+19		;0f91	38 11 	8 . 
 	ld hl,011a8h		;0f93	21 a8 11 	! . . 
 	ld b,a			;0f96	47 	G 
@@ -2014,25 +2036,25 @@ clear_buffers:
 	jp 01186h		;0fa1	c3 86 11 	. . . 
 	call 00fddh		;0fa4	cd dd 0f 	. . . 
 	jr z,$+46		;0fa7	28 2c 	( , 
-	jr $-62		;0fa9	18 c0 	. . 
+	jr $-62			;0fa9	18 c0 	. . 
 	ld a,008h		;0fab	3e 08 	> . 
-	jr $+34		;0fad	18 20 	.   
+	jr $+34			;0fad	18 20 	.   
 	ld a,010h		;0faf	3e 10 	> . 
-	jr $+30		;0fb1	18 1c 	. . 
+	jr $+30			;0fb1	18 1c 	. . 
 	ld a,018h		;0fb3	3e 18 	> . 
-	jr $+26		;0fb5	18 18 	. . 
+	jr $+26			;0fb5	18 18 	. . 
 	ld a,020h		;0fb7	3e 20 	>   
-	jr $+22		;0fb9	18 14 	. . 
+	jr $+22			;0fb9	18 14 	. . 
 	ld a,028h		;0fbb	3e 28 	> ( 
-	jr $+18		;0fbd	18 10 	. . 
+	jr $+18			;0fbd	18 10 	. . 
 	ld a,031h		;0fbf	3e 31 	> 1 
-	jr $+14		;0fc1	18 0c 	. . 
+	jr $+14			;0fc1	18 0c 	. . 
 	ld a,039h		;0fc3	3e 39 	> 9 
-	jr $+10		;0fc5	18 08 	. . 
+	jr $+10			;0fc5	18 08 	. . 
 	ld a,041h		;0fc7	3e 41 	> A 
-	jr $+6		;0fc9	18 04 	. . 
+	jr $+6			;0fc9	18 04 	. . 
 	ld a,049h		;0fcb	3e 49 	> I 
-	jr $+2		;0fcd	18 00 	. . 
+	jr $+2			;0fcd	18 00 	. . 
 	ld (CHRCNT),a		;0fcf	32 b1 e0 	2 . . 
 	call 03203h		;0fd2	cd 03 32 	. . 2 
 	call 00e8eh		;0fd5	cd 8e 0e 	. . . 
@@ -2040,31 +2062,31 @@ clear_buffers:
 	jp 00f6eh		;0fda	c3 6e 0f 	. n . 
 	ld hl,(CURSOR)		;0fdd	2a b7 e0 	* . . 
 	inc hl			;0fe0	23 	# 
-	ld c,(hl)			;0fe1	4e 	N 
-	cp 030h		;0fe2	fe 30 	. 0 
+	ld c,(hl)		;0fe1	4e 	N 
+	cp 030h			;0fe2	fe 30 	. 0 
 	jr c,$+36		;0fe4	38 22 	8 " 
-	cp 032h		;0fe6	fe 32 	. 2 
+	cp 032h			;0fe6	fe 32 	. 2 
 	jr c,$+35		;0fe8	38 21 	8 ! 
-	cp 038h		;0fea	fe 38 	. 8 
+	cp 038h			;0fea	fe 38 	. 8 
 	jr c,$+18		;0fec	38 10 	8 . 
-	cp 03ah		;0fee	fe 3a 	. : 
+	cp 03ah			;0fee	fe 3a 	. : 
 	jr c,$+20		;0ff0	38 12 	8 . 
 	sub 020h		;0ff2	d6 20 	.   
-	cp 041h		;0ff4	fe 41 	. A 
+	cp 041h			;0ff4	fe 41 	. A 
 	jr c,$+18		;0ff6	38 10 	8 . 
-	cp 047h		;0ff8	fe 47 	. G 
+	cp 047h			;0ff8	fe 47 	. G 
 	jr c,$+10		;0ffa	38 08 	8 . 
-	jr $+12		;0ffc	18 0a 	. . 
-	bit 6,c		;0ffe	cb 71 	. q 
+	jr $+12			;0ffc	18 0a 	. . 
+	bit 6,c			;0ffe	cb 71 	. q 
 	jr nz,$+11		;1000	20 09 	  . 
-	jr $+6		;1002	18 04 	. . 
-	bit 5,c		;1004	cb 69 	. i 
+	jr $+6			;1002	18 04 	. . 
+	bit 5,c			;1004	cb 69 	. i 
 	jr nz,$+5		;1006	20 03 	  . 
 	xor a			;1008	af 	. 
 	inc a			;1009	3c 	< 
 	ret			;100a	c9 	. 
 	dec hl			;100b	2b 	+ 
-	ld (hl),a			;100c	77 	w 
+	ld (hl),a		;100c	77 	w 
 	xor a			;100d	af 	. 
 	ret			;100e	c9 	. 
 	call 021cah		;100f	cd ca 21 	. . ! 
@@ -2078,12 +2100,12 @@ clear_buffers:
 	jr c,$+4		;1024	38 02 	8 . 
 	ld b,018h		;1026	06 18 	. . 
 	ld hl,(CURSOR)		;1028	2a b7 e0 	* . . 
-	ld a,(hl)			;102b	7e 	~ 
+	ld a,(hl)		;102b	7e 	~ 
 	sub 030h		;102c	d6 30 	. 0 
-	cp 00ah		;102e	fe 0a 	. . 
+	cp 00ah			;102e	fe 0a 	. . 
 	jr c,$+4		;1030	38 02 	8 . 
 	sub 007h		;1032	d6 07 	. . 
-	ld (de),a			;1034	12 	. 
+	ld (de),a		;1034	12 	. 
 	call 00e8eh		;1035	cd 8e 0e 	. . . 
 	inc de			;1038	13 	. 
 	djnz $-17		;1039	10 ed 	. . 
@@ -2093,7 +2115,7 @@ clear_buffers:
 	ld (0401eh),a		;1042	32 1e 40 	2 . @ 
 	call 0104bh		;1045	cd 4b 10 	. K . 
 	jp 00f6eh		;1048	c3 6e 0f 	. n . 
-	xor a			;104b	af 	.                 COMPUTE NVRAM CHECKSUM
+	xor a			;104b	COMPUTE NVRAM CHECKSUM
 	ld (0401fh),a		;104c	32 1f 40 	2 . @ 
 	ld c,00fh		;104f	0e 0f 	. . 
 	ld hl,04000h		;1051	21 00 40 	! . @ 
@@ -2102,7 +2124,7 @@ clear_buffers:
 	ld a,b			;105a	78 	x 
 	rra			;105b	1f 	. 
 	jr nc,$+4		;105c	30 02 	0 . 
-	set 3,a		;105e	cb df 	. . 
+	set 3,a			;105e	cb df 	. . 
 	ld (0401fh),a		;1060	32 1f 40 	2 . @ 
 	ret			;1063	c9 	. 
 	call 02069h		;1064	cd 69 20 	. i   
@@ -2111,24 +2133,24 @@ clear_buffers:
 	call 031fbh		;106b	cd fb 31 	. . 1 
 	ld hl,008e5h		;106e	21 e5 08 	! . . 
 	call 022a6h		;1071	cd a6 22 	. . " 
-	jr $+5		;1074	18 03 	. . 
+	jr $+5			;1074	18 03 	. . 
 	call 01519h		;1076	cd 19 15 	. . . 
 	call 02925h		;1079	cd 25 29 	. % ) 
-	bit 7,b		;107c	cb 78 	. x 
+	bit 7,b			;107c	cb 78 	. x 
 	jr nz,$-5		;107e	20 f9 	  . 
 	call 02947h		;1080	cd 47 29 	. G ) 
-	cp 031h		;1083	fe 31 	. 1 
+	cp 031h			;1083	fe 31 	. 1 
 	jr c,$-15		;1085	38 ef 	8 . 
-	cp 033h		;1087	fe 33 	. 3 
+	cp 033h			;1087	fe 33 	. 3 
 	jr c,$+11		;1089	38 09 	8 . 
-	cp 037h		;108b	fe 37 	. 7 
+	cp 037h			;108b	fe 37 	. 7 
 	jr nc,$-23		;108d	30 e7 	0 . 
 	call 0109ah		;108f	cd 9a 10 	. . . 
-	jr $+31		;1092	18 1d 	. . 
+	jr $+31			;1092	18 1d 	. . 
 	call 0109ah		;1094	cd 9a 10 	. . . 
 	jp 00ee3h		;1097	c3 e3 0e 	. . . 
 	ld hl,(CURSOR)		;109a	2a b7 e0 	* . . 
-	ld (hl),a			;109d	77 	w 
+	ld (hl),a		;109d	77 	w 
 	inc hl			;109e	23 	# 
 	ld (hl),000h		;109f	36 00 	6 . 
 	and 007h		;10a1	e6 07 	. . 
@@ -2147,13 +2169,13 @@ clear_buffers:
 	call 00e6eh		;10bd	cd 6e 0e 	. n . 
 	ld a,(MDACT)		;10c0	3a fe e0 	: . . 
 	ld de,040e0h		;10c3	11 e0 40 	. . @ 
-	cp 003h		;10c6	fe 03 	. . 
+	cp 003h			;10c6	fe 03 	. . 
 	jr z,$+19		;10c8	28 11 	( . 
 	ld de,040e8h		;10ca	11 e8 40 	. . @ 
-	cp 004h		;10cd	fe 04 	. . 
+	cp 004h			;10cd	fe 04 	. . 
 	jr z,$+12		;10cf	28 0a 	( . 
 	ld de,040f0h		;10d1	11 f0 40 	. . @ 
-	cp 005h		;10d4	fe 05 	. . 
+	cp 005h			;10d4	fe 05 	. . 
 	jr z,$+5		;10d6	28 03 	( . 
 	ld de,040f8h		;10d8	11 f8 40 	. . @ 
 	ld hl,(CURSOR)		;10db	2a b7 e0 	* . . 
@@ -2161,28 +2183,28 @@ clear_buffers:
 	push de			;10e0	d5 	. 
 	call 00e5ah		;10e1	cd 5a 0e 	. Z . 
 	pop de			;10e4	d1 	. 
-	jr $+5		;10e5	18 03 	. . 
+	jr $+5			;10e5	18 03 	. . 
 	call 01519h		;10e7	cd 19 15 	. . . 
 	call 02925h		;10ea	cd 25 29 	. % ) 
-	bit 7,b		;10ed	cb 78 	. x 
+	bit 7,b			;10ed	cb 78 	. x 
 	jr nz,$-5		;10ef	20 f9 	  . 
 	call 02947h		;10f1	cd 47 29 	. G ) 
-	cp 0e3h		;10f4	fe e3 	. . 
+	cp 0e3h			;10f4	fe e3 	. . 
 	jr z,$+47		;10f6	28 2d 	( - 
 	ld b,a			;10f8	47 	G 
 	push de			;10f9	d5 	. 
 	call 027f5h		;10fa	cd f5 27 	. . ' 
 	pop de			;10fd	d1 	. 
 	ld a,b			;10fe	78 	x 
-	cp 020h		;10ff	fe 20 	.   
+	cp 020h			;10ff	fe 20 	.   
 	jr c,$-26		;1101	38 e4 	8 . 
-	cp 07fh		;1103	fe 7f 	.  
+	cp 07fh			;1103	fe 7f 	.  
 	jr nc,$-30		;1105	30 e0 	0 . 
-	cp 050h		;1107	fe 50 	. P 
+	cp 050h			;1107	fe 50 	. P 
 	jr c,$+4		;1109	38 02 	8 . 
 	sub 020h		;110b	d6 20 	.   
 	ld hl,(CURSOR)		;110d	2a b7 e0 	* . . 
-	ld (hl),a			;1110	77 	w 
+	ld (hl),a		;1110	77 	w 
 	inc hl			;1111	23 	# 
 	ld (hl),000h		;1112	36 00 	6 . 
 	ld c,a			;1114	4f 	O 
@@ -2191,25 +2213,26 @@ clear_buffers:
 	rrca			;1117	0f 	. 
 	rrca			;1118	0f 	. 
 	and 007h		;1119	e6 07 	. . 
-	ld (de),a			;111b	12 	. 
+	ld (de),a		;111b	12 	. 
 	inc de			;111c	13 	. 
 	ld a,c			;111d	79 	y 
-	ld (de),a			;111e	12 	. 
+	ld (de),a		;111e	12 	. 
 	inc de			;111f	13 	. 
 	call 00e8eh		;1120	cd 8e 0e 	. . . 
 	jr z,$-57		;1123	28 c5 	( . 
 	call 0104bh		;1125	cd 4b 10 	. K . 
 	jp 00ee3h		;1128	c3 e3 0e 	. . . 
-	ld a,(de)			;112b	1a 	. 
+	ld a,(de)		;112b	1a 	. 
 	call 01137h		;112c	cd 37 11 	. 7 . 
 	ld c,a			;112f	4f 	O 
 	call 0117ch		;1130	cd 7c 11 	. | . 
 	inc de			;1133	13 	. 
 	djnz $-9		;1134	10 f5 	. . 
-	ret			;1136	c9 	. 
+	ret			;1136	c9 	.
+HASCII:				; HEX TO ASCII
 	and 00fh		;1137	e6 0f 	. . 
 	add a,030h		;1139	c6 30 	. 0 
-	cp 03ah		;113b	fe 3a 	. : 
+	cp 03ah			;113b	fe 3a 	. : 
 	ret c			;113d	d8 	. 
 	add a,007h		;113e	c6 07 	. . 
 	ret			;1140	c9 	. 
@@ -2229,17 +2252,17 @@ clear_buffers:
 	rlca			;1156	07 	. 
 	rlca			;1157	07 	. 
 	or c			;1158	b1 	. 
-	ld (de),a			;1159	12 	. 
+	ld (de),a		;1159	12 	. 
 	inc de			;115a	13 	. 
 	djnz $-26		;115b	10 e4 	. . 
 	ret			;115d	c9 	. 
 	call 00e8eh		;115e	cd 8e 0e 	. . . 
 	ld hl,(CURSOR)		;1161	2a b7 e0 	* . . 
-	ld a,(hl)			;1164	7e 	~ 
+	ld a,(hl)		;1164	7e 	~ 
 	and 001h		;1165	e6 01 	. . 
 	ret			;1167	c9 	. 
 	push bc			;1168	c5 	. 
-	ld a,(de)			;1169	1a 	. 
+	ld a,(de)		;1169	1a 	. 
 	ld b,004h		;116a	06 04 	. . 
 	ld c,030h		;116c	0e 30 	. 0 
 	rrca			;116e	0f 	. 
@@ -2252,7 +2275,7 @@ clear_buffers:
 	djnz $-17		;1179	10 ed 	. . 
 	ret			;117b	c9 	. 
 	ld hl,(CURSOR)		;117c	2a b7 e0 	* . . 
-	ld (hl),c			;117f	71 	q 
+	ld (hl),c		;117f	71 	q 
 	push af			;1180	f5 	. 
 	call 00e8eh		;1181	cd 8e 0e 	. . . 
 	pop af			;1184	f1 	. 
@@ -2263,11 +2286,11 @@ clear_buffers:
 	rlca			;118a	07 	. 
 	ld e,a			;118b	5f 	_ 
 	ld d,000h		;118c	16 00 	. . 
-	add hl,de			;118e	19 	. 
-	ld e,(hl)			;118f	5e 	^ 
+	add hl,de		;118e	19 	. 
+	ld e,(hl)		;118f	5e 	^ 
 	inc hl			;1190	23 	# 
-	ld d,(hl)			;1191	56 	V 
-	ex de,hl			;1192	eb 	. 
+	ld d,(hl)		;1191	56 	V 
+	ex de,hl		;1192	eb 	. 
 	jp (hl)			;1193	e9 	. 
 	ld l,a			;1194	6f 	o 
 	dec c			;1195	0d 	. 
@@ -2320,7 +2343,7 @@ clear_buffers:
 	rrca			;11c9	0f 	. 
 	jp 0c70fh		;11ca	c3 0f c7 	. . . 
 	rrca			;11cd	0f 	. 
-	rrc a		;11ce	cb 0f 	. . 
+	rrc a			;11ce	cb 0f 	. . 
 	sub a			;11d0	97 	. 
 	inc d			;11d1	14 	. 
 	and 012h		;11d2	e6 12 	. . 
@@ -2336,7 +2359,7 @@ clear_buffers:
 	and a			;11e0	a7 	. 
 	inc de			;11e1	13 	. 
 	ld d,e			;11e2	53 	S 
-	ld (de),a			;11e3	12 	. 
+	ld (de),a		;11e3	12 	. 
 	sub a			;11e4	97 	. 
 	inc d			;11e5	14 	. 
 	cp h			;11e6	bc 	. 
@@ -2371,13 +2394,13 @@ clear_buffers:
 	ld hl,00badh		;1220	21 ad 0b 	! . . 
 	call 00e80h		;1223	cd 80 0e 	. . . 
 	ld de,OBYTE1		;1226	11 46 e0 	. F . 
-	ld a,(de)			;1229	1a 	. 
+	ld a,(de)		;1229	1a 	. 
 	cpl			;122a	2f 	/ 
-	ld (de),a			;122b	12 	. 
+	ld (de),a		;122b	12 	. 
 	inc de			;122c	13 	. 
-	ld a,(de)			;122d	1a 	. 
+	ld a,(de)		;122d	1a 	. 
 	cpl			;122e	2f 	/ 
-	ld (de),a			;122f	12 	. 
+	ld (de),a		;122f	12 	. 
 	ld a,001h		;1230	3e 01 	> . 
 	ld (SAVEA),a		;1232	32 e2 e0 	2 . . 
 	call 012e6h		;1235	cd e6 12 	. . . 
@@ -2390,7 +2413,7 @@ clear_buffers:
 	call 013a7h		;124a	cd a7 13 	. . . 
 	xor a			;124d	af 	. 
 	ld (SAVEA),a		;124e	32 e2 e0 	2 . . 
-	jr $+88		;1251	18 56 	. V 
+	jr $+88			;1251	18 56 	. V 
 	pop hl			;1253	e1 	. 
 	ld a,002h		;1254	3e 02 	> . 
 	ld (STALN),a		;1256	32 ea e0 	2 . . 
@@ -2409,15 +2432,15 @@ clear_buffers:
 	ld e,a			;1276	5f 	_ 
 	call 021f5h		;1277	cd f5 21 	. . ! 
 	ld de,OBYTE3		;127a	11 48 e0 	. H . 
-	ld a,(de)			;127d	1a 	. 
+	ld a,(de)		;127d	1a 	. 
 	cpl			;127e	2f 	/ 
-	ld (de),a			;127f	12 	. 
+	ld (de),a		;127f	12 	. 
 	inc de			;1280	13 	. 
-	ld a,(de)			;1281	1a 	. 
+	ld a,(de)		;1281	1a 	. 
 	cpl			;1282	2f 	/ 
-	ld (de),a			;1283	12 	. 
+	ld (de),a		;1283	12 	. 
 	ld hl,TBAUD		;1284	21 58 e0 	! X . 
-	dec (hl)			;1287	35 	5 
+	dec (hl)		;1287	35 	5 
 	call 013bch		;1288	cd bc 13 	. . . 
 	call 013dah		;128b	cd da 13 	. . . 
 	call 013f5h		;128e	cd f5 13 	. . . 
@@ -2428,27 +2451,27 @@ clear_buffers:
 	call 01489h		;129d	cd 89 14 	. . . 
 	xor a			;12a0	af 	. 
 	ld (SAVECR),a		;12a1	32 f6 e0 	2 . . 
-	jr $+5		;12a4	18 03 	. . 
+	jr $+5			;12a4	18 03 	. . 
 	call 01519h		;12a6	cd 19 15 	. . . 
 	ld a,085h		;12a9	3e 85 	> . 
 	out (01ch),a		;12ab	d3 1c 	. . 
 	call 02925h		;12ad	cd 25 29 	. % ) 
-	bit 7,b		;12b0	cb 78 	. x 
+	bit 7,b			;12b0	cb 78 	. x 
 	jr nz,$-5		;12b2	20 f9 	  . 
 	call 02947h		;12b4	cd 47 29 	. G ) 
-	cp 081h		;12b7	fe 81 	. . 
+	cp 081h			;12b7	fe 81 	. . 
 	jr c,$-19		;12b9	38 eb 	8 . 
-	cp 08bh		;12bb	fe 8b 	. . 
+	cp 08bh			;12bb	fe 8b 	. . 
 	jr nc,$-23		;12bd	30 e7 	0 . 
 	ld b,a			;12bf	47 	G 
 	ld hl,011d0h		;12c0	21 d0 11 	! . . 
 	ld a,(STALN)		;12c3	3a ea e0 	: . . 
-	cp 001h		;12c6	fe 01 	. . 
+	cp 001h			;12c6	fe 01 	. . 
 	jr z,$+5		;12c8	28 03 	( . 
 	ld hl,011e4h		;12ca	21 e4 11 	! . . 
 	ld a,b			;12cd	78 	x 
 	call 01186h		;12ce	cd 86 11 	. . . 
-	jr $-40		;12d1	18 d6 	. . 
+	jr $-40			;12d1	18 d6 	. . 
 	ld a,b			;12d3	78 	x 
 	ld (CHRCNT),a		;12d4	32 b1 e0 	2 . . 
 	push hl			;12d7	e5 	. 
@@ -2460,46 +2483,46 @@ clear_buffers:
 	ret			;12e5	c9 	. 
 	ld b,009h		;12e6	06 09 	. . 
 	ld de,OBYTE1		;12e8	11 46 e0 	. F . 
-	ld a,(de)			;12eb	1a 	. 
+	ld a,(de)		;12eb	1a 	. 
 	xor 001h		;12ec	ee 01 	. . 
-	ld (de),a			;12ee	12 	. 
-	bit 0,a		;12ef	cb 47 	. G 
+	ld (de),a		;12ee	12 	. 
+	bit 0,a			;12ef	cb 47 	. G 
 	ld hl,00bbah		;12f1	21 ba 0b 	! . . 
 	jr z,$-33		;12f4	28 dd 	( . 
 	call 02963h		;12f6	cd 63 29 	. c ) 
 	call 0024ch		;12f9	cd 4c 02 	. L . 
 	ld hl,00bb4h		;12fc	21 b4 0b 	! . . 
-	jr $-44		;12ff	18 d2 	. . 
+	jr $-44			;12ff	18 d2 	. . 
 	ld b,011h		;1301	06 11 	. . 
 	ld de,OBYTE1		;1303	11 46 e0 	. F . 
 	ld a,(NOPTR)		;1306	3a f8 e0 	: . . 
 	and a			;1309	a7 	. 
 	jr z,$+7		;130a	28 05 	( . 
-	ld a,(de)			;130c	1a 	. 
-	res 1,a		;130d	cb 8f 	. . 
-	ld (de),a			;130f	12 	. 
+	ld a,(de)		;130c	1a 	. 
+	res 1,a			;130d	cb 8f 	. . 
+	ld (de),a		;130f	12 	. 
 	ret			;1310	c9 	. 
-	ld a,(de)			;1311	1a 	. 
+	ld a,(de)		;1311	1a 	. 
 	xor 002h		;1312	ee 02 	. . 
-	ld (de),a			;1314	12 	. 
-	bit 1,a		;1315	cb 4f 	. O 
+	ld (de),a		;1314	12 	. 
+	bit 1,a			;1315	cb 4f 	. O 
 	ld hl,00bb4h		;1317	21 b4 0b 	! . . 
 	jr z,$-71		;131a	28 b7 	( . 
 	ld hl,00bbah		;131c	21 ba 0b 	! . . 
-	jr $-76		;131f	18 b2 	. . 
+	jr $-76			;131f	18 b2 	. . 
 	ld b,019h		;1321	06 19 	. . 
 	ld de,OBYTE1		;1323	11 46 e0 	. F . 
-	ld a,(de)			;1326	1a 	. 
+	ld a,(de)		;1326	1a 	. 
 	xor 004h		;1327	ee 04 	. . 
-	ld (de),a			;1329	12 	. 
-	bit 2,a		;132a	cb 57 	. W 
-	jr $-21		;132c	18 e9 	. . 
+	ld (de),a		;1329	12 	. 
+	bit 2,a			;132a	cb 57 	. W 
+	jr $-21			;132c	18 e9 	. . 
 	ld b,021h		;132e	06 21 	. ! 
 	ld de,OBYTE1		;1330	11 46 e0 	. F . 
-	ld a,(de)			;1333	1a 	. 
+	ld a,(de)		;1333	1a 	. 
 	xor 008h		;1334	ee 08 	. . 
-	ld (de),a			;1336	12 	. 
-	bit 3,a		;1337	cb 5f 	. _ 
+	ld (de),a		;1336	12 	. 
+	bit 3,a			;1337	cb 5f 	. _ 
 	jr nz,$+13		;1339	20 0b 	  . 
 	in a,(024h)		;133b	db 24 	. $ 
 	and 0fdh		;133d	e6 fd 	. . 
@@ -2507,7 +2530,7 @@ clear_buffers:
 	ld hl,00bc0h		;1341	21 c0 0b 	! . . 
 	jr $-113		;1344	18 8d 	. . 
 	in a,(024h)		;1346	db 24 	. $ 
-	or 002h		;1348	f6 02 	. . 
+	or 002h			;1348	f6 02 	. . 
 	out (024h),a		;134a	d3 24 	. $ 
 	ld hl,00bc6h		;134c	21 c6 0b 	! . . 
 	jp 012d3h		;134f	c3 d3 12 	. . . 
@@ -2522,91 +2545,91 @@ clear_buffers:
 	call 028d1h		;1364	cd d1 28 	. . ( 
 	ld b,029h		;1367	06 29 	. ) 
 	ld de,OBYTE2		;1369	11 47 e0 	. G . 
-	ld a,(de)			;136c	1a 	. 
+	ld a,(de)		;136c	1a 	. 
 	xor 001h		;136d	ee 01 	. . 
-	ld (de),a			;136f	12 	. 
-	bit 0,a		;1370	cb 47 	. G 
+	ld (de),a		;136f	12 	. 
+	bit 0,a			;1370	cb 47 	. G 
 	ld hl,00bcch		;1372	21 cc 0b 	! . . 
 	jr z,$+5		;1375	28 03 	( . 
 	ld hl,00bd2h		;1377	21 d2 0b 	! . . 
 	jp 012d3h		;137a	c3 d3 12 	. . . 
 	ld b,032h		;137d	06 32 	. 2 
 	ld de,OBYTE2		;137f	11 47 e0 	. G . 
-	ld a,(de)			;1382	1a 	. 
+	ld a,(de)		;1382	1a 	. 
 	xor 002h		;1383	ee 02 	. . 
-	ld (de),a			;1385	12 	. 
-	bit 1,a		;1386	cb 4f 	. O 
+	ld (de),a		;1385	12 	. 
+	bit 1,a			;1386	cb 4f 	. O 
 	ld hl,00bd8h		;1388	21 d8 0b 	! . . 
 	jr z,$-17		;138b	28 ed 	( . 
 	ld hl,00bd2h		;138d	21 d2 0b 	! . . 
-	jr $-22		;1390	18 e8 	. . 
+	jr $-22			;1390	18 e8 	. . 
 	ld b,03ah		;1392	06 3a 	. : 
 	ld de,OBYTE2		;1394	11 47 e0 	. G . 
-	ld a,(de)			;1397	1a 	. 
+	ld a,(de)		;1397	1a 	. 
 	xor 004h		;1398	ee 04 	. . 
-	ld (de),a			;139a	12 	. 
-	bit 2,a		;139b	cb 57 	. W 
+	ld (de),a		;139a	12 	. 
+	bit 2,a			;139b	cb 57 	. W 
 	ld hl,00be4h		;139d	21 e4 0b 	! . . 
 	jr z,$-38		;13a0	28 d8 	( . 
 	ld hl,00bdeh		;13a2	21 de 0b 	! . . 
-	jr $-43		;13a5	18 d3 	. . 
+	jr $-43			;13a5	18 d3 	. . 
 	ld b,042h		;13a7	06 42 	. B 
 	ld de,OBYTE2		;13a9	11 47 e0 	. G . 
-	ld a,(de)			;13ac	1a 	. 
+	ld a,(de)		;13ac	1a 	. 
 	xor 008h		;13ad	ee 08 	. . 
-	ld (de),a			;13af	12 	. 
-	bit 3,a		;13b0	cb 5f 	. _ 
+	ld (de),a		;13af	12 	. 
+	bit 3,a			;13b0	cb 5f 	. _ 
 	ld hl,00beah		;13b2	21 ea 0b 	! . . 
 	jr z,$-59		;13b5	28 c3 	( . 
 	ld hl,00bf0h		;13b7	21 f0 0b 	! . . 
-	jr $-64		;13ba	18 be 	. . 
+	jr $-64			;13ba	18 be 	. . 
 	ld b,009h		;13bc	06 09 	. . 
 	ld de,OBYTE3		;13be	11 48 e0 	. H . 
-	ld a,(de)			;13c1	1a 	. 
+	ld a,(de)		;13c1	1a 	. 
 	xor 001h		;13c2	ee 01 	. . 
-	ld (de),a			;13c4	12 	. 
-	bit 0,a		;13c5	cb 47 	. G 
+	ld (de),a		;13c4	12 	. 
+	bit 0,a			;13c5	cb 47 	. G 
 	jr z,$+12		;13c7	28 0a 	( . 
 	ld hl,00bfch		;13c9	21 fc 0b 	! . . 
 	ld a,009h		;13cc	3e 09 	> . 
 	out (033h),a		;13ce	d3 33 	. 3 
 	jp 012d3h		;13d0	c3 d3 12 	. . . 
 	ld hl,00bf6h		;13d3	21 f6 0b 	! . . 
-	ld a,008h		;13d6	3e 08 	> . 
-	jr $-10		;13d8	18 f4 	. . 
+	ld a,008h	       	;13d6	3e 08 	> . 
+	jr $-10			;13d8	18 f4 	. . 
 	ld b,011h		;13da	06 11 	. . 
 	ld de,OBYTE3		;13dc	11 48 e0 	. H . 
-	ld a,(de)			;13df	1a 	. 
+	ld a,(de)		;13df	1a 	. 
 	xor 002h		;13e0	ee 02 	. . 
-	ld (de),a			;13e2	12 	. 
-	bit 1,a		;13e3	cb 4f 	. O 
+	ld (de),a		;13e2	12 	. 
+	bit 1,a			;13e3	cb 4f 	. O 
 	jr z,$+9		;13e5	28 07 	( . 
 	ld hl,00c08h		;13e7	21 08 0c 	! . . 
 	ld a,00bh		;13ea	3e 0b 	> . 
-	jr $-30		;13ec	18 e0 	. . 
+	jr $-30			;13ec	18 e0 	. . 
 	ld hl,00c02h		;13ee	21 02 0c 	! . . 
 	ld a,00ah		;13f1	3e 0a 	> . 
-	jr $-37		;13f3	18 d9 	. . 
+	jr $-37			;13f3	18 d9 	. . 
 	ld b,019h		;13f5	06 19 	. . 
 	ld de,OBYTE3		;13f7	11 48 e0 	. H . 
-	ld a,(de)			;13fa	1a 	. 
+	ld a,(de)		;13fa	1a 	. 
 	xor 004h		;13fb	ee 04 	. . 
-	ld (de),a			;13fd	12 	. 
-	bit 2,a		;13fe	cb 57 	. W 
+	ld (de),a		;13fd	12 	. 
+	bit 2,a			;13fe	cb 57 	. W 
 	jr z,$+9		;1400	28 07 	( . 
 	ld hl,00c14h		;1402	21 14 0c 	! . . 
 	ld a,003h		;1405	3e 03 	> . 
-	jr $-57		;1407	18 c5 	. . 
+	jr $-57			;1407	18 c5 	. . 
 	ld hl,00c0eh		;1409	21 0e 0c 	! . . 
 	ld a,002h		;140c	3e 02 	> . 
-	jr $-64		;140e	18 be 	. . 
+	jr $-64			;140e	18 be 	. . 
 	ld b,021h		;1410	06 21 	. ! 
 	ld a,001h		;1412	3e 01 	> . 
 	ld (SAVECR),a		;1414	32 f6 e0 	2 . . 
 	ld a,(TBAUD)		;1417	3a 58 e0 	: X . 
 	inc a			;141a	3c 	< 
 	and 00fh		;141b	e6 0f 	. . 
-	cp 00ch		;141d	fe 0c 	. . 
+	cp 00ch			;141d	fe 0c 	. . 
 	jr nz,$+3		;141f	20 01 	  . 
 	xor a			;1421	af 	. 
 	ld (TBAUD),a		;1422	32 58 e0 	2 X . 
@@ -2620,52 +2643,52 @@ clear_buffers:
 	add a,c			;1430	81 	. 
 	ld e,a			;1431	5f 	_ 
 	ld d,000h		;1432	16 00 	. . 
-	add hl,de			;1434	19 	. 
+	add hl,de		;1434	19 	. 
 	jp 012d3h		;1435	c3 d3 12 	. . . 
 	ld b,029h		;1438	06 29 	. ) 
 	ld de,OBYTE4		;143a	11 49 e0 	. I . 
-	ld a,(de)			;143d	1a 	. 
+	ld a,(de)		;143d	1a 	. 
 	xor 001h		;143e	ee 01 	. . 
-	ld (de),a			;1440	12 	. 
-	bit 0,a		;1441	cb 47 	. G 
+	ld (de),a		;1440	12 	. 
+	bit 0,a			;1441	cb 47 	. G 
 	ld hl,00c1ah		;1443	21 1a 0c 	! . . 
 	jr z,$-17		;1446	28 ed 	( . 
 	ld hl,00c20h		;1448	21 20 0c 	!   . 
-	jr $-22		;144b	18 e8 	. . 
+	jr $-22			;144b	18 e8 	. . 
 	ld b,032h		;144d	06 32 	. 2 
 	ld a,(CHNCHG)		;144f	3a b0 e0 	: . . 
 	cpl			;1452	2f 	/ 
 	ld (CHNCHG),a		;1453	32 b0 e0 	2 . . 
 	ld de,OBYTE4		;1456	11 49 e0 	. I . 
-	ld a,(de)			;1459	1a 	. 
+	ld a,(de)		;1459	1a 	. 
 	xor 002h		;145a	ee 02 	. . 
-	ld (de),a			;145c	12 	. 
-	bit 1,a		;145d	cb 4f 	. O 
+	ld (de),a		;145c	12 	. 
+	bit 1,a			;145d	cb 4f 	. O 
 	jr z,$+7		;145f	28 05 	( . 
 	ld hl,00c2ch		;1461	21 2c 0c 	! , . 
-	jr $-47		;1464	18 cf 	. . 
+	jr $-47			;1464	18 cf 	. . 
 	ld hl,00c26h		;1466	21 26 0c 	! & . 
-	jr $-52		;1469	18 ca 	. . 
+	jr $-52			;1469	18 ca 	. . 
 	ld b,03ah		;146b	06 3a 	. : 
 	ld a,(LNNCHG)		;146d	3a d2 e0 	: . . 
 	cpl			;1470	2f 	/ 
 	ld (LNNCHG),a		;1471	32 d2 e0 	2 . . 
 	ld de,OBYTE4		;1474	11 49 e0 	. I . 
-	ld a,(de)			;1477	1a 	. 
+	ld a,(de)		;1477	1a 	. 
 	xor 004h		;1478	ee 04 	. . 
-	ld (de),a			;147a	12 	. 
-	bit 2,a		;147b	cb 57 	. W 
+	ld (de),a		;147a	12 	. 
+	bit 2,a			;147b	cb 57 	. W 
 	jr z,$+7		;147d	28 05 	( . 
 	ld hl,00c38h		;147f	21 38 0c 	! 8 . 
-	jr $-77		;1482	18 b1 	. . 
+	jr $-77			;1482	18 b1 	. . 
 	ld hl,00c32h		;1484	21 32 0c 	! 2 . 
-	jr $-82		;1487	18 ac 	. . 
+	jr $-82			;1487	18 ac 	. . 
 	ld b,042h		;1489	06 42 	. B 
 	ld de,OBYTE4		;148b	11 49 e0 	. I . 
-	ld a,(de)			;148e	1a 	. 
+	ld a,(de)		;148e	1a 	. 
 	xor 008h		;148f	ee 08 	. . 
-	ld (de),a			;1491	12 	. 
-	bit 3,a		;1492	cb 5f 	. _ 
+	ld (de),a		;1491	12 	. 
+	bit 3,a			;1492	cb 5f 	. _ 
 	jp 01317h		;1494	c3 17 13 	. . . 
 	pop hl			;1497	e1 	. 
 	call 025e6h		;1498	cd e6 25 	. . % 
@@ -2683,7 +2706,8 @@ clear_buffers:
 	ld a,(CHNCHG)		;14b5	3a b0 e0 	: . . 
 	or b			;14b8	b0 	. 
 	ret z			;14b9	c8 	. 
-	jp 002b5h		;14ba	c3 b5 02 	. . . 
+	jp 002b5h		;14ba	c3 b5 02 	. . .
+ADVCR:				; ADVANCE CURSOR
 	ld a,(LNSIZE)		;14bd	3a d4 e0 	: . . 
 	ld b,a			;14c0	47 	G 
 	ld a,(CHRCNT)		;14c1	3a b1 e0 	: . . 
@@ -2719,7 +2743,8 @@ clear_buffers:
 	ld a,(BLKMD)		;1500	3a ab e0 	: . . 
 	and 001h		;1503	e6 01 	. . 
 	call nz,01519h		;1505	c4 19 15 	. . . 
-	ret			;1508	c9 	. 
+	ret			;1508	c9 	.
+ALARMI:				; ALARM IF ENABLED
 	push af			;1509	f5 	. 
 	ld a,(KBINP)		;150a	3a c9 e0 	: . . 
 	rra			;150d	1f 	. 
@@ -2727,7 +2752,8 @@ clear_buffers:
 	ld a,(OBYTE1)		;1510	3a 46 e0 	: F . 
 	and 004h		;1513	e6 04 	. . 
 	jr z,$+17		;1515	28 0f 	( . 
-	jr $+3		;1517	18 01 	. . 
+	jr $+3			;1517	18 01 	. .
+ALARM:				; ALARM
 	push af			;1519	f5 	. 
 	ld a,000h		;151a	3e 00 	> . 
 	out (033h),a		;151c	d3 33 	. 3 
@@ -2738,19 +2764,21 @@ clear_buffers:
 	ret			;1527	c9 	. 
 	call 0337ch		;1528	cd 7c 33 	. | 3 
 	call nz,01519h		;152b	c4 19 15 	. . . 
-	ret			;152e	c9 	. 
+	ret			;152e	c9 	.
+ADVMD:				; ADVANCED MODE
 	di			;152f	f3 	. 
 	ld ix,0154ch		;1530	dd 21 4c 15 	. ! L . 
 	call 00269h		;1534	cd 69 02 	. i . 
 	call 0027eh		;1537	cd 7e 02 	. ~ . 
-	jr $+6		;153a	18 04 	. . 
+	jr $+6			;153a	18 04 	. . 
 	ld ix,01549h		;153c	dd 21 49 15 	. ! I . 
 	ld sp,0e000h		;1540	31 00 e0 	1 . . 
 	call 01552h		;1543	cd 52 15 	. R . 
 	ei			;1546	fb 	. 
-	jp (ix)		;1547	dd e9 	. . 
+	jp (ix)			;1547	dd e9 	. . 
 	call 0166ch		;1549	cd 6c 16 	. l . 
-	jp 02d95h		;154c	c3 95 2d 	. . - 
+	jp 02d95h		;154c	c3 95 2d 	. . -
+ADVINI:				; ADVANCED MODE INITIALIZATION
 	call 0027eh		;154f	cd 7e 02 	. ~ . 
 	call 0028bh		;1552	cd 8b 02 	. . . 
 	call 00518h		;1555	cd 18 05 	. . . 
@@ -2802,7 +2830,7 @@ clear_buffers:
 	ld a,(CHAPAR)		;15bc	3a 6e e0 	: n . 
 	ld (SAVEA),a		;15bf	32 e2 e0 	2 . . 
 	call 00533h		;15c2	cd 33 05 	. 3 . 
-	jr $+11		;15c5	18 09 	. . 
+	jr $+11			;15c5	18 09 	. . 
 	ld a,(CHBPAR)		;15c7	3a 70 e0 	: p . 
 	ld (SAVEA),a		;15ca	32 e2 e0 	2 . . 
 	call 00544h		;15cd	cd 44 05 	. D . 
@@ -2820,11 +2848,11 @@ clear_buffers:
 	ld hl,015f3h		;15ed	21 f3 15 	! . . 
 	jp 01a60h		;15f0	c3 60 1a 	. ` . 
 	ld a,b			;15f3	78 	x 
-	cp 01eh		;15f4	fe 1e 	. . 
+	cp 01eh			;15f4	fe 1e 	. . 
 	jr z,$+8		;15f6	28 06 	( . 
-	cp 012h		;15f8	fe 12 	. . 
+	cp 012h			;15f8	fe 12 	. . 
 	jr z,$+15		;15fa	28 0d 	( . 
-	jr $+19		;15fc	18 11 	. . 
+	jr $+19			;15fc	18 11 	. . 
 	ld a,(RSRCV)		;15fe	3a e0 e0 	: . . 
 	and a			;1601	a7 	. 
 	jr nz,$+13		;1602	20 0b 	  . 
@@ -2851,29 +2879,29 @@ clear_buffers:
 	call 02963h		;162e	cd 63 29 	. c ) 
 	ret			;1631	c9 	. 
 	ld a,005h		;1632	3e 05 	> . 
-	jr $+4		;1634	18 02 	. . 
+	jr $+4			;1634	18 02 	. . 
 	ld a,004h		;1636	3e 04 	> . 
 	out (033h),a		;1638	d3 33 	. 3 
 	ret			;163a	c9 	. 
 	ld b,0f7h		;163b	06 f7 	. . 
-	jr $+24		;163d	18 16 	. . 
+	jr $+24			;163d	18 16 	. . 
 	ld b,0feh		;163f	06 fe 	. . 
-	jr $+20		;1641	18 12 	. . 
+	jr $+20			;1641	18 12 	. . 
 	ld b,0efh		;1643	06 ef 	. . 
-	jr $+16		;1645	18 0e 	. . 
+	jr $+16			;1645	18 0e 	. . 
 	ld b,0fbh		;1647	06 fb 	. . 
-	jr $+12		;1649	18 0a 	. . 
+	jr $+12			;1649	18 0a 	. . 
 	ld b,07fh		;164b	06 7f 	.  
-	jr $+8		;164d	18 06 	. . 
+	jr $+8			;164d	18 06 	. . 
 	ld b,0fdh		;164f	06 fd 	. . 
-	jr $+4		;1651	18 02 	. . 
+	jr $+4			;1651	18 02 	. . 
 	ld b,0bfh		;1653	06 bf 	. . 
 	ld a,(ATTRIB)		;1655	3a a9 e0 	: . . 
 	and b			;1658	a0 	. 
 	ld (ATTRIB),a		;1659	32 a9 e0 	2 . . 
 	ret			;165c	c9 	. 
 	xor a			;165d	af 	. 
-	jr $+4		;165e	18 02 	. . 
+	jr $+4			;165e	18 02 	. . 
 	ld a,001h		;1660	3e 01 	> . 
 	ld (GRACHR),a		;1662	32 c0 e0 	2 . . 
 	ret			;1665	c9 	. 
@@ -2899,9 +2927,10 @@ clear_buffers:
 	ld e,a			;168f	5f 	_ 
 	ld hl,MBYTE1		;1690	21 40 e0 	! @ . 
 	ld bc,00020h		;1693	01 20 00 	.   . 
-	ldir		;1696	ed b0 	. . 
+	ldir			;1696	ed b0 	. . 
 	call 0104bh		;1698	cd 4b 10 	. K . 
-	ret			;169b	c9 	. 
+	ret			;169b	c9 	.
+ADDB15:				; ADD BIAS OF ENABLES
 	ld a,(MBYTE5)		;169c	3a 44 e0 	: D . 
 	and 008h		;169f	e6 08 	. . 
 	ret z			;16a1	c8 	. 
@@ -2933,39 +2962,39 @@ clear_buffers:
 	rra			;16ce	1f 	. 
 	jr nc,$+9		;16cf	30 07 	0 . 
 	inc hl			;16d1	23 	# 
-	ld a,(hl)			;16d2	7e 	~ 
+	ld a,(hl)		;16d2	7e 	~ 
 	dec hl			;16d3	2b 	+ 
 	and 080h		;16d4	e6 80 	. . 
 	jr nz,$+21		;16d6	20 13 	  . 
-	ld a,(hl)			;16d8	7e 	~ 
-	ld (de),a			;16d9	12 	. 
+	ld a,(hl)		;16d8	7e 	~ 
+	ld (de),a		;16d9	12 	. 
 	inc hl			;16da	23 	# 
 	inc de			;16db	13 	. 
 	ld a,(BLKMD)		;16dc	3a ab e0 	: . . 
 	rra			;16df	1f 	. 
-	ld a,(hl)			;16e0	7e 	~ 
+	ld a,(hl)		;16e0	7e 	~ 
 	jr nc,$+4		;16e1	30 02 	0 . 
-	or 020h		;16e3	f6 20 	.   
-	ld (de),a			;16e5	12 	. 
+	or 020h			;16e3	f6 20 	.   
+	ld (de),a		;16e5	12 	. 
 	inc hl			;16e6	23 	# 
 	inc de			;16e7	13 	. 
 	inc b			;16e8	04 	. 
-	jr $-34		;16e9	18 dc 	. . 
+	jr $-34			;16e9	18 dc 	. . 
 	ld a,020h		;16eb	3e 20 	>   
-	ld (de),a			;16ed	12 	. 
+	ld (de),a		;16ed	12 	. 
 	inc de			;16ee	13 	. 
 	ld a,(BLKMD)		;16ef	3a ab e0 	: . . 
 	ld a,(BLKMD)		;16f2	3a ab e0 	: . . 
 	and a			;16f5	a7 	. 
 	jr z,$+4		;16f6	28 02 	( . 
 	ld a,020h		;16f8	3e 20 	>   
-	ld (de),a			;16fa	12 	. 
+	ld (de),a		;16fa	12 	. 
 	ret			;16fb	c9 	. 
 	call 02fe7h		;16fc	cd e7 2f 	. . / 
 	call 01d14h		;16ff	cd 14 1d 	. . . 
 	ret			;1702	c9 	. 
 	xor a			;1703	af 	. 
-	jr $+4		;1704	18 02 	. . 
+	jr $+4			;1704	18 02 	. . 
 	ld a,001h		;1706	3e 01 	> . 
 	ld (DLMENA),a		;1708	32 b9 e0 	2 . . 
 	ret			;170b	c9 	. 
@@ -2973,7 +3002,7 @@ clear_buffers:
 	and a			;170f	a7 	. 
 	jr z,$+7		;1710	28 05 	( . 
 	call 0302fh		;1712	cd 2f 30 	. / 0 
-	jr $-9		;1715	18 f5 	. . 
+	jr $-9			;1715	18 f5 	. . 
 	ld a,(TBYTE2)		;1717	3a 61 e0 	: a . 
 	and 001h		;171a	e6 01 	. . 
 	jp z,01750h		;171c	ca 50 17 	. P . 
@@ -2995,9 +3024,9 @@ clear_buffers:
 	ld iy,01747h		;173b	fd 21 47 17 	. ! G . 
 	jp 03d0fh		;173f	c3 0f 3d 	. . = 
 	ld (DRVADD),hl		;1742	22 ba e0 	" . . 
-	jr $-31		;1745	18 df 	. . 
+	jr $-31			;1745	18 df 	. . 
 	xor a			;1747	af 	. 
-	out (BANKSELECT),a		;1748	d3 70 	. p 
+	out (BANKSELECT),a	;1748	d3 70 	. p 
 	ld hl,00000h		;174a	21 00 00 	! . . 
 	ld (DRVADD),hl		;174d	22 ba e0 	" . . 
 	ld a,(KBINP)		;1750	3a c9 e0 	: . . 
@@ -3008,12 +3037,12 @@ clear_buffers:
 	ld (DSPDIS),a		;175a	32 bc e0 	2 . . 
 	ret			;175d	c9 	. 
 	ld a,b			;175e	78 	x 
-	cp 012h		;175f	fe 12 	. . 
+	cp 012h			;175f	fe 12 	. . 
 	jr nz,$+17		;1761	20 0f 	  . 
 	ld hl,01769h		;1763	21 69 17 	! i . 
 	jp 01a60h		;1766	c3 60 1a 	. ` . 
 	ld a,b			;1769	78 	x 
-	cp 050h		;176a	fe 50 	. P 
+	cp 050h			;176a	fe 50 	. P 
 	jr nz,$+6		;176c	20 04 	  . 
 	xor a			;176e	af 	. 
 	ld (DSPDIS),a		;176f	32 bc e0 	2 . . 
@@ -3021,36 +3050,36 @@ clear_buffers:
 	ld (MLTACT),a		;1773	32 d6 e0 	2 . . 
 	ret			;1776	c9 	. 
 	ld a,001h		;1777	3e 01 	> . 
-	jr $+3		;1779	18 01 	. . 
+	jr $+3			;1779	18 01 	. . 
 	xor a			;177b	af 	. 
 	ld (BLKMD),a		;177c	32 ab e0 	2 . . 
 	call 00422h		;177f	cd 22 04 	. " . 
 	ret			;1782	c9 	. 
 	ld a,(OBYTE2)		;1783	3a 47 e0 	: G . 
 	and 0f7h		;1786	e6 f7 	. . 
-	jr $+21		;1788	18 13 	. . 
+	jr $+21			;1788	18 13 	. . 
 	ld a,(OBYTE2)		;178a	3a 47 e0 	: G . 
-	or 008h		;178d	f6 08 	. . 
-	jr $+14		;178f	18 0c 	. . 
+	or 008h			;178d	f6 08 	. . 
+	jr $+14			;178f	18 0c 	. . 
 	ld a,(OBYTE2)		;1791	3a 47 e0 	: G . 
-	or 002h		;1794	f6 02 	. . 
-	jr $+7		;1796	18 05 	. . 
+	or 002h			;1794	f6 02 	. . 
+	jr $+7			;1796	18 05 	. . 
 	ld a,(OBYTE2)		;1798	3a 47 e0 	: G . 
 	and 0fdh		;179b	e6 fd 	. . 
 	ld (OBYTE2),a		;179d	32 47 e0 	2 G . 
 	ret			;17a0	c9 	. 
 	ld a,00dh		;17a1	3e 0d 	> . 
-	jr $+4		;17a3	18 02 	. . 
+	jr $+4			;17a3	18 02 	. . 
 	ld a,00ch		;17a5	3e 0c 	> . 
 	out (033h),a		;17a7	d3 33 	. 3 
 	ld hl,017afh		;17a9	21 af 17 	! . . 
 	jp 01a5bh		;17ac	c3 5b 1a 	. [ . 
 	ld a,b			;17af	78 	x 
-	cp 040h		;17b0	fe 40 	. @ 
+	cp 040h			;17b0	fe 40 	. @ 
 	jr c,$+7		;17b2	38 05 	8 . 
-	or 080h		;17b4	f6 80 	. . 
+	or 080h			;17b4	f6 80 	. . 
 	ld b,a			;17b6	47 	G 
-	jr $+4		;17b7	18 02 	. . 
+	jr $+4			;17b7	18 02 	. . 
 	ld b,07fh		;17b9	06 7f 	.  
 	call 0221bh		;17bb	cd 1b 22 	. . " 
 	xor a			;17be	af 	. 
@@ -3063,7 +3092,7 @@ clear_buffers:
 	call 018b3h		;17ce	cd b3 18 	. . . 
 	ret z			;17d1	c8 	. 
 	ld a,b			;17d2	78 	x 
-	cp 030h		;17d3	fe 30 	. 0 
+	cp 030h			;17d3	fe 30 	. 0 
 	jr c,$+28		;17d5	38 1a 	8 . 
 	call 017e3h		;17d7	cd e3 17 	. . . 
 	ld (SAVEHL),hl		;17da	22 e4 e0 	" . . 
@@ -3077,26 +3106,26 @@ clear_buffers:
 	ld e,a			;17e9	5f 	_ 
 	ld d,000h		;17ea	16 00 	. . 
 	ld hl,0d810h		;17ec	21 10 d8 	! . . 
-	add hl,de			;17ef	19 	. 
+	add hl,de		;17ef	19 	. 
 	ret			;17f0	c9 	. 
 	ld a,001h		;17f1	3e 01 	> . 
-	jr $+3		;17f3	18 01 	. . 
+	jr $+3			;17f3	18 01 	. . 
 	xor a			;17f5	af 	. 
 	ld (HDCSER),a		;17f6	32 c1 e0 	2 . . 
 	ld hl,018b3h		;17f9	21 b3 18 	! . . 
 	jp 01a60h		;17fc	c3 60 1a 	. ` . 
 	call 018b3h		;17ff	cd b3 18 	. . . 
 	ret z			;1802	c8 	. 
-	cp 030h		;1803	fe 30 	. 0 
+	cp 030h			;1803	fe 30 	. 0 
 	jr c,$-20		;1805	38 ea 	8 . 
 	jr nz,$+8		;1807	20 06 	  . 
 	ld hl,(SAVEHL)		;1809	2a e4 e0 	* . . 
-	ld (hl),b			;180c	70 	p 
-	jr $-24		;180d	18 e6 	. . 
-	cp 034h		;180f	fe 34 	. 4 
+	ld (hl),b		;180c	70 	p 
+	jr $-24			;180d	18 e6 	. . 
+	cp 034h			;180f	fe 34 	. 4 
 	jr nc,$-32		;1811	30 de 	0 . 
 	ld hl,(SAVEHL)		;1813	2a e4 e0 	* . . 
-	ld (hl),b			;1816	70 	p 
+	ld (hl),b		;1816	70 	p 
 	inc hl			;1817	23 	# 
 	ld (SAVEHL),hl		;1818	22 e4 e0 	" . . 
 	ld hl,01821h		;181b	21 21 18 	! ! . 
@@ -3109,26 +3138,26 @@ clear_buffers:
 	jr nc,$+7		;182c	30 05 	0 . 
 	rra			;182e	1f 	. 
 	jr c,$+27		;182f	38 19 	8 . 
-	jr $+8		;1831	18 06 	. . 
+	jr $+8			;1831	18 06 	. . 
 	ld a,b			;1833	78 	x 
 	ld (SAVEA),a		;1834	32 e2 e0 	2 . . 
-	jr $+14		;1837	18 0c 	. . 
+	jr $+14			;1837	18 0c 	. . 
 	ld a,(SAVEA)		;1839	3a e2 e0 	: . . 
 	or c			;183c	b1 	. 
 	ld hl,(SAVEHL)		;183d	2a e4 e0 	* . . 
-	ld (hl),a			;1840	77 	w 
+	ld (hl),a		;1840	77 	w 
 	inc hl			;1841	23 	# 
 	ld (SAVEHL),hl		;1842	22 e4 e0 	" . . 
 	ld hl,MLTCNT		;1845	21 d5 e0 	! . . 
-	inc (hl)			;1848	34 	4 
+	inc (hl)		;1848	34 	4 
 	ret			;1849	c9 	. 
 	ld a,(SAVEA)		;184a	3a e2 e0 	: . . 
 	or c			;184d	b1 	. 
 	ld hl,(SAVEHL)		;184e	2a e4 e0 	* . . 
-	ld (hl),a			;1851	77 	w 
+	ld (hl),a		;1851	77 	w 
 	ld e,a			;1852	5f 	_ 
 	dec hl			;1853	2b 	+ 
-	ld d,(hl)			;1854	56 	V 
+	ld d,(hl)		;1854	56 	V 
 	ld (SAVEHL),de		;1855	ed 53 e4 e0 	. S . . 
 	ld hl,0185fh		;1859	21 5f 18 	! _ . 
 	jp 01a57h		;185c	c3 57 1a 	. W . 
@@ -3147,24 +3176,24 @@ clear_buffers:
 	ld a,(SAVEA)		;1879	3a e2 e0 	: . . 
 	or c			;187c	b1 	. 
 	ld hl,(SAVEHL)		;187d	2a e4 e0 	* . . 
-	ld (hl),a			;1880	77 	w 
+	ld (hl),a		;1880	77 	w 
 	inc hl			;1881	23 	# 
 	ld (SAVEHL),hl		;1882	22 e4 e0 	" . . 
 	xor a			;1885	af 	. 
 	ld (HDCSER),a		;1886	32 c1 e0 	2 . . 
 	ld (MLTCNT),a		;1889	32 d5 e0 	2 . . 
 	ret			;188c	c9 	. 
-	bit 4,b		;188d	cb 60 	. ` 
+	bit 4,b			;188d	cb 60 	. ` 
 	jr nz,$+32		;188f	20 1e 	  . 
-	bit 5,b		;1891	cb 68 	. h 
+	bit 5,b			;1891	cb 68 	. h 
 	jr z,$+28		;1893	28 1a 	( . 
 	ld a,(MLTCNT)		;1895	3a d5 e0 	: . . 
 	rra			;1898	1f 	. 
 	jr c,$+8		;1899	38 06 	8 . 
-	bit 6,b		;189b	cb 70 	. p 
+	bit 6,b			;189b	cb 70 	. p 
 	jr nz,$+18		;189d	20 10 	  . 
-	jr $+6		;189f	18 04 	. . 
-	bit 6,b		;18a1	cb 70 	. p 
+	jr $+6			;189f	18 04 	. . 
+	bit 6,b			;18a1	cb 70 	. p 
 	jr z,$+12		;18a3	28 0a 	( . 
 	ld a,b			;18a5	78 	x 
 	and 00fh		;18a6	e6 0f 	. . 
@@ -3177,15 +3206,15 @@ clear_buffers:
 	ret			;18ae	c9 	. 
 	pop hl			;18af	e1 	. 
 	jp 017f1h		;18b0	c3 f1 17 	. . . 
-	res 7,b		;18b3	cb b8 	. . 
+	res 7,b			;18b3	cb b8 	. . 
 	ld a,b			;18b5	78 	x 
-	cp 00dh		;18b6	fe 0d 	. . 
+	cp 00dh			;18b6	fe 0d 	. . 
 	ret nz			;18b8	c0 	. 
 	ld a,(HDCSER)		;18b9	3a c1 e0 	: . . 
 	rra			;18bc	1f 	. 
 	jr nc,$+7		;18bd	30 05 	0 . 
 	call 01d71h		;18bf	cd 71 1d 	. q . 
-	jr $+5		;18c2	18 03 	. . 
+	jr $+5			;18c2	18 03 	. . 
 	call 01d67h		;18c4	cd 67 1d 	. g . 
 	xor a			;18c7	af 	. 
 	ld (MLTACT),a		;18c8	32 d6 e0 	2 . . 
@@ -3197,9 +3226,9 @@ clear_buffers:
 	call 018b3h		;18d7	cd b3 18 	. . . 
 	ret z			;18da	c8 	. 
 	ld a,b			;18db	78 	x 
-	cp 040h		;18dc	fe 40 	. @ 
+	cp 040h			;18dc	fe 40 	. @ 
 	jp c,017f1h		;18de	da f1 17 	. . . 
-	cp 080h		;18e1	fe 80 	. . 
+	cp 080h			;18e1	fe 80 	. . 
 	jp nc,017f1h		;18e3	d2 f1 17 	. . . 
 	and 03fh		;18e6	e6 3f 	. ? 
 	ld l,a			;18e8	6f 	o 
@@ -3220,7 +3249,7 @@ clear_buffers:
 	ld l,a			;1906	6f 	o 
 	ld a,h			;1907	7c 	| 
 	and 003h		;1908	e6 03 	. . 
-	or 048h		;190a	f6 48 	. H 
+	or 048h			;190a	f6 48 	. H 
 	ld h,a			;190c	67 	g 
 	ld (SAVEHL),hl		;190d	22 e4 e0 	" . . 
 	ld hl,01916h		;1910	21 16 19 	! . . 
@@ -3240,9 +3269,9 @@ clear_buffers:
 	ld a,(SAVEA)		;1930	3a e2 e0 	: . . 
 	or c			;1933	b1 	. 
 	ld hl,(SAVEHL)		;1934	2a e4 e0 	* . . 
-	ld (hl),a			;1937	77 	w 
+	ld (hl),a		;1937	77 	w 
 	ld de,00040h		;1938	11 40 00 	. @ . 
-	add hl,de			;193b	19 	. 
+	add hl,de		;193b	19 	. 
 	ld (SAVEHL),hl		;193c	22 e4 e0 	" . . 
 	xor a			;193f	af 	. 
 	ld (HDCSER),a		;1940	32 c1 e0 	2 . . 
@@ -3250,7 +3279,7 @@ clear_buffers:
 	ld a,(SAVEB)		;1946	3a e3 e0 	: . . 
 	inc a			;1949	3c 	< 
 	ld (SAVEB),a		;194a	32 e3 e0 	2 . . 
-	cp 010h		;194d	fe 10 	. . 
+	cp 010h			;194d	fe 10 	. . 
 	ret nz			;194f	c0 	. 
 	ld hl,018b3h		;1950	21 b3 18 	! . . 
 	jp 01a60h		;1953	c3 60 1a 	. ` . 
@@ -3266,11 +3295,11 @@ clear_buffers:
 	jp z,0152fh		;196e	ca 2f 15 	. / . 
 	call 0188dh		;1971	cd 8d 18 	. . . 
 	ld hl,(SAVEHL)		;1974	2a e4 e0 	* . . 
-	ld (hl),c			;1977	71 	q 
+	ld (hl),c		;1977	71 	q 
 	inc hl			;1978	23 	# 
 	ld (SAVEHL),hl		;1979	22 e4 e0 	" . . 
 	ld hl,MLTCNT		;197c	21 d5 e0 	! . . 
-	inc (hl)			;197f	34 	4 
+	inc (hl)		;197f	34 	4 
 	ld a,(SAVEA)		;1980	3a e2 e0 	: . . 
 	dec a			;1983	3d 	= 
 	ld (SAVEA),a		;1984	32 e2 e0 	2 . . 
@@ -3300,20 +3329,20 @@ clear_buffers:
 	and 007h		;19ba	e6 07 	. . 
 	jr nz,$+6		;19bc	20 04 	  . 
 	ld b,002h		;19be	06 02 	. . 
-	jr $+31		;19c0	18 1d 	. . 
-	cp 001h		;19c2	fe 01 	. . 
+	jr $+31			;19c0	18 1d 	. . 
+	cp 001h			;19c2	fe 01 	. . 
 	jr nz,$+6		;19c4	20 04 	  . 
 	ld b,010h		;19c6	06 10 	. . 
-	jr $+23		;19c8	18 15 	. . 
-	cp 002h		;19ca	fe 02 	. . 
+	jr $+23			;19c8	18 15 	. . 
+	cp 002h			;19ca	fe 02 	. . 
 	jr nz,$+6		;19cc	20 04 	  . 
 	ld b,020h		;19ce	06 20 	.   
-	jr $+15		;19d0	18 0d 	. . 
-	cp 003h		;19d2	fe 03 	. . 
+	jr $+15			;19d0	18 0d 	. . 
+	cp 003h			;19d2	fe 03 	. . 
 	jr nz,$+6		;19d4	20 04 	  . 
 	ld b,040h		;19d6	06 40 	. @ 
-	jr $+7		;19d8	18 05 	. . 
-	cp 004h		;19da	fe 04 	. . 
+	jr $+7			;19d8	18 05 	. . 
+	cp 004h			;19da	fe 04 	. . 
 	ret nz			;19dc	c0 	. 
 	ld b,008h		;19dd	06 08 	. . 
 	ld a,(INDON)		;19df	3a c7 e0 	: . . 
@@ -3321,7 +3350,7 @@ clear_buffers:
 	jr nc,$+6		;19e3	30 04 	0 . 
 	ld a,b			;19e5	78 	x 
 	or c			;19e6	b1 	. 
-	jr $+5		;19e7	18 03 	. . 
+	jr $+5			;19e7	18 03 	. . 
 	ld a,b			;19e9	78 	x 
 	cpl			;19ea	2f 	/ 
 	and c			;19eb	a1 	. 
@@ -3330,7 +3359,7 @@ clear_buffers:
 	out (050h),a		;19f0	d3 50 	. P 
 	ret			;19f2	c9 	. 
 	xor a			;19f3	af 	. 
-	jr $+4		;19f4	18 02 	. . 
+	jr $+4			;19f4	18 02 	. . 
 	ld a,001h		;19f6	3e 01 	> . 
 	ld (INDON),a		;19f8	32 c7 e0 	2 . . 
 	ld hl,019b1h		;19fb	21 b1 19 	! . . 
@@ -3345,18 +3374,18 @@ clear_buffers:
 	ld hl,(CURSOR)		;1a0e	2a b7 e0 	* . . 
 	ld d,020h		;1a11	16 20 	.   
 	ld e,000h		;1a13	1e 00 	. . 
-	ld a,(hl)			;1a15	7e 	~ 
-	ld (hl),d			;1a16	72 	r 
+	ld a,(hl)		;1a15	7e 	~ 
+	ld (hl),d		;1a16	72 	r 
 	ld d,a			;1a17	57 	W 
 	inc hl			;1a18	23 	# 
 	ld a,(BLKMD)		;1a19	3a ab e0 	: . . 
 	rra			;1a1c	1f 	. 
 	jr nc,$+6		;1a1d	30 04 	0 . 
 	ld a,e			;1a1f	7b 	{ 
-	or 020h		;1a20	f6 20 	.   
+	or 020h			;1a20	f6 20 	.   
 	ld e,a			;1a22	5f 	_ 
-	ld a,(hl)			;1a23	7e 	~ 
-	ld (hl),e			;1a24	73 	s 
+	ld a,(hl)		;1a23	7e 	~ 
+	ld (hl),e		;1a24	73 	s 
 	ld e,a			;1a25	5f 	_ 
 	inc hl			;1a26	23 	# 
 	inc b			;1a27	04 	. 
@@ -3367,7 +3396,7 @@ clear_buffers:
 	rra			;1a2e	1f 	. 
 	jr nc,$-26		;1a2f	30 e4 	0 . 
 	inc hl			;1a31	23 	# 
-	ld a,(hl)			;1a32	7e 	~ 
+	ld a,(hl)		;1a32	7e 	~ 
 	dec hl			;1a33	2b 	+ 
 	and 080h		;1a34	e6 80 	. . 
 	jr z,$-33		;1a36	28 dd 	( . 
@@ -3376,13 +3405,13 @@ clear_buffers:
 	call 01d10h		;1a3c	cd 10 1d 	. . . 
 	ret			;1a3f	c9 	. 
 	ld hl,01a45h		;1a40	21 45 1a 	! E . 
-	jr $+20		;1a43	18 12 	. . 
+	jr $+20			;1a43	18 12 	. . 
 	xor a			;1a45	af 	. 
 	ld (MLTACT),a		;1a46	32 d6 e0 	2 . . 
 	ld a,b			;1a49	78 	x 
-	cp 030h		;1a4a	fe 30 	. 0 
+	cp 030h			;1a4a	fe 30 	. 0 
 	jp c,01d77h		;1a4c	da 77 1d 	. w . 
-	cp 038h		;1a4f	fe 38 	. 8 
+	cp 038h			;1a4f	fe 38 	. 8 
 	jp nc,01d77h		;1a51	d2 77 1d 	. w . 
 	jp 00d68h		;1a54	c3 68 0d 	. h . 
 	xor a			;1a57	af 	. 
@@ -3394,13 +3423,13 @@ clear_buffers:
 	call 03372h		;1a64	cd 72 33 	. r 3 
 	ret nz			;1a67	c0 	. 
 	ld hl,01a6dh		;1a68	21 6d 1a 	! m . 
-	jr $-16		;1a6b	18 ee 	. . 
+	jr $-16			;1a6b	18 ee 	. . 
 	xor a			;1a6d	af 	. 
 	ld (MLTACT),a		;1a6e	32 d6 e0 	2 . . 
 	ld a,b			;1a71	78 	x 
-	cp 030h		;1a72	fe 30 	. 0 
+	cp 030h			;1a72	fe 30 	. 0 
 	jp c,01d77h		;1a74	da 77 1d 	. w . 
-	cp 038h		;1a77	fe 38 	. 8 
+	cp 038h			;1a77	fe 38 	. 8 
 	jp nc,01d77h		;1a79	d2 77 1d 	. w . 
 	and 007h		;1a7c	e6 07 	. . 
 	ld (SAVEA),a		;1a7e	32 e2 e0 	2 . . 
@@ -3419,12 +3448,12 @@ clear_buffers:
 	call 031e8h		;1a9f	cd e8 31 	. . 1 
 	ld b,000h		;1aa2	06 00 	. . 
 	in a,(026h)		;1aa4	db 26 	. & 
-	bit 7,a		;1aa6	cb 7f 	.  
+	bit 7,a			;1aa6	cb 7f 	.  
 	jr z,$+4		;1aa8	28 02 	( . 
-	set 2,b		;1aaa	cb d0 	. . 
-	bit 6,a		;1aac	cb 77 	. w 
+	set 2,b			;1aaa	cb d0 	. . 
+	bit 6,a			;1aac	cb 77 	. w 
 	jr nz,$+4		;1aae	20 02 	  . 
-	set 3,b		;1ab0	cb d8 	. . 
+	set 3,b			;1ab0	cb d8 	. . 
 	ld a,b			;1ab2	78 	x 
 	call 031e8h		;1ab3	cd e8 31 	. . 1 
 	ld b,000h		;1ab6	06 00 	. . 
@@ -3432,22 +3461,22 @@ clear_buffers:
 	and 004h		;1abb	e6 04 	. . 
 	jr z,$+36		;1abd	28 22 	( " 
 	in a,(086h)		;1abf	db 86 	. . 
-	bit 5,a		;1ac1	cb 6f 	. o 
+	bit 5,a			;1ac1	cb 6f 	. o 
 	jr z,$+4		;1ac3	28 02 	( . 
-	set 0,b		;1ac5	cb c0 	. . 
-	bit 4,a		;1ac7	cb 67 	. g 
+	set 0,b			;1ac5	cb c0 	. . 
+	bit 4,a			;1ac7	cb 67 	. g 
 	jr z,$+4		;1ac9	28 02 	( . 
-	set 1,b		;1acb	cb c8 	. . 
+	set 1,b			;1acb	cb c8 	. . 
 	in a,(096h)		;1acd	db 96 	. . 
-	bit 5,a		;1acf	cb 6f 	. o 
+	bit 5,a			;1acf	cb 6f 	. o 
 	jr z,$+4		;1ad1	28 02 	( . 
-	set 2,b		;1ad3	cb d0 	. . 
-	bit 4,a		;1ad5	cb 67 	. g 
+	set 2,b			;1ad3	cb d0 	. . 
+	bit 4,a			;1ad5	cb 67 	. g 
 	jr z,$+4		;1ad7	28 02 	( . 
-	set 3,b		;1ad9	cb d8 	. . 
+	set 3,b			;1ad9	cb d8 	. . 
 	ld a,b			;1adb	78 	x 
 	call 031e8h		;1adc	cd e8 31 	. . 1 
-	jr $+6		;1adf	18 04 	. . 
+	jr $+6			;1adf	18 04 	. . 
 	xor a			;1ae1	af 	. 
 	call 031e8h		;1ae2	cd e8 31 	. . 1 
 	xor a			;1ae5	af 	. 
@@ -3455,14 +3484,14 @@ clear_buffers:
 	ld b,020h		;1ae9	06 20 	.   
 	ld hl,MBYTE1		;1aeb	21 40 e0 	! @ . 
 	ld a,(SAVEA)		;1aee	3a e2 e0 	: . . 
-	cp 007h		;1af1	fe 07 	. . 
+	cp 007h			;1af1	fe 07 	. . 
 	jp z,01afch		;1af3	ca fc 1a 	. . . 
 	rrca			;1af6	0f 	. 
 	rrca			;1af7	0f 	. 
 	rrca			;1af8	0f 	. 
 	ld l,a			;1af9	6f 	o 
 	ld h,040h		;1afa	26 40 	& @ 
-	ld a,(hl)			;1afc	7e 	~ 
+	ld a,(hl)		;1afc	7e 	~ 
 	call 031e8h		;1afd	cd e8 31 	. . 1 
 	inc hl			;1b00	23 	# 
 	djnz $-5		;1b01	10 f9 	. . 
@@ -3477,24 +3506,24 @@ clear_buffers:
 	ld (OBYTE2),a		;1b16	32 47 e0 	2 G . 
 	ret			;1b19	c9 	. 
 	xor a			;1b1a	af 	. 
-	jr $+4		;1b1b	18 02 	. . 
+	jr $+4			;1b1b	18 02 	. . 
 	ld a,001h		;1b1d	3e 01 	> . 
 	ld (PROTE),a		;1b1f	32 de e0 	2 . . 
 	ret			;1b22	c9 	. 
 	ld a,(OBYTE1)		;1b23	3a 46 e0 	: F . 
 	and 0fdh		;1b26	e6 fd 	. . 
-	jr $+13		;1b28	18 0b 	. . 
+	jr $+13			;1b28	18 0b 	. . 
 	ld a,(NOPTR)		;1b2a	3a f8 e0 	: . . 
 	and a			;1b2d	a7 	. 
 	jr nz,$-11		;1b2e	20 f3 	  . 
 	ld a,(OBYTE1)		;1b30	3a 46 e0 	: F . 
-	or 002h		;1b33	f6 02 	. . 
+	or 002h			;1b33	f6 02 	. . 
 	ld (OBYTE1),a		;1b35	32 46 e0 	2 F . 
 	jp 01666h		;1b38	c3 66 16 	. f . 
 	ld hl,01b41h		;1b3b	21 41 1b 	! A . 
 	jp 01a5bh		;1b3e	c3 5b 1a 	. [ . 
 	ld a,b			;1b41	78 	x 
-	cp 07eh		;1b42	fe 7e 	. ~ 
+	cp 07eh			;1b42	fe 7e 	. ~ 
 	jr nz,$+22		;1b44	20 14 	  . 
 	ld hl,01b4ch		;1b46	21 4c 1b 	! L . 
 	jp 01a60h		;1b49	c3 60 1a 	. ` . 
@@ -3512,7 +3541,7 @@ clear_buffers:
 	cp c			;1b63	b9 	. 
 	jr c,$+5		;1b64	38 03 	8 . 
 	sub c			;1b66	91 	. 
-	jr $-4		;1b67	18 fa 	. . 
+	jr $-4			;1b67	18 fa 	. . 
 	ld (XPOS),a		;1b69	32 f1 e0 	2 . . 
 	ld hl,01b7bh		;1b6c	21 7b 1b 	! { . 
 	jp 01a60h		;1b6f	c3 60 1a 	. ` . 
@@ -3520,7 +3549,7 @@ clear_buffers:
 	ld a,b			;1b75	78 	x 
 	add a,050h		;1b76	c6 50 	. P 
 	ld b,a			;1b78	47 	G 
-	jr $-28		;1b79	18 e2 	. . 
+	jr $-28			;1b79	18 e2 	. . 
 	xor a			;1b7b	af 	. 
 	ld (MLTACT),a		;1b7c	32 d6 e0 	2 . . 
 	call 016a7h		;1b7f	cd a7 16 	. . . 
@@ -3531,7 +3560,7 @@ clear_buffers:
 	cp c			;1b88	b9 	. 
 	jr c,$+5		;1b89	38 03 	8 . 
 	sub c			;1b8b	91 	. 
-	jr $-4		;1b8c	18 fa 	. . 
+	jr $-4			;1b8c	18 fa 	. . 
 	ld e,a			;1b8e	5f 	_ 
 	ld a,(XPOS)		;1b8f	3a f1 e0 	: . . 
 	ld d,a			;1b92	57 	W 
@@ -3542,42 +3571,42 @@ clear_buffers:
 	ret nz			;1b9b	c0 	. 
 	ld b,07eh		;1b9c	06 7e 	. ~ 
 	ld hl,(CURSOR)		;1b9e	2a b7 e0 	* . . 
-	ld a,(hl)			;1ba1	7e 	~ 
-	bit 7,a		;1ba2	cb 7f 	.  
+	ld a,(hl)		;1ba1	7e 	~ 
+	bit 7,a			;1ba2	cb 7f 	.  
 	jr nz,$+4		;1ba4	20 02 	  . 
-	res 6,b		;1ba6	cb b0 	. . 
+	res 6,b			;1ba6	cb b0 	. . 
 	inc hl			;1ba8	23 	# 
-	ld a,(hl)			;1ba9	7e 	~ 
-	bit 1,a		;1baa	cb 4f 	. O 
+	ld a,(hl)		;1ba9	7e 	~ 
+	bit 1,a			;1baa	cb 4f 	. O 
 	jr nz,$+4		;1bac	20 02 	  . 
-	res 1,b		;1bae	cb 88 	. . 
-	bit 3,a		;1bb0	cb 5f 	. _ 
+	res 1,b			;1bae	cb 88 	. . 
+	bit 3,a			;1bb0	cb 5f 	. _ 
 	jr nz,$+4		;1bb2	20 02 	  . 
-	res 2,b		;1bb4	cb 90 	. . 
-	bit 4,a		;1bb6	cb 67 	. g 
+	res 2,b			;1bb4	cb 90 	. . 
+	bit 4,a			;1bb6	cb 67 	. g 
 	jr nz,$+4		;1bb8	20 02 	  . 
-	res 3,b		;1bba	cb 98 	. . 
+	res 3,b			;1bba	cb 98 	. . 
 	push af			;1bbc	f5 	. 
 	call 0314ch		;1bbd	cd 4c 31 	. L 1 
 	pop af			;1bc0	f1 	. 
 	ld b,03fh		;1bc1	06 3f 	. ? 
-	bit 5,a		;1bc3	cb 6f 	. o 
+	bit 5,a			;1bc3	cb 6f 	. o 
 	jr nz,$+4		;1bc5	20 02 	  . 
-	res 0,b		;1bc7	cb 80 	. . 
-	bit 7,a		;1bc9	cb 7f 	.  
+	res 0,b			;1bc7	cb 80 	. . 
+	bit 7,a			;1bc9	cb 7f 	.  
 	jr nz,$+4		;1bcb	20 02 	  . 
-	res 1,b		;1bcd	cb 88 	. . 
-	bit 0,a		;1bcf	cb 47 	. G 
+	res 1,b			;1bcd	cb 88 	. . 
+	bit 0,a			;1bcf	cb 47 	. G 
 	jr nz,$+4		;1bd1	20 02 	  . 
-	res 2,b		;1bd3	cb 90 	. . 
-	bit 2,a		;1bd5	cb 57 	. W 
+	res 2,b			;1bd3	cb 90 	. . 
+	bit 2,a			;1bd5	cb 57 	. W 
 	jr nz,$+4		;1bd7	20 02 	  . 
-	res 3,b		;1bd9	cb 98 	. . 
+	res 3,b			;1bd9	cb 98 	. . 
 	jp 03185h		;1bdb	c3 85 31 	. . 1 
 	call 03372h		;1bde	cd 72 33 	. r 3 
 	ret nz			;1be1	c0 	. 
 	ld hl,(CURSOR)		;1be2	2a b7 e0 	* . . 
-	ld b,(hl)			;1be5	46 	F 
+	ld b,(hl)		;1be5	46 	F 
 	jp 03185h		;1be6	c3 85 31 	. . 1 
 	call 03372h		;1be9	cd 72 33 	. r 3 
 	ret nz			;1bec	c0 	. 
@@ -3591,74 +3620,74 @@ clear_buffers:
 	ld a,(OBYTE2)		;1bfe	3a 47 e0 	: G . 
 	and 004h		;1c01	e6 04 	. . 
 	jr nz,$+4		;1c03	20 02 	  . 
-	res 0,b		;1c05	cb 80 	. . 
+	res 0,b			;1c05	cb 80 	. . 
 	ld a,(OBYTE4)		;1c07	3a 49 e0 	: I . 
 	and 001h		;1c0a	e6 01 	. . 
 	jr nz,$+4		;1c0c	20 02 	  . 
-	res 1,b		;1c0e	cb 88 	. . 
+	res 1,b			;1c0e	cb 88 	. . 
 	call 005c8h		;1c10	cd c8 05 	. . . 
-	bit 5,a		;1c13	cb 6f 	. o 
+	bit 5,a			;1c13	cb 6f 	. o 
 	jr nz,$+4		;1c15	20 02 	  . 
-	res 2,b		;1c17	cb 90 	. . 
+	res 2,b			;1c17	cb 90 	. . 
 	call 005a9h		;1c19	cd a9 05 	. . . 
-	bit 5,a		;1c1c	cb 6f 	. o 
+	bit 5,a			;1c1c	cb 6f 	. o 
 	jr nz,$+4		;1c1e	20 02 	  . 
-	res 3,b		;1c20	cb 98 	. . 
+	res 3,b			;1c20	cb 98 	. . 
 	call 0314ch		;1c22	cd 4c 31 	. L 1 
 	ld b,07fh		;1c25	06 7f 	.  
 	ld a,(OBYTE1)		;1c27	3a 46 e0 	: F . 
 	and 004h		;1c2a	e6 04 	. . 
 	jr z,$+4		;1c2c	28 02 	( . 
-	res 0,b		;1c2e	cb 80 	. . 
+	res 0,b			;1c2e	cb 80 	. . 
 	ld a,(MBYTE5)		;1c30	3a 44 e0 	: D . 
 	and 002h		;1c33	e6 02 	. . 
 	jr z,$+4		;1c35	28 02 	( . 
-	res 1,b		;1c37	cb 88 	. . 
+	res 1,b			;1c37	cb 88 	. . 
 	call 0314ch		;1c39	cd 4c 31 	. L 1 
 	ld b,07fh		;1c3c	06 7f 	.  
 	ld a,(MBYTE3)		;1c3e	3a 42 e0 	: B . 
-	bit 2,a		;1c41	cb 57 	. W 
+	bit 2,a			;1c41	cb 57 	. W 
 	jr nz,$+4		;1c43	20 02 	  . 
-	res 0,b		;1c45	cb 80 	. . 
-	bit 3,a		;1c47	cb 5f 	. _ 
+	res 0,b			;1c45	cb 80 	. . 
+	bit 3,a			;1c47	cb 5f 	. _ 
 	jr z,$+4		;1c49	28 02 	( . 
-	res 1,b		;1c4b	cb 88 	. . 
-	bit 1,a		;1c4d	cb 4f 	. O 
+	res 1,b			;1c4b	cb 88 	. . 
+	bit 1,a			;1c4d	cb 4f 	. O 
 	jr nz,$+4		;1c4f	20 02 	  . 
-	res 2,b		;1c51	cb 90 	. . 
+	res 2,b			;1c51	cb 90 	. . 
 	ld a,(MBYTE4)		;1c53	3a 43 e0 	: C . 
 	and 008h		;1c56	e6 08 	. . 
 	jr z,$+4		;1c58	28 02 	( . 
-	res 3,b		;1c5a	cb 98 	. . 
+	res 3,b			;1c5a	cb 98 	. . 
 	call 0314ch		;1c5c	cd 4c 31 	. L 1 
 	ld a,(TBAUD)		;1c5f	3a 58 e0 	: X . 
 	ld b,07fh		;1c62	06 7f 	.  
-	bit 0,a		;1c64	cb 47 	. G 
+	bit 0,a			;1c64	cb 47 	. G 
 	jr nz,$+4		;1c66	20 02 	  . 
-	res 3,b		;1c68	cb 98 	. . 
-	bit 1,a		;1c6a	cb 4f 	. O 
+	res 3,b			;1c68	cb 98 	. . 
+	bit 1,a			;1c6a	cb 4f 	. O 
 	jr nz,$+4		;1c6c	20 02 	  . 
-	res 2,b		;1c6e	cb 90 	. . 
-	bit 2,a		;1c70	cb 57 	. W 
+	res 2,b			;1c6e	cb 90 	. . 
+	bit 2,a			;1c70	cb 57 	. W 
 	jr nz,$+4		;1c72	20 02 	  . 
-	res 1,b		;1c74	cb 88 	. . 
-	bit 3,a		;1c76	cb 5f 	. _ 
+	res 1,b			;1c74	cb 88 	. . 
+	bit 3,a			;1c76	cb 5f 	. _ 
 	jr nz,$+4		;1c78	20 02 	  . 
-	res 0,b		;1c7a	cb 80 	. . 
+	res 0,b			;1c7a	cb 80 	. . 
 	call 0314ch		;1c7c	cd 4c 31 	. L 1 
 	ld b,07fh		;1c7f	06 7f 	.  
 	ld a,(MBYTE4)		;1c81	3a 43 e0 	: C . 
-	bit 0,a		;1c84	cb 47 	. G 
+	bit 0,a			;1c84	cb 47 	. G 
 	jr z,$+4		;1c86	28 02 	( . 
-	res 2,b		;1c88	cb 90 	. . 
-	bit 1,a		;1c8a	cb 4f 	. O 
+	res 2,b			;1c88	cb 90 	. . 
+	bit 1,a			;1c8a	cb 4f 	. O 
 	jr z,$+4		;1c8c	28 02 	( . 
-	res 3,b		;1c8e	cb 98 	. . 
+	res 3,b			;1c8e	cb 98 	. . 
 	call 0314ch		;1c90	cd 4c 31 	. L 1 
 	jp 01666h		;1c93	c3 66 16 	. f . 
 	ld a,(MBYTE4)		;1c96	3a 43 e0 	: C . 
-	or 004h		;1c99	f6 04 	. . 
-	jr $+7		;1c9b	18 05 	. . 
+	or 004h			;1c99	f6 04 	. . 
+	jr $+7			;1c9b	18 05 	. . 
 	ld a,(MBYTE4)		;1c9d	3a 43 e0 	: C . 
 	and 0fbh		;1ca0	e6 fb 	. . 
 	ld (MBYTE4),a		;1ca2	32 43 e0 	2 C . 
@@ -3668,12 +3697,12 @@ clear_buffers:
 	call 016a7h		;1cac	cd a7 16 	. . . 
 	ld a,b			;1caf	78 	x 
 	ld hl,LASTLN		;1cb0	21 cd e0 	! . . 
-	ld c,(hl)			;1cb3	4e 	N 
+	ld c,(hl)		;1cb3	4e 	N 
 	inc c			;1cb4	0c 	. 
 	cp c			;1cb5	b9 	. 
 	jr c,$+5		;1cb6	38 03 	8 . 
-	sub (hl)			;1cb8	96 	. 
-	jr $-4		;1cb9	18 fa 	. . 
+	sub (hl)		;1cb8	96 	. 
+	jr $-4			;1cb9	18 fa 	. . 
 	ld b,a			;1cbb	47 	G 
 	ld a,(MLTCNT)		;1cbc	3a d5 e0 	: . . 
 	and a			;1cbf	a7 	. 
@@ -3698,29 +3727,29 @@ clear_buffers:
 	rra			;1ce3	1f 	. 
 	ret c			;1ce4	d8 	. 
 	ld a,001h		;1ce5	3e 01 	> . 
-	jr $+3		;1ce7	18 01 	. . 
+	jr $+3			;1ce7	18 01 	. . 
 	xor a			;1ce9	af 	. 
 	ld (RXOFF),a		;1cea	32 e1 e0 	2 . . 
 	ret			;1ced	c9 	. 
 	ld b,008h		;1cee	06 08 	. . 
-	jr $+24		;1cf0	18 16 	. . 
+	jr $+24			;1cf0	18 16 	. . 
 	ld b,001h		;1cf2	06 01 	. . 
-	jr $+20		;1cf4	18 12 	. . 
+	jr $+20			;1cf4	18 12 	. . 
 	ld b,010h		;1cf6	06 10 	. . 
-	jr $+16		;1cf8	18 0e 	. . 
+	jr $+16			;1cf8	18 0e 	. . 
 	ld b,004h		;1cfa	06 04 	. . 
-	jr $+12		;1cfc	18 0a 	. . 
+	jr $+12			;1cfc	18 0a 	. . 
 	ld b,080h		;1cfe	06 80 	. . 
-	jr $+8		;1d00	18 06 	. . 
+	jr $+8			;1d00	18 06 	. . 
 	ld b,002h		;1d02	06 02 	. . 
-	jr $+4		;1d04	18 02 	. . 
+	jr $+4			;1d04	18 02 	. . 
 	ld b,040h		;1d06	06 40 	. @ 
 	ld a,(ATTRIB)		;1d08	3a a9 e0 	: . . 
 	or b			;1d0b	b0 	. 
 	ld (ATTRIB),a		;1d0c	32 a9 e0 	2 . . 
 	ret			;1d0f	c9 	. 
 	ld a,003h		;1d10	3e 03 	> . 
-	jr $+4		;1d12	18 02 	. . 
+	jr $+4			;1d12	18 02 	. . 
 	ld a,001h		;1d14	3e 01 	> . 
 	ld (FLAG2),a		;1d16	32 bf e0 	2 . . 
 	call 02f70h		;1d19	cd 70 2f 	. p / 
@@ -3728,7 +3757,7 @@ clear_buffers:
 	ld (FLAG2),a		;1d1d	32 bf e0 	2 . . 
 	jp 01666h		;1d20	c3 66 16 	. f . 
 	ld a,(OBYTE2)		;1d23	3a 47 e0 	: G . 
-	or 004h		;1d26	f6 04 	. . 
+	or 004h			;1d26	f6 04 	. . 
 	ld (OBYTE2),a		;1d28	32 47 e0 	2 G . 
 	ret			;1d2b	c9 	. 
 	call 03372h		;1d2c	cd 72 33 	. r 3 
@@ -3742,12 +3771,12 @@ clear_buffers:
 	call 0314ch		;1d3e	cd 4c 31 	. L 1 
 	ld b,000h		;1d41	06 00 	. . 
 	ld a,(CHRCNT)		;1d43	3a b1 e0 	: . . 
-	cp 050h		;1d46	fe 50 	. P 
+	cp 050h			;1d46	fe 50 	. P 
 	jr c,$+4		;1d48	38 02 	8 . 
 	ld b,001h		;1d4a	06 01 	. . 
 	call 01d60h		;1d4c	cd 60 1d 	. ` . 
 	ld a,(CHRCNT)		;1d4f	3a b1 e0 	: . . 
-	cp 050h		;1d52	fe 50 	. P 
+	cp 050h			;1d52	fe 50 	. P 
 	jr c,$+4		;1d54	38 02 	8 . 
 	sub 050h		;1d56	d6 50 	. P 
 	ld b,a			;1d58	47 	G 
@@ -3761,7 +3790,7 @@ clear_buffers:
 	and 008h		;1d6a	e6 08 	. . 
 	ret nz			;1d6c	c0 	. 
 	ld b,006h		;1d6d	06 06 	. . 
-	jr $+15		;1d6f	18 0d 	. . 
+	jr $+15			;1d6f	18 0d 	. . 
 	ld a,(OBYTE2)		;1d71	3a 47 e0 	: G . 
 	and 008h		;1d74	e6 08 	. . 
 	ret nz			;1d76	c0 	. 
@@ -3774,7 +3803,7 @@ clear_buffers:
 	push bc			;1d85	c5 	. 
 	ld b,01eh		;1d86	06 1e 	. . 
 	call 0314ch		;1d88	cd 4c 31 	. L 1 
-	jr $+13		;1d8b	18 0b 	. . 
+	jr $+13			;1d8b	18 0b 	. . 
 	push bc			;1d8d	c5 	. 
 	ld b,01eh		;1d8e	06 1e 	. . 
 	call 0314ch		;1d90	cd 4c 31 	. L 1 
@@ -3787,7 +3816,7 @@ clear_buffers:
 	push bc			;1d9e	c5 	. 
 	ld b,01eh		;1d9f	06 1e 	. . 
 	call 028ddh		;1da1	cd dd 28 	. . ( 
-	jr $+13		;1da4	18 0b 	. . 
+	jr $+13			;1da4	18 0b 	. . 
 	push bc			;1da6	c5 	. 
 	ld b,01eh		;1da7	06 1e 	. . 
 	call 028ddh		;1da9	cd dd 28 	. . ( 
@@ -3798,13 +3827,13 @@ clear_buffers:
 	call 028ddh		;1db3	cd dd 28 	. . ( 
 	ret			;1db6	c9 	. 
 	ld b,0fbh		;1db7	06 fb 	. . 
-	jr $+4		;1db9	18 02 	. . 
+	jr $+4			;1db9	18 02 	. . 
 	ld b,0fdh		;1dbb	06 fd 	. . 
 	ld a,(OBYTE4)		;1dbd	3a 49 e0 	: I . 
 	and b			;1dc0	a0 	. 
-	jr $+12		;1dc1	18 0a 	. . 
+	jr $+12			;1dc1	18 0a 	. . 
 	ld b,004h		;1dc3	06 04 	. . 
-	jr $+4		;1dc5	18 02 	. . 
+	jr $+4			;1dc5	18 02 	. . 
 	ld b,002h		;1dc7	06 02 	. . 
 	ld a,(OBYTE4)		;1dc9	3a 49 e0 	: I . 
 	or b			;1dcc	b0 	. 
@@ -3817,19 +3846,19 @@ clear_buffers:
 	ld b,084h		;1ddc	06 84 	. . 
 	dec c			;1dde	0d 	. 
 	ret z			;1ddf	c8 	. 
-	ld a,(hl)			;1de0	7e 	~ 
-	or 080h		;1de1	f6 80 	. . 
-	ld (hl),a			;1de3	77 	w 
+	ld a,(hl)		;1de0	7e 	~ 
+	or 080h			;1de1	f6 80 	. . 
+	ld (hl),a		;1de3	77 	w 
 	inc hl			;1de4	23 	# 
 	inc hl			;1de5	23 	# 
 	djnz $-6		;1de6	10 f8 	. . 
-	jr $-12		;1de8	18 f2 	. . 
+	jr $-12			;1de8	18 f2 	. . 
 	ld a,(SXOFF)		;1dea	3a eb e0 	: . . 
 	and a			;1ded	a7 	. 
 	ret nz			;1dee	c0 	. 
 	ld a,001h		;1def	3e 01 	> . 
 	ld b,013h		;1df1	06 13 	. . 
-	jr $+10		;1df3	18 08 	. . 
+	jr $+10			;1df3	18 08 	. . 
 	ld a,(SXOFF)		;1df5	3a eb e0 	: . . 
 	rra			;1df8	1f 	. 
 	ret nc			;1df9	d0 	. 
@@ -3865,51 +3894,51 @@ clear_buffers:
 	call 01d9eh		;1e39	cd 9e 1d 	. . . 
 	jp 025a2h		;1e3c	c3 a2 25 	. . % 
 	ld c,05fh		;1e3f	0e 5f 	. _ 
-	jr $-12		;1e41	18 f2 	. . 
+	jr $-12			;1e41	18 f2 	. . 
 	ld c,05bh		;1e43	0e 5b 	. [ 
-	jr $-16		;1e45	18 ee 	. . 
+	jr $-16			;1e45	18 ee 	. . 
 	ld c,04eh		;1e47	0e 4e 	. N 
-	jr $-37		;1e49	18 d9 	. . 
+	jr $-37			;1e49	18 d9 	. . 
 	ld c,05eh		;1e4b	0e 5e 	. ^ 
-	jr $-24		;1e4d	18 e6 	. . 
+	jr $-24			;1e4d	18 e6 	. . 
 	ld c,05ah		;1e4f	0e 5a 	. Z 
-	jr $-28		;1e51	18 e2 	. . 
+	jr $-28			;1e51	18 e2 	. . 
 	ld c,05dh		;1e53	0e 5d 	. ] 
-	jr $-49		;1e55	18 cd 	. . 
+	jr $-49			;1e55	18 cd 	. . 
 	ld c,059h		;1e57	0e 59 	. Y 
-	jr $-53		;1e59	18 c9 	. . 
+	jr $-53			;1e59	18 c9 	. . 
 	ld c,05ch		;1e5b	0e 5c 	. \ 
-	jr $-40		;1e5d	18 d6 	. . 
+	jr $-40			;1e5d	18 d6 	. . 
 	ld c,058h		;1e5f	0e 58 	. X 
-	jr $-44		;1e61	18 d2 	. . 
+	jr $-44			;1e61	18 d2 	. . 
 	ld c,04fh		;1e63	0e 4f 	. O 
-	jr $-65		;1e65	18 bd 	. . 
+	jr $-65			;1e65	18 bd 	. . 
 	ld c,04bh		;1e67	0e 4b 	. K 
-	jr $-69		;1e69	18 b9 	. . 
+	jr $-69			;1e69	18 b9 	. . 
 	ld c,04dh		;1e6b	0e 4d 	. M 
-	jr $-73		;1e6d	18 b5 	. . 
+	jr $-73			;1e6d	18 b5 	. . 
 	ld c,011h		;1e6f	0e 11 	. . 
-	jr $-77		;1e71	18 b1 	. . 
+	jr $-77			;1e71	18 b1 	. . 
 	ld c,002h		;1e73	0e 02 	. . 
-	jr $-81		;1e75	18 ad 	. . 
+	jr $-81			;1e75	18 ad 	. . 
 	ld c,001h		;1e77	0e 01 	. . 
-	jr $-85		;1e79	18 a9 	. . 
+	jr $-85			;1e79	18 a9 	. . 
 	ld c,01ah		;1e7b	0e 1a 	. . 
-	jr $-89		;1e7d	18 a5 	. . 
+	jr $-89			;1e7d	18 a5 	. . 
 	ld c,019h		;1e7f	0e 19 	. . 
-	jr $-93		;1e81	18 a1 	. . 
+	jr $-93			;1e81	18 a1 	. . 
 	ld c,008h		;1e83	0e 08 	. . 
-	jr $-97		;1e85	18 9d 	. . 
+	jr $-97			;1e85	18 9d 	. . 
 	ld c,018h		;1e87	0e 18 	. . 
 	jr $-101		;1e89	18 99 	. . 
 	ld c,049h		;1e8b	0e 49 	. I 
-	jr $-88		;1e8d	18 a6 	. . 
+	jr $-88			;1e8d	18 a6 	. . 
 	ld c,04ah		;1e8f	0e 4a 	. J 
-	jr $-92		;1e91	18 a2 	. . 
+	jr $-92			;1e91	18 a2 	. . 
 	ld c,00bh		;1e93	0e 0b 	. . 
 	jp 01d9eh		;1e95	c3 9e 1d 	. . . 
 	ld c,051h		;1e98	0e 51 	. Q 
-	jr $+4		;1e9a	18 02 	. . 
+	jr $+4			;1e9a	18 02 	. . 
 	ld c,052h		;1e9c	0e 52 	. R 
 	ld a,(BLKMD)		;1e9e	3a ab e0 	: . . 
 	and a			;1ea1	a7 	. 
@@ -3925,38 +3954,39 @@ clear_buffers:
 	call 01da6h		;1eb8	cd a6 1d 	. . . 
 	jp 01e27h		;1ebb	c3 27 1e 	. ' . 
 	ld a,c			;1ebe	79 	y 
-	set 7,a		;1ebf	cb ff 	. . 
+	set 7,a			;1ebf	cb ff 	. . 
 	ld (FNCODE),a		;1ec1	32 f5 e0 	2 . . 
 	call 01da6h		;1ec4	cd a6 1d 	. . . 
 	jp 025a2h		;1ec7	c3 a2 25 	. . % 
 	ld a,b			;1eca	78 	x 
 	and 00fh		;1ecb	e6 0f 	. . 
-	or 020h		;1ecd	f6 20 	.   
+	or 020h			;1ecd	f6 20 	.   
 	ld c,a			;1ecf	4f 	O 
-	jr $-18		;1ed0	18 ec 	. . 
+	jr $-18			;1ed0	18 ec 	. . 
 	ld c,035h		;1ed2	0e 35 	. 5 
-	jr $-22		;1ed4	18 e8 	. . 
+	jr $-22			;1ed4	18 e8 	. . 
 	call 01deah		;1ed6	cd ea 1d 	. . . 
 	call 0170ch		;1ed9	cd 0c 17 	. . . 
 	call 01df5h		;1edc	cd f5 1d 	. . . 
 	ret			;1edf	c9 	. 
 	ld c,036h		;1ee0	0e 36 	. 6 
-	jr $-36		;1ee2	18 da 	. . 
+	jr $-36			;1ee2	18 da 	. . 
 	ld c,031h		;1ee4	0e 31 	. 1 
-	jr $-40		;1ee6	18 d6 	. . 
+	jr $-40			;1ee6	18 d6 	. . 
 	ld c,032h		;1ee8	0e 32 	. 2 
-	jr $-44		;1eea	18 d2 	. . 
+	jr $-44			;1eea	18 d2 	. . 
 	ld c,058h		;1eec	0e 58 	. X 
-	jr $-54		;1eee	18 c8 	. . 
+	jr $-54			;1eee	18 c8 	. . 
 	ld c,057h		;1ef0	0e 57 	. W 
-	jr $-58		;1ef2	18 c4 	. . 
+	jr $-58			;1ef2	18 c4 	. . 
 	ld c,033h		;1ef4	0e 33 	. 3 
-	jr $-56		;1ef6	18 c6 	. . 
+	jr $-56			;1ef6	18 c6 	. .
+BFTB:				; COMM BUFFER TO B
 	ld hl,(BDOTAD)		;1ef8	2a 87 e0 	* . . 
-	ld b,(hl)			;1efb	46 	F 
+	ld b,(hl)		;1efb	46 	F 
 	inc hl			;1efc	23 	# 
 	ld a,h			;1efd	7c 	| 
-	cp 0dfh		;1efe	fe df 	. . 
+	cp 0dfh			;1efe	fe df 	. . 
 	jr nz,$+5		;1f00	20 03 	  . 
 	ld hl,0db20h		;1f02	21 20 db 	!   . 
 	ld (BDOTAD),hl		;1f05	22 87 e0 	" . . 
@@ -3964,7 +3994,8 @@ clear_buffers:
 	ld hl,(BFCNT)		;1f09	2a 83 e0 	* . . 
 	dec hl			;1f0c	2b 	+ 
 	ld (BFCNT),hl		;1f0d	22 83 e0 	" . . 
-	ret			;1f10	c9 	. 
+	ret			;1f10	c9 	.
+BFTDSP:				; PROCESS ONE CODE FROM COMM BUFFER
 	xor a			;1f11	af 	. 
 	ld (HMSGA),a		;1f12	32 c2 e0 	2 . . 
 	call 01ef8h		;1f15	cd f8 1e 	. . . 
@@ -3979,9 +4010,9 @@ clear_buffers:
 	and 008h		;1f25	e6 08 	. . 
 	jr z,$+13		;1f27	28 0b 	( . 
 	ld a,b			;1f29	78 	x 
-	cp 011h		;1f2a	fe 11 	. . 
+	cp 011h			;1f2a	fe 11 	. . 
 	jp z,01ce9h		;1f2c	ca e9 1c 	. . . 
-	cp 013h		;1f2f	fe 13 	. . 
+	cp 013h			;1f2f	fe 13 	. . 
 	jp z,01ce0h		;1f31	ca e0 1c 	. . . 
 	ld a,(MLTACT)		;1f34	3a d6 e0 	: . . 
 	rra			;1f37	1f 	. 
@@ -3993,10 +4024,11 @@ clear_buffers:
 	rra			;1f42	1f 	. 
 	jr nc,$+12		;1f43	30 0a 	0 . 
 	ld a,b			;1f45	78 	x 
-	cp 01eh		;1f46	fe 1e 	. . 
+	cp 01eh			;1f46	fe 1e 	. . 
 	ret nz			;1f48	c0 	. 
 	ld hl,0175eh		;1f49	21 5e 17 	! ^ . 
-	jp 01a5bh		;1f4c	c3 5b 1a 	. [ . 
+	jp 01a5bh		;1f4c	c3 5b 1a 	. [ .
+BDISPN:				; DISPLAY B - PERFORM FUNCTION
 	ld a,(MLTACT)		;1f4f	3a d6 e0 	: . . 
 	rra			;1f52	1f 	. 
 	jr nc,$+9		;1f53	30 07 	0 . 
@@ -4004,72 +4036,73 @@ clear_buffers:
 	call 022f6h		;1f58	cd f6 22 	. . " 
 	ret			;1f5b	c9 	. 
 	ld a,b			;1f5c	78 	x 
-	cp 0ffh		;1f5d	fe ff 	. . 
+	cp 0ffh			;1f5d	fe ff 	. . 
 	jr nz,$+9		;1f5f	20 07 	  . 
 	ld b,07fh		;1f61	06 7f 	.  
 	call 02526h		;1f63	cd 26 25 	. & % 
-	jr $+92		;1f66	18 5a 	. Z 
-	res 7,b		;1f68	cb b8 	. . 
+	jr $+92			;1f66	18 5a 	. Z 
+	res 7,b			;1f68	cb b8 	. . 
 	ld a,(OBYTE4)		;1f6a	3a 49 e0 	: I . 
 	and 008h		;1f6d	e6 08 	. . 
 	jr nz,$+83		;1f6f	20 51 	  Q 
 	ld a,(TABLE)		;1f71	3a ec e0 	: . . 
-	cp 002h		;1f74	fe 02 	. . 
+	cp 002h			;1f74	fe 02 	. . 
 	jr z,$+31		;1f76	28 1d 	( . 
 	ld a,b			;1f78	78 	x 
-	cp 020h		;1f79	fe 20 	.   
+	cp 020h			;1f79	fe 20 	.   
 	jr c,$+78		;1f7b	38 4c 	8 L 
 	ld a,(TABLE)		;1f7d	3a ec e0 	: . . 
-	cp 001h		;1f80	fe 01 	. . 
+	cp 001h			;1f80	fe 01 	. . 
 	jr nz,$+57		;1f82	20 37 	  7 
 	ld a,b			;1f84	78 	x 
-	cp 060h		;1f85	fe 60 	. ` 
+	cp 060h			;1f85	fe 60 	. ` 
 	jr c,$+66		;1f87	38 40 	8 @ 
 	call 02526h		;1f89	cd 26 25 	. & % 
 	ld a,b			;1f8c	78 	x 
-	cp 07fh		;1f8d	fe 7f 	.  
+	cp 07fh			;1f8d	fe 7f 	.  
 	jr nz,$+44		;1f8f	20 2a 	  * 
 	call 01b23h		;1f91	cd 23 1b 	. # . 
 	ret			;1f94	c9 	. 
 	ld a,b			;1f95	78 	x 
-	cp 020h		;1f96	fe 20 	.   
+	cp 020h			;1f96	fe 20 	.   
 	jr c,$+46		;1f98	38 2c 	8 , 
-	cp 040h		;1f9a	fe 40 	. @ 
+	cp 040h			;1f9a	fe 40 	. @ 
 	jr nc,$+5		;1f9c	30 03 	0 . 
 	jp 02526h		;1f9e	c3 26 25 	. & % 
-	cp 070h		;1fa1	fe 70 	. p 
+	cp 070h			;1fa1	fe 70 	. p 
 	jr nc,$+7		;1fa3	30 05 	0 . 
 	sub 040h		;1fa5	d6 40 	. @ 
 	ld b,a			;1fa7	47 	G 
-	jr $+33		;1fa8	18 1f 	. . 
+	jr $+33			;1fa8	18 1f 	. . 
 	call 02526h		;1faa	cd 26 25 	. & % 
 	ld a,b			;1fad	78 	x 
 	call 017e3h		;1fae	cd e3 17 	. . . 
-	ld a,(hl)			;1fb1	7e 	~ 
+	ld a,(hl)		;1fb1	7e 	~ 
 	inc hl			;1fb2	23 	# 
 	and 003h		;1fb3	e6 03 	. . 
-	cp 002h		;1fb5	fe 02 	. . 
+	cp 002h			;1fb5	fe 02 	. . 
 	call z,02696h		;1fb7	cc 96 26 	. . & 
 	ret			;1fba	c9 	. 
 	call 02526h		;1fbb	cd 26 25 	. & % 
 	ld a,b			;1fbe	78 	x 
-	cp 07fh		;1fbf	fe 7f 	.  
+	cp 07fh			;1fbf	fe 7f 	.  
 	ret z			;1fc1	c8 	. 
 	call 0221bh		;1fc2	cd 1b 22 	. . " 
 	ret			;1fc5	c9 	. 
 	call 02526h		;1fc6	cd 26 25 	. & % 
 	call 022b3h		;1fc9	cd b3 22 	. . " 
-	ret			;1fcc	c9 	. 
+	ret			;1fcc	c9 	.
+BLDADD:				; BUILD ADDRESS
 	push af			;1fcd	f5 	. 
 	push hl			;1fce	e5 	. 
 	ld a,l			;1fcf	7d 	} 
 	rlca			;1fd0	07 	. 
 	ld l,a			;1fd1	6f 	o 
-	ld e,(hl)			;1fd2	5e 	^ 
+	ld e,(hl)		;1fd2	5e 	^ 
 	inc hl			;1fd3	23 	# 
-	ld a,(hl)			;1fd4	7e 	~ 
+	ld a,(hl)		;1fd4	7e 	~ 
 	and 03fh		;1fd5	e6 3f 	. ? 
-	or 0c0h		;1fd7	f6 c0 	. . 
+	or 0c0h			;1fd7	f6 c0 	. . 
 	ld d,a			;1fd9	57 	W 
 	pop hl			;1fda	e1 	. 
 	pop af			;1fdb	f1 	. 
@@ -4082,12 +4115,12 @@ clear_buffers:
 	ld (BRKACT),a		;1fe8	32 94 e0 	2 . . 
 	call 0070bh		;1feb	cd 0b 07 	. . . 
 	call 00495h		;1fee	cd 95 04 	. . . 
-	or 040h		;1ff1	f6 40 	. @ 
+	or 040h			;1ff1	f6 40 	. @ 
 	ld b,a			;1ff3	47 	G 
 	call 004abh		;1ff4	cd ab 04 	. . . 
 	call 0049dh		;1ff7	cd 9d 04 	. . . 
 	and 0fbh		;1ffa	e6 fb 	. . 
-	or 002h		;1ffc	f6 02 	. . 
+	or 002h			;1ffc	f6 02 	. . 
 	ld b,a			;1ffe	47 	G 
 	call 004afh		;1fff	cd af 04 	. . . 
 	ret			;2002	c9 	. 
@@ -4121,7 +4154,7 @@ clear_buffers:
 	ld b,a			;203e	47 	G 
 	ld hl,(CURSOR)		;203f	2a b7 e0 	* . . 
 	inc hl			;2042	23 	# 
-	ld a,(hl)			;2043	7e 	~ 
+	ld a,(hl)		;2043	7e 	~ 
 	and 080h		;2044	e6 80 	. . 
 	jr nz,$+10		;2046	20 08 	  . 
 	or b			;2048	b0 	. 
@@ -4129,7 +4162,7 @@ clear_buffers:
 	dec b			;204b	05 	. 
 	dec hl			;204c	2b 	+ 
 	dec hl			;204d	2b 	+ 
-	jr $-11		;204e	18 f3 	. . 
+	jr $-11			;204e	18 f3 	. . 
 	inc b			;2050	04 	. 
 	ld a,b			;2051	78 	x 
 	ld (CHRCNT),a		;2052	32 b1 e0 	2 . . 
@@ -4141,13 +4174,14 @@ clear_buffers:
 	ret nz			;2062	c0 	. 
 	ld hl,(CURSOR)		;2063	2a b7 e0 	* . . 
 	ld (hl),020h		;2066	36 20 	6   
-	ret			;2068	c9 	. 
+	ret			;2068	c9 	.
+CLEAR:				; CLEAR
 	ld hl,0e000h		;2069	21 00 e0 	! . . 
 	ld de,02110h		;206c	11 10 21 	. . ! 
 	ld b,01eh		;206f	06 1e 	. . 
-	ld (hl),e			;2071	73 	s 
+	ld (hl),e		;2071	73 	s 
 	inc hl			;2072	23 	# 
-	ld (hl),d			;2073	72 	r 
+	ld (hl),d		;2073	72 	r 
 	inc hl			;2074	23 	# 
 	inc d			;2075	14 	. 
 	ld a,e			;2076	7b 	{ 
@@ -4170,23 +4204,25 @@ clear_buffers:
 	call 02f3ch		;2094	cd 3c 2f 	. < / 
 	ret			;2097	c9 	. 
 	xor a			;2098	af 	. 
-	jr $+18		;2099	18 10 	. . 
+	jr $+18			;2099	18 10 	. . 
 	ld a,008h		;209b	3e 08 	> . 
-	jr $+14		;209d	18 0c 	. . 
+	jr $+14			;209d	18 0c 	. . 
 	ld a,010h		;209f	3e 10 	> . 
-	jr $+10		;20a1	18 08 	. . 
+	jr $+10			;20a1	18 08 	. . 
 	ld a,01fh		;20a3	3e 1f 	> . 
-	jr $+6		;20a5	18 04 	. . 
+	jr $+6			;20a5	18 04 	. . 
 	ld a,002h		;20a7	3e 02 	> . 
-	jr $+2		;20a9	18 00 	. . 
+	jr $+2			;20a9	18 00 	. . 
 	ld (CLRTYP),a		;20ab	32 b3 e0 	2 . . 
 	call 020bfh		;20ae	cd bf 20 	. .   
 	xor a			;20b1	af 	. 
 	ld (CLRTYP),a		;20b2	32 b3 e0 	2 . . 
-	jp 01666h		;20b5	c3 66 16 	. f . 
+	jp 01666h		;20b5	c3 66 16 	. f .
+CLREOL:				; CLEAR TO END OF LINE
 	ld hl,(CURSOR)		;20b8	2a b7 e0 	* . . 
 	call 0210fh		;20bb	cd 0f 21 	. . ! 
-	ret			;20be	c9 	. 
+	ret			;20be	c9 	.
+CLREOP:				; CLEAR TO END OF PAGE
 	call 020b8h		;20bf	cd b8 20 	. .   
 	call 02f5dh		;20c2	cd 5d 2f 	. ] / 
 	xor a			;20c5	af 	. 
@@ -4203,7 +4239,7 @@ clear_buffers:
 	ld h,d			;20dc	62 	b 
 	ld l,e			;20dd	6b 	k 
 	call 0210fh		;20de	cd 0f 21 	. . ! 
-	jr $-24		;20e1	18 e6 	. . 
+	jr $-24			;20e1	18 e6 	. . 
 	call 02f4bh		;20e3	cd 4b 2f 	. K / 
 	ret			;20e6	c9 	. 
 	call 021fah		;20e7	cd fa 21 	. . ! 
@@ -4215,10 +4251,10 @@ clear_buffers:
 	ld a,(PROTE)		;20f7	3a de e0 	: . . 
 	rra			;20fa	1f 	. 
 	jr nc,$+6		;20fb	30 04 	0 . 
-	ld a,(hl)			;20fd	7e 	~ 
+	ld a,(hl)		;20fd	7e 	~ 
 	and 080h		;20fe	e6 80 	. . 
 	ret nz			;2100	c0 	. 
-	ld (hl),d			;2101	72 	r 
+	ld (hl),d		;2101	72 	r 
 	dec hl			;2102	2b 	+ 
 	ld (hl),020h		;2103	36 20 	6   
 	inc hl			;2105	23 	# 
@@ -4227,7 +4263,7 @@ clear_buffers:
 	ret z			;210a	c8 	. 
 	inc c			;210b	0c 	. 
 	inc hl			;210c	23 	# 
-	jr $-23		;210d	18 e7 	. . 
+	jr $-23			;210d	18 e7 	. . 
 	push af			;210f	f5 	. 
 	push bc			;2110	c5 	. 
 	push de			;2111	d5 	. 
@@ -4236,24 +4272,24 @@ clear_buffers:
 	ld a,(PROTE)		;2116	3a de e0 	: . . 
 	rra			;2119	1f 	. 
 	jr nc,$+4		;211a	30 02 	0 . 
-	set 7,b		;211c	cb f8 	. . 
+	set 7,b			;211c	cb f8 	. . 
 	ld a,b			;211e	78 	x 
 	and a			;211f	a7 	. 
 	jr z,$+20		;2120	28 12 	( . 
-	cp 080h		;2122	fe 80 	. . 
+	cp 080h			;2122	fe 80 	. . 
 	jr z,$+16		;2124	28 0e 	( . 
-	cp 01fh		;2126	fe 1f 	. . 
+	cp 01fh			;2126	fe 1f 	. . 
 	jr z,$+10		;2128	28 08 	( . 
-	cp 09fh		;212a	fe 9f 	. . 
+	cp 09fh			;212a	fe 9f 	. . 
 	jr nz,$+28		;212c	20 1a 	  . 
 	ld b,090h		;212e	06 90 	. . 
-	jr $+4		;2130	18 02 	. . 
+	jr $+4			;2130	18 02 	. . 
 	ld b,010h		;2132	06 10 	. . 
 	inc hl			;2134	23 	# 
-	ld a,(hl)			;2135	7e 	~ 
+	ld a,(hl)		;2135	7e 	~ 
 	and b			;2136	a0 	. 
 	jr nz,$+7		;2137	20 05 	  . 
-	ld (hl),d			;2139	72 	r 
+	ld (hl),d		;2139	72 	r 
 	dec hl			;213a	2b 	+ 
 	ld (hl),020h		;213b	36 20 	6   
 	inc hl			;213d	23 	# 
@@ -4262,16 +4298,16 @@ clear_buffers:
 	jr z,$+34		;2142	28 20 	(   
 	inc c			;2144	0c 	. 
 	inc hl			;2145	23 	# 
-	jr $-18		;2146	18 ec 	. . 
+	jr $-18			;2146	18 ec 	. . 
 	inc hl			;2148	23 	# 
-	ld a,(hl)			;2149	7e 	~ 
-	bit 7,a		;214a	cb 7f 	.  
+	ld a,(hl)		;2149	7e 	~ 
+	bit 7,a			;214a	cb 7f 	.  
 	jr z,$+6		;214c	28 04 	( . 
-	bit 7,b		;214e	cb 78 	. x 
+	bit 7,b			;214e	cb 78 	. x 
 	jr nz,$+10		;2150	20 08 	  . 
 	and b			;2152	a0 	. 
 	jr z,$+7		;2153	28 05 	( . 
-	ld (hl),d			;2155	72 	r 
+	ld (hl),d		;2155	72 	r 
 	dec hl			;2156	2b 	+ 
 	ld (hl),020h		;2157	36 20 	6   
 	inc hl			;2159	23 	# 
@@ -4280,7 +4316,7 @@ clear_buffers:
 	jr z,$+6		;215e	28 04 	( . 
 	inc c			;2160	0c 	. 
 	inc hl			;2161	23 	# 
-	jr $-26		;2162	18 e4 	. . 
+	jr $-26			;2162	18 e4 	. . 
 	pop hl			;2164	e1 	. 
 	pop de			;2165	d1 	. 
 	pop bc			;2166	c1 	. 
@@ -4305,7 +4341,8 @@ clear_buffers:
 	cp b			;2187	b8 	. 
 	jr nz,$+5		;2188	20 03 	  . 
 	xor a			;218a	af 	. 
-	jr $+32		;218b	18 1e 	. . 
+	jr $+32			;218b	18 1e 	. .
+CRDOWN:				; CURSOR DOWN
 	ld a,(LASTLN)		;218d	3a cd e0 	: . . 
 	dec a			;2190	3d 	= 
 	ld b,a			;2191	47 	G 
@@ -4328,7 +4365,8 @@ clear_buffers:
 	ld a,(LASTLN)		;21b5	3a cd e0 	: . . 
 	ld (SRLLST),a		;21b8	32 e9 e0 	2 . . 
 	call 02f70h		;21bb	cd 70 2f 	. p / 
-	ret			;21be	c9 	. 
+	ret			;21be	c9 	.
+CRGTRN:				; CARRIAGE RETURN
 	ld a,(MBYTE5)		;21bf	3a 44 e0 	: D . 
 	and 002h		;21c2	e6 02 	. . 
 	jr z,$+6		;21c4	28 04 	( . 
@@ -4336,41 +4374,45 @@ clear_buffers:
 	ret			;21c9	c9 	. 
 	xor a			;21ca	af 	. 
 	ld (CHRCNT),a		;21cb	32 b1 e0 	2 . . 
-	jp 03203h		;21ce	c3 03 32 	. . 2 
+	jp 03203h		;21ce	c3 03 32 	. . 2
+CRLEFT:				; CURSOR LEFT
 	ld a,(CHRCNT)		;21d1	3a b1 e0 	: . . 
 	and a			;21d4	a7 	. 
 	jr z,$+8		;21d5	28 06 	( . 
 	dec a			;21d7	3d 	= 
 	ld (CHRCNT),a		;21d8	32 b1 e0 	2 . . 
-	jr $+23		;21db	18 15 	. . 
+	jr $+23			;21db	18 15 	. . 
 	ld a,(LNSIZE)		;21dd	3a d4 e0 	: . . 
 	ld (CHRCNT),a		;21e0	32 b1 e0 	2 . . 
 	ld a,(LNCNT)		;21e3	3a d1 e0 	: . . 
 	and a			;21e6	a7 	. 
 	jr z,$+5		;21e7	28 03 	( . 
 	dec a			;21e9	3d 	= 
-	jr $+5		;21ea	18 03 	. . 
+	jr $+5			;21ea	18 03 	. . 
 	ld a,(LASTLN)		;21ec	3a cd e0 	: . . 
 	ld (LNCNT),a		;21ef	32 d1 e0 	2 . . 
 	jp 03203h		;21f2	c3 03 32 	. . 2 
 	ld a,(LASTLN)		;21f5	3a cd e0 	: . . 
-	jr $+3		;21f8	18 01 	. . 
+	jr $+3			;21f8	18 01 	. . 
 	xor a			;21fa	af 	. 
 	ld e,a			;21fb	5f 	_ 
 	ld d,000h		;21fc	16 00 	. . 
-	jp 031fbh		;21fe	c3 fb 31 	. . 1 
+	jp 031fbh		;21fe	c3 fb 31 	. . 1
+CRLNFD:				; CARRIAGE RETURN LINE FEED
 	xor a			;2201	af 	. 
 	ld (CHRCNT),a		;2202	32 b1 e0 	2 . . 
 	call 0218dh		;2205	cd 8d 21 	. . ! 
-	ret			;2208	c9 	. 
+	ret			;2208	c9 	.
+CRUP:				; CURSOR UP
 	ld a,(LNCNT)		;2209	3a d1 e0 	: . . 
 	and a			;220c	a7 	. 
 	jr z,$+5		;220d	28 03 	( . 
 	dec a			;220f	3d 	= 
-	jr $+5		;2210	18 03 	. . 
+	jr $+5			;2210	18 03 	. . 
 	ld a,(LASTLN)		;2212	3a cd e0 	: . . 
 	ld (LNCNT),a		;2215	32 d1 e0 	2 . . 
-	jp 03203h		;2218	c3 03 32 	. . 2 
+	jp 03203h		;2218	c3 03 32 	. . 2
+DISPB:				; DISPLAY B - STORE ON SCREEN
 	ld a,(KBINP)		;221b	3a c9 e0 	: . . 
 	rra			;221e	1f 	. 
 	jr nc,$+13		;221f	30 0b 	0 . 
@@ -4388,17 +4430,17 @@ clear_buffers:
 	xor a			;223a	af 	. 
 	ld (TIPE),a		;223b	32 ee e0 	2 . . 
 	pop bc			;223e	c1 	. 
-	jr $-19		;223f	18 eb 	. . 
+	jr $-19			;223f	18 eb 	. . 
 	ld hl,(CURSOR)		;2241	2a b7 e0 	* . . 
 	ld a,(GRACHR)		;2244	3a c0 e0 	: . . 
 	rra			;2247	1f 	. 
 	jr nc,$+14		;2248	30 0c 	0 . 
 	ld a,b			;224a	78 	x 
-	cp 020h		;224b	fe 20 	.   
+	cp 020h			;224b	fe 20 	.   
 	jr c,$+9		;224d	38 07 	8 . 
-	cp 040h		;224f	fe 40 	. @ 
+	cp 040h			;224f	fe 40 	. @ 
 	jr nc,$+5		;2251	30 03 	0 . 
-	or 080h		;2253	f6 80 	. . 
+	or 080h			;2253	f6 80 	. . 
 	ld b,a			;2255	47 	G 
 	inc hl			;2256	23 	# 
 	ld a,(ATTRIB)		;2257	3a a9 e0 	: . . 
@@ -4412,91 +4454,94 @@ clear_buffers:
 	ld a,(PROTE)		;2265	3a de e0 	: . . 
 	and a			;2268	a7 	. 
 	jr z,$+7		;2269	28 05 	( . 
-	ld a,(hl)			;226b	7e 	~ 
-	or 020h		;226c	f6 20 	.   
-	jr $+15		;226e	18 0d 	. . 
+	ld a,(hl)		;226b	7e 	~ 
+	or 020h			;226c	f6 20 	.   
+	jr $+15			;226e	18 0d 	. . 
 	ld a,(KBINP)		;2270	3a c9 e0 	: . . 
 	and a			;2273	a7 	. 
 	jr nz,$+5		;2274	20 03 	  . 
-	ld (hl),c			;2276	71 	q 
-	jr $+7		;2277	18 05 	. . 
-	ld a,(hl)			;2279	7e 	~ 
+	ld (hl),c		;2276	71 	q 
+	jr $+7			;2277	18 05 	. . 
+	ld a,(hl)		;2279	7e 	~ 
 	and 040h		;227a	e6 40 	. @ 
 	or c			;227c	b1 	. 
-	ld (hl),a			;227d	77 	w 
+	ld (hl),a		;227d	77 	w 
 	dec hl			;227e	2b 	+ 
 	call 03372h		;227f	cd 72 33 	. r 3 
 	jr z,$+9		;2282	28 07 	( . 
-	ld a,(hl)			;2284	7e 	~ 
+	ld a,(hl)		;2284	7e 	~ 
 	and 080h		;2285	e6 80 	. . 
 	or b			;2287	b0 	. 
-	ld (hl),a			;2288	77 	w 
-	jr $+3		;2289	18 01 	. . 
-	ld (hl),b			;228b	70 	p 
+	ld (hl),a		;2288	77 	w 
+	jr $+3			;2289	18 01 	. . 
+	ld (hl),b		;228b	70 	p 
 	call 014bdh		;228c	cd bd 14 	. . . 
-	ret			;228f	c9 	. 
+	ret			;228f	c9 	.
+DLYEN1:				; DELAY ENABLE 1
 	ld a,b			;2290	78 	x 
 	ld (UD1ACT),a		;2291	32 9a e0 	2 . . 
 	ld (UD1ADD),de		;2294	ed 53 9b e0 	. S . . 
-	jr $+10		;2298	18 08 	. . 
+	jr $+10			;2298	18 08 	. .
+DLYEN2:				; DELAY ENABLE 2
 	ld a,b			;229a	78 	x 
 	ld (UD2ACT),a		;229b	32 9d e0 	2 . . 
 	ld (UD2ADD),de		;229e	ed 53 9e e0 	. S . . 
 	call 0070bh		;22a2	cd 0b 07 	. . . 
-	ret			;22a5	c9 	. 
-	ld b,(hl)			;22a6	46 	F 
+	ret			;22a5	c9 	.
+DSTRNG:				; DATA STRING
+	ld b,(hl)		;22a6	46 	F 
 	ld a,b			;22a7	78 	x 
-	cp 0ffh		;22a8	fe ff 	. . 
+	cp 0ffh			;22a8	fe ff 	. . 
 	ret z			;22aa	c8 	. 
 	push hl			;22ab	e5 	. 
 	call 01f4fh		;22ac	cd 4f 1f 	. O . 
 	pop hl			;22af	e1 	. 
 	inc hl			;22b0	23 	# 
-	jr $-11		;22b1	18 f3 	. . 
+	jr $-11			;22b1	18 f3 	. . 
 	ld a,b			;22b3	78 	x 
-	bit 7,a		;22b4	cb 7f 	.  
+	bit 7,a			;22b4	cb 7f 	.  
 	jr nz,$+34		;22b6	20 20 	    
 	rlca			;22b8	07 	. 
 	ld e,a			;22b9	5f 	_ 
 	ld d,000h		;22ba	16 00 	. . 
 	ld a,(TABLE)		;22bc	3a ec e0 	: . . 
 	ld (SAVEA),a		;22bf	32 e2 e0 	2 . . 
-	cp 000h		;22c2	fe 00 	. . 
+	cp 000h			;22c2	fe 00 	. . 
 	jr z,$+32		;22c4	28 1e 	( . 
 	call 02526h		;22c6	cd 26 25 	. & % 
 	ld hl,02377h		;22c9	21 77 23 	! w # 
 	ld a,(SAVEA)		;22cc	3a e2 e0 	: . . 
-	cp 001h		;22cf	fe 01 	. . 
+	cp 001h			;22cf	fe 01 	. . 
 	jr z,$+32		;22d1	28 1e 	( . 
 	ld hl,02437h		;22d3	21 37 24 	! 7 $ 
-	jr $+27		;22d6	18 19 	. . 
+	jr $+27			;22d6	18 19 	. . 
 	and 07fh		;22d8	e6 7f 	.  
 	ld b,a			;22da	47 	G 
 	rlca			;22db	07 	. 
 	ld e,a			;22dc	5f 	_ 
 	ld d,000h		;22dd	16 00 	. . 
 	ld hl,02497h		;22df	21 97 24 	! . $ 
-	jr $+15		;22e2	18 0d 	. . 
+	jr $+15			;22e2	18 0d 	. . 
 	ld hl,022f7h		;22e4	21 f7 22 	! . " 
 	ld a,(OBYTE2)		;22e7	3a 47 e0 	: G . 
 	and 008h		;22ea	e6 08 	. . 
 	jr z,$+5		;22ec	28 03 	( . 
 	ld hl,02337h		;22ee	21 37 23 	! 7 # 
-	add hl,de			;22f1	19 	. 
-	ld e,(hl)			;22f2	5e 	^ 
+	add hl,de		;22f1	19 	. 
+	ld e,(hl)		;22f2	5e 	^ 
 	inc hl			;22f3	23 	# 
-	ld d,(hl)			;22f4	56 	V 
-	ex de,hl			;22f5	eb 	. 
+	ld d,(hl)		;22f4	56 	V 
+	ex de,hl		;22f5	eb 	. 
 	jp (hl)			;22f6	e9 	. 
 	ld a,025h		;22f7	3e 25 	> % 
-	ex af,af'			;22f9	08 	. 
+	ex af,af'		;22f9	08 	. 
 	ld l,03eh		;22fa	2e 3e 	. > 
 	dec h			;22fc	25 	% 
 	ld (hl),016h		;22fd	36 16 	6 . 
 	ld (02c16h),a		;22ff	32 16 2c 	2 . , 
 	dec e			;2302	1d 	. 
 	ld a,025h		;2303	3e 25 	> % 
-	add hl,de			;2305	19 	. 
+	add hl,de		;2305	19 	. 
 	dec d			;2306	15 	. 
 	inc a			;2307	3c 	< 
 	cpl			;2308	2f 	/ 
@@ -4517,26 +4562,26 @@ clear_buffers:
 	ld c,a			;2321	4f 	O 
 	ld d,03eh		;2322	16 3e 	. > 
 	dec h			;2324	25 	% 
-	add hl,bc			;2325	09 	. 
+	add hl,bc		;2325	09 	. 
 	ld (014bdh),hl		;2326	22 bd 14 	" . . 
 	pop de			;2329	d1 	. 
 	ld hl,02180h		;232a	21 80 21 	! . ! 
 	ld a,025h		;232d	3e 25 	> % 
-	or 01ch		;232f	f6 1c 	. . 
+	or 01ch			;232f	f6 1c 	. . 
 	ld b,e			;2331	43 	C 
 	ld d,02bh		;2332	16 2b 	. + 
 	dec h			;2334	25 	% 
 	ld a,025h		;2335	3e 25 	> % 
 	ld a,025h		;2337	3e 25 	> % 
-	ex af,af'			;2339	08 	. 
+	ex af,af'		;2339	08 	. 
 	ld l,03bh		;233a	2e 3b 	. ; 
 	dec de			;233c	1b 	. 
 	ld (hl),016h		;233d	36 16 	6 . 
 	ld (02c16h),a		;233f	32 16 2c 	2 . , 
 	dec e			;2342	1d 	. 
-	ld (bc),a			;2343	02 	. 
+	ld (bc),a		;2343	02 	. 
 	dec e			;2344	1d 	. 
-	add hl,de			;2345	19 	. 
+	add hl,de		;2345	19 	. 
 	dec d			;2346	15 	. 
 	pop de			;2347	d1 	. 
 	ld hl,032ach		;2348	21 ac 32 	! . 2 
@@ -4558,20 +4603,20 @@ clear_buffers:
 	ld c,a			;2361	4f 	O 
 	ld d,011h		;2362	16 11 	. . 
 	dec de			;2364	1b 	. 
-	add hl,bc			;2365	09 	. 
+	add hl,bc		;2365	09 	. 
 	ld (014bdh),hl		;2366	22 bd 14 	" . . 
 	inc a			;2369	3c 	< 
 	cpl			;236a	2f 	/ 
 	add a,b			;236b	80 	. 
 	ld hl,0253eh		;236c	21 3e 25 	! > % 
-	or 01ch		;236f	f6 1c 	. . 
+	or 01ch			;236f	f6 1c 	. . 
 	ld b,e			;2371	43 	C 
 	ld d,02bh		;2372	16 2b 	. + 
 	dec h			;2374	25 	% 
 	ld e,h			;2375	5c 	\ 
 	jr nz,$+33		;2376	20 1f 	  . 
 	dec h			;2378	25 	% 
-	ex af,af'			;2379	08 	. 
+	ex af,af'		;2379	08 	. 
 	ld l,004h		;237a	2e 04 	. . 
 	ld l,01fh		;237c	2e 1f 	. . 
 	dec h			;237e	25 	% 
@@ -4654,10 +4699,10 @@ clear_buffers:
 	sbc a,a			;23f5	9f 	. 
 	jr nz,$-91		;23f6	20 a3 	  . 
 	jr nz,$-100		;23f8	20 9a 	  . 
-	add hl,de			;23fa	19 	. 
+	add hl,de		;23fa	19 	. 
 	ld a,025h		;23fb	3e 25 	> % 
 	ld h,h			;23fd	64 	d 
-	ld a,(de)			;23fe	1a 	. 
+	ld a,(de)		;23fe	1a 	. 
 	jp m,0471ch		;23ff	fa 1c 47 	. . G 
 	ld d,02ah		;2402	16 2a 	. * 
 	dec de			;2404	1b 	. 
@@ -4671,17 +4716,17 @@ clear_buffers:
 	ld a,025h		;2411	3e 25 	> % 
 	or d			;2413	b2 	. 
 	ld d,001h		;2414	16 01 	. . 
-	ld a,(de)			;2416	1a 	. 
+	ld a,(de)		;2416	1a 	. 
 	sbc a,b			;2417	98 	. 
 	jr nz,$-2		;2418	20 fc 	  . 
 	ld d,039h		;241a	16 39 	. 9 
-	ld a,(de)			;241c	1a 	. 
+	ld a,(de)		;241c	1a 	. 
 	call z,0a118h		;241d	cc 18 a1 	. . . 
 	rla			;2420	17 	. 
 	inc d			;2421	14 	. 
 	dec e			;2422	1d 	. 
 	djnz $+31		;2423	10 1d 	. . 
-	and (hl)			;2425	a6 	. 
+	and (hl)		;2425	a6 	. 
 	inc e			;2426	1c 	. 
 	ld a,025h		;2427	3e 25 	> % 
 	cpl			;2429	2f 	/ 
@@ -4706,29 +4751,29 @@ clear_buffers:
 	dec e			;2446	1d 	. 
 	cp e			;2447	bb 	. 
 	dec e			;2448	1d 	. 
-	cp 01ch		;2449	fe 1c 	. . 
+	cp 01ch			;2449	fe 1c 	. . 
 	ld c,e			;244b	4b 	K 
 	ld d,01dh		;244c	16 1d 	. . 
 	dec de			;244e	1b 	. 
-	ld a,(de)			;244f	1a 	. 
+	ld a,(de)		;244f	1a 	. 
 	dec de			;2450	1b 	. 
 	ld d,h			;2451	54 	T 
-	add hl,hl			;2452	29 	) 
+	add hl,hl		;2452	29 	) 
 	ld h,e			;2453	63 	c 
-	add hl,hl			;2454	29 	) 
+	add hl,hl		;2454	29 	) 
 	ld e,b			;2455	58 	X 
 	rla			;2456	17 	. 
 	ld a,025h		;2457	3e 25 	> % 
 	dec bc			;2459	0b 	. 
 	ld e,011h		;245a	1e 11 	. . 
 	ld e,040h		;245c	1e 40 	. @ 
-	ld a,(de)			;245e	1a 	. 
+	ld a,(de)		;245e	1a 	. 
 	and l			;245f	a5 	. 
 	rla			;2460	17 	. 
 	and b			;2461	a0 	. 
 	dec d			;2462	15 	. 
-	ld d,(hl)			;2463	56 	V 
-	add hl,de			;2464	19 	. 
+	ld d,(hl)		;2463	56 	V 
+	add hl,de		;2464	19 	. 
 	ld c,e			;2465	4b 	K 
 	inc sp			;2466	33 	3 
 	ld d,d			;2467	52 	R 
@@ -4743,21 +4788,21 @@ clear_buffers:
 	jp 03e1dh		;2473	c3 1d 3e 	. . > 
 	dec h			;2476	25 	% 
 	ld a,025h		;2477	3e 25 	> % 
-	ld (hl),a			;2479	77 	w 
+	ld (hl),a		;2479	77 	w 
 	rla			;247a	17 	. 
 	ld a,e			;247b	7b 	{ 
 	rla			;247c	17 	. 
 	ld a,025h		;247d	3e 25 	> % 
 	ld a,025h		;247f	3e 25 	> % 
-	or 019h		;2481	f6 19 	. . 
+	or 019h			;2481	f6 19 	. . 
 	di			;2483	f3 	. 
-	add hl,de			;2484	19 	. 
+	add hl,de		;2484	19 	. 
 	ld a,025h		;2485	3e 25 	> % 
 	inc c			;2487	0c 	. 
 	rla			;2488	17 	. 
 	sbc a,l			;2489	9d 	. 
 	inc e			;248a	1c 	. 
-	sub (hl)			;248b	96 	. 
+	sub (hl)		;248b	96 	. 
 	inc e			;248c	1c 	. 
 	sub c			;248d	91 	. 
 	rla			;248e	17 	. 
@@ -4858,7 +4903,7 @@ clear_buffers:
 	ld (TABLE),a		;2527	32 ec e0 	2 . . 
 	ret			;252a	c9 	. 
 	ld a,001h		;252b	3e 01 	> . 
-	jr $+4		;252d	18 02 	. . 
+	jr $+4			;252d	18 02 	. . 
 	ld a,002h		;252f	3e 02 	> . 
 	ld (TABLE),a		;2531	32 ec e0 	2 . . 
 	ld a,(KBINP)		;2534	3a c9 e0 	: . . 
@@ -4892,7 +4937,7 @@ clear_buffers:
 	ld b,01eh		;256a	06 1e 	. . 
 	call 0314ch		;256c	cd 4c 31 	. L 1 
 	ld a,c			;256f	79 	y 
-	cp 00fh		;2570	fe 0f 	. . 
+	cp 00fh			;2570	fe 0f 	. . 
 	jr nz,$+4		;2572	20 02 	  . 
 	xor a			;2574	af 	. 
 	ld c,a			;2575	4f 	O 
@@ -4903,14 +4948,14 @@ clear_buffers:
 	and a			;257f	a7 	. 
 	jr nz,$+6		;2580	20 04 	  . 
 	ld a,070h		;2582	3e 70 	> p 
-	jr $+18		;2584	18 10 	. . 
+	jr $+18			;2584	18 10 	. . 
 	ld a,060h		;2586	3e 60 	> ` 
-	jr $+14		;2588	18 0c 	. . 
+	jr $+14			;2588	18 0c 	. . 
 	ld a,(SHIFT)		;258a	3a e6 e0 	: . . 
 	and a			;258d	a7 	. 
 	jr nz,$+6		;258e	20 04 	  . 
 	ld a,030h		;2590	3e 30 	> 0 
-	jr $+4		;2592	18 02 	. . 
+	jr $+4			;2592	18 02 	. . 
 	ld a,020h		;2594	3e 20 	>   
 	or c			;2596	b1 	. 
 	ld b,a			;2597	47 	G 
@@ -4926,9 +4971,9 @@ clear_buffers:
 	pop af			;25ad	f1 	. 
 	ret			;25ae	c9 	. 
 	nop			;25af	00 	. 
-	add hl,de			;25b0	19 	. 
-	ex af,af'			;25b1	08 	. 
-	ld a,(de)			;25b2	1a 	. 
+	add hl,de		;25b0	19 	. 
+	ex af,af'		;25b1	08 	. 
+	ld a,(de)		;25b2	1a 	. 
 	call 02f5dh		;25b3	cd 5d 2f 	. ] / 
 	ld a,(LASTLN)		;25b6	3a cd e0 	: . . 
 	dec a			;25b9	3d 	= 
@@ -4938,20 +4983,20 @@ clear_buffers:
 	push hl			;25be	e5 	. 
 	ld de,HMSGSV		;25bf	11 c3 e0 	. . . 
 	ld bc,00004h		;25c2	01 04 00 	. . . 
-	ldir		;25c5	ed b0 	. . 
+	ldir			;25c5	ed b0 	. . 
 	pop de			;25c7	d1 	. 
 	ld hl,025afh		;25c8	21 af 25 	! . % 
 	ld bc,00004h		;25cb	01 04 00 	. . . 
-	ldir		;25ce	ed b0 	. . 
+	ldir			;25ce	ed b0 	. . 
 	call 021f5h		;25d0	cd f5 21 	. . ! 
 	call 025d9h		;25d3	cd d9 25 	. . % 
 	call 02209h		;25d6	cd 09 22 	. . " 
 	ld b,084h		;25d9	06 84 	. . 
 	ld (hl),020h		;25db	36 20 	6   
 	inc hl			;25dd	23 	# 
-	ld a,(hl)			;25de	7e 	~ 
+	ld a,(hl)		;25de	7e 	~ 
 	and 040h		;25df	e6 40 	. @ 
-	ld (hl),a			;25e1	77 	w 
+	ld (hl),a		;25e1	77 	w 
 	inc hl			;25e2	23 	# 
 	djnz $-8		;25e3	10 f6 	. . 
 	ret			;25e5	c9 	. 
@@ -4962,28 +5007,30 @@ clear_buffers:
 	ld d,0e0h		;25ec	16 e0 	. . 
 	ld hl,HMSGSV		;25ee	21 c3 e0 	! . . 
 	ld bc,00004h		;25f1	01 04 00 	. . . 
-	ldir		;25f4	ed b0 	. . 
+	ldir			;25f4	ed b0 	. . 
 	call 02f4bh		;25f6	cd 4b 2f 	. K / 
-	ret			;25f9	c9 	. 
+	ret			;25f9	c9 	.
+KBDAS:				; CONVERT NEXT KEYBOARD CODE TO ASCII
 	call 02925h		;25fa	cd 25 29 	. % ) 
 	ld a,b			;25fd	78 	x 
-	bit 7,b		;25fe	cb 78 	. x 
+	bit 7,b			;25fe	cb 78 	. x 
 	jr z,$+8		;2600	28 06 	( . 
 	call 02871h		;2602	cd 71 28 	. q ( 
 	ld b,080h		;2605	06 80 	. . 
 	ret			;2607	c9 	. 
 	call 0271bh		;2608	cd 1b 27 	. . ' 
 	ld a,b			;260b	78 	x 
-	cp 080h		;260c	fe 80 	. . 
+	cp 080h			;260c	fe 80 	. . 
 	ret z			;260e	c8 	. 
 	call 02791h		;260f	cd 91 27 	. . ' 
 	ret			;2612	c9 	. 
-	rlca			;2613	07 	. 
+	rlca			;2613	07 	.
+KBDINP1:			; ADVANCED MODES KEYBOARD INPUT
 	call 02925h		;2614	cd 25 29 	. % ) 
 	ld a,b			;2617	78 	x 
-	bit 7,a		;2618	cb 7f 	.  
+	bit 7,a			;2618	cb 7f 	.  
 	jp nz,02871h		;261a	c2 71 28 	. q ( 
-	cp 007h		;261d	fe 07 	. . 
+	cp 007h			;261d	fe 07 	. . 
 	jr nz,$+24		;261f	20 16 	  . 
 	xor a			;2621	af 	. 
 	ld (RPTACT),a		;2622	32 df e0 	2 . . 
@@ -4996,20 +5043,20 @@ clear_buffers:
 	ret			;2636	c9 	. 
 	call 0271bh		;2637	cd 1b 27 	. . ' 
 	ld a,b			;263a	78 	x 
-	cp 080h		;263b	fe 80 	. . 
+	cp 080h			;263b	fe 80 	. . 
 	ret z			;263d	c8 	. 
 	ld a,(KBLKD)		;263e	3a ca e0 	: . . 
 	and a			;2641	a7 	. 
 	jr z,$+11		;2642	28 09 	( . 
 	ld a,b			;2644	78 	x 
-	cp 01dh		;2645	fe 1d 	. . 
+	cp 01dh			;2645	fe 1d 	. . 
 	jr z,$+6		;2647	28 04 	( . 
 	call 01519h		;2649	cd 19 15 	. . . 
 	ret			;264c	c9 	. 
 	ld a,(SAVEA)		;264d	3a e2 e0 	: . . 
 	and 03fh		;2650	e6 3f 	. ? 
 	jr z,$+77		;2652	28 4b 	( K 
-	cp 030h		;2654	fe 30 	. 0 
+	cp 030h			;2654	fe 30 	. 0 
 	jr nc,$+73		;2656	30 47 	0 G 
 	ld c,a			;2658	4f 	O 
 	add a,c			;2659	81 	. 
@@ -5017,20 +5064,20 @@ clear_buffers:
 	ld hl,0d810h		;265b	21 10 d8 	! . . 
 	ld e,a			;265e	5f 	_ 
 	ld d,000h		;265f	16 00 	. . 
-	add hl,de			;2661	19 	. 
-	ld a,(hl)			;2662	7e 	~ 
+	add hl,de		;2661	19 	. 
+	ld a,(hl)		;2662	7e 	~ 
 	inc hl			;2663	23 	# 
 	and 003h		;2664	e6 03 	. . 
 	jr z,$+57		;2666	28 37 	( 7 
-	cp 001h		;2668	fe 01 	. . 
+	cp 001h			;2668	fe 01 	. . 
 	jr nz,$+44		;266a	20 2a 	  * 
 	ld a,(OBYTE1)		;266c	3a 46 e0 	: F . 
 	and 001h		;266f	e6 01 	. . 
 	jr nz,$+46		;2671	20 2c 	  , 
-	ld d,(hl)			;2673	56 	V 
+	ld d,(hl)		;2673	56 	V 
 	inc hl			;2674	23 	# 
-	ld e,(hl)			;2675	5e 	^ 
-	ex de,hl			;2676	eb 	. 
+	ld e,(hl)		;2675	5e 	^ 
+	ex de,hl		;2676	eb 	. 
 	xor a			;2677	af 	. 
 	ld (FNCODE),a		;2678	32 f5 e0 	2 . . 
 	ld (SAVEHL),hl		;267b	22 e4 e0 	" . . 
@@ -5039,35 +5086,35 @@ clear_buffers:
 	jp nz,025a2h		;2682	c2 a2 25 	. . % 
 	call 0268bh		;2685	cd 8b 26 	. . & 
 	jp 031d8h		;2688	c3 d8 31 	. . 1 
-	ld b,(hl)			;268b	46 	F 
+	ld b,(hl)		;268b	46 	F 
 	ld a,b			;268c	78 	x 
-	cp 0ffh		;268d	fe ff 	. . 
+	cp 0ffh			;268d	fe ff 	. . 
 	ret z			;268f	c8 	. 
 	call 0314ch		;2690	cd 4c 31 	. L 1 
 	inc hl			;2693	23 	# 
-	jr $-9		;2694	18 f5 	. . 
-	ld d,(hl)			;2696	56 	V 
+	jr $-9			;2694	18 f5 	. . 
+	ld d,(hl)		;2696	56 	V 
 	inc hl			;2697	23 	# 
-	ld e,(hl)			;2698	5e 	^ 
-	ex de,hl			;2699	eb 	. 
+	ld e,(hl)		;2698	5e 	^ 
+	ex de,hl		;2699	eb 	. 
 	call 0269eh		;269a	cd 9e 26 	. . & 
 	ret			;269d	c9 	. 
 	jp (hl)			;269e	e9 	. 
 	call 02791h		;269f	cd 91 27 	. . ' 
 	ld a,b			;26a2	78 	x 
-	cp 080h		;26a3	fe 80 	. . 
+	cp 080h			;26a3	fe 80 	. . 
 	ret z			;26a5	c8 	. 
 	ld a,(OBYTE1)		;26a6	3a 46 e0 	: F . 
 	and 001h		;26a9	e6 01 	. . 
 	jr nz,$+26		;26ab	20 18 	  . 
 	ld hl,(CURSOR)		;26ad	2a b7 e0 	* . . 
 	inc hl			;26b0	23 	# 
-	ld a,(hl)			;26b1	7e 	~ 
+	ld a,(hl)		;26b1	7e 	~ 
 	and 040h		;26b2	e6 40 	. @ 
 	jr z,$+17		;26b4	28 0f 	( . 
 	ld hl,0d810h		;26b6	21 10 d8 	! . . 
-	ld a,(hl)			;26b9	7e 	~ 
-	cp 033h		;26ba	fe 33 	. 3 
+	ld a,(hl)		;26b9	7e 	~ 
+	cp 033h			;26ba	fe 33 	. 3 
 	jr nz,$+9		;26bc	20 07 	  . 
 	inc hl			;26be	23 	# 
 	push bc			;26bf	c5 	. 
@@ -5093,7 +5140,7 @@ clear_buffers:
 	ld a,07dh		;26ec	3e 7d 	> } 
 	ld (KBDACT),a		;26ee	32 95 e0 	2 . . 
 	call 0070bh		;26f1	cd 0b 07 	. . . 
-	jr $+13		;26f4	18 0b 	. . 
+	jr $+13			;26f4	18 0b 	. . 
 	ld a,(RPTACT)		;26f6	3a df e0 	: . . 
 	rra			;26f9	1f 	. 
 	jr c,$+7		;26fa	38 05 	8 . 
@@ -5104,10 +5151,10 @@ clear_buffers:
 	ld b,a			;2704	47 	G 
 	ld a,001h		;2705	3e 01 	> . 
 	ld (KBINP),a		;2707	32 c9 e0 	2 . . 
-	bit 7,b		;270a	cb 78 	. x 
+	bit 7,b			;270a	cb 78 	. x 
 	jr z,$+7		;270c	28 05 	( . 
 	call 022b3h		;270e	cd b3 22 	. . " 
-	jr $+5		;2711	18 03 	. . 
+	jr $+5			;2711	18 03 	. . 
 	call 028ddh		;2713	cd dd 28 	. . ( 
 	xor a			;2716	af 	. 
 	ld (KBINP),a		;2717	32 c9 e0 	2 . . 
@@ -5117,26 +5164,26 @@ clear_buffers:
 	ld hl,02973h		;271f	21 73 29 	! s ) 
 	ld e,b			;2722	58 	X 
 	ld d,000h		;2723	16 00 	. . 
-	add hl,de			;2725	19 	. 
-	ld a,(hl)			;2726	7e 	~ 
+	add hl,de		;2725	19 	. 
+	ld a,(hl)		;2726	7e 	~ 
 	ld (SAVEA),a		;2727	32 e2 e0 	2 . . 
 	and 040h		;272a	e6 40 	. @ 
 	ret z			;272c	c8 	. 
 	ld a,b			;272d	78 	x 
-	cp 01ch		;272e	fe 1c 	. . 
+	cp 01ch			;272e	fe 1c 	. . 
 	jr z,$+67		;2730	28 41 	( A 
-	cp 07ch		;2732	fe 7c 	. | 
+	cp 07ch			;2732	fe 7c 	. | 
 	jr z,$+56		;2734	28 36 	( 6 
-	cp 025h		;2736	fe 25 	. % 
+	cp 025h			;2736	fe 25 	. % 
 	jr z,$+69		;2738	28 43 	( C 
-	cp 01ah		;273a	fe 1a 	. . 
+	cp 01ah			;273a	fe 1a 	. . 
 	ret nz			;273c	c0 	. 
 	ld a,(LOCK)		;273d	3a cf e0 	: . . 
-	cp 000h		;2740	fe 00 	. . 
+	cp 000h			;2740	fe 00 	. . 
 	jr z,$+9		;2742	28 07 	( . 
 	ld a,002h		;2744	3e 02 	> . 
 	ld (LOCK),a		;2746	32 cf e0 	2 . . 
-	jr $+57		;2749	18 37 	. 7 
+	jr $+57			;2749	18 37 	. 7 
 	ld a,001h		;274b	3e 01 	> . 
 	ld (LOCK),a		;274d	32 cf e0 	2 . . 
 	ld a,002h		;2750	3e 02 	> . 
@@ -5147,17 +5194,17 @@ clear_buffers:
 	jr nz,$+9		;275c	20 07 	  . 
 	ld a,001h		;275e	3e 01 	> . 
 	ld (CPSLK),a		;2760	32 b6 e0 	2 . . 
-	jr $+31		;2763	18 1d 	. . 
+	jr $+31			;2763	18 1d 	. . 
 	ld a,(SHIFT)		;2765	3a e6 e0 	: . . 
-	or 002h		;2768	f6 02 	. . 
-	jr $+14		;276a	18 0c 	. . 
+	or 002h			;2768	f6 02 	. . 
+	jr $+14			;276a	18 0c 	. . 
 	ld a,(SHIFT)		;276c	3a e6 e0 	: . . 
-	or 004h		;276f	f6 04 	. . 
-	jr $+7		;2771	18 05 	. . 
+	or 004h			;276f	f6 04 	. . 
+	jr $+7			;2771	18 05 	. . 
 	ld a,(SHIFT)		;2773	3a e6 e0 	: . . 
-	or 001h		;2776	f6 01 	. . 
+	or 001h			;2776	f6 01 	. . 
 	ld (SHIFT),a		;2778	32 e6 e0 	2 . . 
-	jr $+7		;277b	18 05 	. . 
+	jr $+7			;277b	18 05 	. . 
 	ld a,001h		;277d	3e 01 	> . 
 	ld (CONT),a		;277f	32 b5 e0 	2 . . 
 	ld b,080h		;2782	06 80 	. . 
@@ -5166,22 +5213,22 @@ clear_buffers:
 	ld e,01fh		;2787	1e 1f 	. . 
 	ld h,027h		;2789	26 27 	& ' 
 	ld a,03fh		;278b	3e 3f 	> ? 
-	ld b,(hl)			;278d	46 	F 
+	ld b,(hl)		;278d	46 	F 
 	ld b,a			;278e	47 	G 
-	ld c,(hl)			;278f	4e 	N 
+	ld c,(hl)		;278f	4e 	N 
 	ld c,a			;2790	4f 	O 
 	ld a,(OBYTE2)		;2791	3a 47 e0 	: G . 
 	and 002h		;2794	e6 02 	. . 
 	jr z,$+38		;2796	28 24 	( $ 
 	ld hl,02785h		;2798	21 85 27 	! . ' 
 	ld c,00ch		;279b	0e 0c 	. . 
-	ld a,(hl)			;279d	7e 	~ 
+	ld a,(hl)		;279d	7e 	~ 
 	cp b			;279e	b8 	. 
 	jr z,$+8		;279f	28 06 	( . 
 	inc hl			;27a1	23 	# 
 	dec c			;27a2	0d 	. 
 	jr nz,$-6		;27a3	20 f8 	  . 
-	jr $+23		;27a5	18 15 	. . 
+	jr $+23			;27a5	18 15 	. . 
 	ld a,(SHIFT)		;27a7	3a e6 e0 	: . . 
 	ld (TIPE),a		;27aa	32 ee e0 	2 . . 
 	ld a,001h		;27ad	3e 01 	> . 
@@ -5198,34 +5245,34 @@ clear_buffers:
 	and a			;27c8	a7 	. 
 	jr nz,$+7		;27c9	20 05 	  . 
 	ld hl,(KNSC)		;27cb	2a a5 e0 	* . . 
-	jr $+16		;27ce	18 0e 	. . 
+	jr $+16			;27ce	18 0e 	. . 
 	ld hl,(KSC)		;27d0	2a a7 e0 	* . . 
-	jr $+11		;27d3	18 09 	. . 
+	jr $+11			;27d3	18 09 	. . 
 	ld a,(SHIFT)		;27d5	3a e6 e0 	: . . 
 	and a			;27d8	a7 	. 
 	jr z,$+5		;27d9	28 03 	( . 
 	ld hl,(KSNC)		;27db	2a a3 e0 	* . . 
 	ld e,b			;27de	58 	X 
 	ld d,000h		;27df	16 00 	. . 
-	add hl,de			;27e1	19 	. 
-	ld b,(hl)			;27e2	46 	F 
+	add hl,de		;27e1	19 	. 
+	ld b,(hl)		;27e2	46 	F 
 	ld a,(CPSLK)		;27e3	3a b6 e0 	: . . 
 	rra			;27e6	1f 	. 
 	jr nc,$+14		;27e7	30 0c 	0 . 
 	ld a,b			;27e9	78 	x 
-	cp 07bh		;27ea	fe 7b 	. { 
+	cp 07bh			;27ea	fe 7b 	. { 
 	jr nc,$+9		;27ec	30 07 	0 . 
-	cp 061h		;27ee	fe 61 	. a 
+	cp 061h			;27ee	fe 61 	. a 
 	ret c			;27f0	d8 	. 
 	sub 020h		;27f1	d6 20 	.   
 	ld b,a			;27f3	47 	G 
 	ret			;27f4	c9 	. 
 	ld a,b			;27f5	78 	x 
 	and 0f0h		;27f6	e6 f0 	. . 
-	cp 0e0h		;27f8	fe e0 	. . 
+	cp 0e0h			;27f8	fe e0 	. . 
 	ret c			;27fa	d8 	. 
 	ld a,b			;27fb	78 	x 
-	cp 0e8h		;27fc	fe e8 	. . 
+	cp 0e8h			;27fc	fe e8 	. . 
 	jr nc,$+81		;27fe	30 4f 	0 O 
 	ld a,(OBYTE2)		;2800	3a 47 e0 	: G . 
 	and 008h		;2803	e6 08 	. . 
@@ -5238,13 +5285,13 @@ clear_buffers:
 	rra			;2813	1f 	. 
 	jr nc,$+53		;2814	30 33 	0 3 
 	ld hl,02b93h		;2816	21 93 2b 	! . + 
-	jr $+48		;2819	18 2e 	. . 
+	jr $+48			;2819	18 2e 	. . 
 	ld hl,02b03h		;281b	21 03 2b 	! . + 
 	ld a,(CONT)		;281e	3a b5 e0 	: . . 
 	rra			;2821	1f 	. 
 	jr nc,$+39		;2822	30 25 	0 % 
 	ld hl,02c23h		;2824	21 23 2c 	! # , 
-	jr $+34		;2827	18 20 	.   
+	jr $+34			;2827	18 20 	.   
 	ld a,(SHIFT)		;2829	3a e6 e0 	: . . 
 	and a			;282c	a7 	. 
 	jr nz,$+16		;282d	20 0e 	  . 
@@ -5253,7 +5300,7 @@ clear_buffers:
 	rra			;2835	1f 	. 
 	jr nc,$+19		;2836	30 11 	0 . 
 	ld hl,02b9bh		;2838	21 9b 2b 	! . + 
-	jr $+14		;283b	18 0c 	. . 
+	jr $+14			;283b	18 0c 	. . 
 	ld hl,02b0bh		;283d	21 0b 2b 	! . + 
 	ld a,(CONT)		;2840	3a b5 e0 	: . . 
 	rra			;2843	1f 	. 
@@ -5276,32 +5323,32 @@ clear_buffers:
 	rlca			;2865	07 	. 
 	ld e,a			;2866	5f 	_ 
 	ld d,000h		;2867	16 00 	. . 
-	add hl,de			;2869	19 	. 
-	ld e,(hl)			;286a	5e 	^ 
+	add hl,de		;2869	19 	. 
+	ld e,(hl)		;286a	5e 	^ 
 	inc hl			;286b	23 	# 
-	ld d,(hl)			;286c	56 	V 
-	ex de,hl			;286d	eb 	. 
+	ld d,(hl)		;286c	56 	V 
+	ex de,hl		;286d	eb 	. 
 	jp 027deh		;286e	c3 de 27 	. . ' 
 	and 07fh		;2871	e6 7f 	.  
 	ld b,a			;2873	47 	G 
 	ld hl,02973h		;2874	21 73 29 	! s ) 
 	ld e,b			;2877	58 	X 
 	ld d,000h		;2878	16 00 	. . 
-	add hl,de			;287a	19 	. 
-	ld a,(hl)			;287b	7e 	~ 
+	add hl,de		;287a	19 	. 
+	ld a,(hl)		;287b	7e 	~ 
 	and 040h		;287c	e6 40 	. @ 
 	jr z,$+67		;287e	28 41 	( A 
 	ld a,b			;2880	78 	x 
-	cp 07ch		;2881	fe 7c 	. | 
+	cp 07ch			;2881	fe 7c 	. | 
 	jr z,$+41		;2883	28 27 	( ' 
-	cp 01ch		;2885	fe 1c 	. . 
+	cp 01ch			;2885	fe 1c 	. . 
 	jr z,$+44		;2887	28 2a 	( * 
-	cp 025h		;2889	fe 25 	. % 
+	cp 025h			;2889	fe 25 	. % 
 	jr z,$+49		;288b	28 2f 	( / 
-	cp 01ah		;288d	fe 1a 	. . 
+	cp 01ah			;288d	fe 1a 	. . 
 	ret nz			;288f	c0 	. 
 	ld a,(LOCK)		;2890	3a cf e0 	: . . 
-	cp 002h		;2893	fe 02 	. . 
+	cp 002h			;2893	fe 02 	. . 
 	ret nz			;2895	c0 	. 
 	call 028d1h		;2896	cd d1 28 	. . ( 
 	ld a,(OBYTE2)		;2899	3a 47 e0 	: G . 
@@ -5312,10 +5359,10 @@ clear_buffers:
 	ret			;28a4	c9 	. 
 	ld a,(SHIFT)		;28a5	3a e6 e0 	: . . 
 	and 0fdh		;28a8	e6 fd 	. . 
-	jr $+14		;28aa	18 0c 	. . 
+	jr $+14			;28aa	18 0c 	. . 
 	ld a,(SHIFT)		;28ac	3a e6 e0 	: . . 
 	and 0fbh		;28af	e6 fb 	. . 
-	jr $+7		;28b1	18 05 	. . 
+	jr $+7			;28b1	18 05 	. . 
 	ld a,(SHIFT)		;28b3	3a e6 e0 	: . . 
 	and 0feh		;28b6	e6 fe 	. . 
 	ld (SHIFT),a		;28b8	32 e6 e0 	2 . . 
@@ -5352,7 +5399,7 @@ clear_buffers:
 	rra			;28f8	1f 	. 
 	jr c,$+37		;28f9	38 23 	8 # 
 	ld a,b			;28fb	78 	x 
-	cp 020h		;28fc	fe 20 	.   
+	cp 020h			;28fc	fe 20 	.   
 	jr c,$+8		;28fe	38 06 	8 . 
 	ld a,(TABLE)		;2900	3a ec e0 	: . . 
 	and a			;2903	a7 	. 
@@ -5371,7 +5418,8 @@ clear_buffers:
 	ret c			;291d	d8 	. 
 	call 02e3fh		;291e	cd 3f 2e 	. ? . 
 	call 0314ch		;2921	cd 4c 31 	. L 1 
-	ret			;2924	c9 	. 
+	ret			;2924	c9 	.
+KINPUT:				; KEYBOARD INPUT
 	ld a,(TXCNT)		;2925	3a 8e e0 	: . . 
 	and a			;2928	a7 	. 
 	call nz,0302fh		;2929	c4 2f 30 	. / 0 
@@ -5379,33 +5427,36 @@ clear_buffers:
 	and a			;292f	a7 	. 
 	jr z,$-11		;2930	28 f3 	( . 
 	ld hl,(KBOTAD)		;2932	2a 8c e0 	* . . 
-	ld b,(hl)			;2935	46 	F 
+	ld b,(hl)		;2935	46 	F 
 	inc hl			;2936	23 	# 
 	ld a,l			;2937	7d 	} 
-	cp 020h		;2938	fe 20 	.   
+	cp 020h			;2938	fe 20 	.   
 	jr nz,$+5		;293a	20 03 	  . 
 	ld hl,0db10h		;293c	21 10 db 	! . . 
 	ld (KBOTAD),hl		;293f	22 8c e0 	" . . 
 	ld hl,KBCNT		;2942	21 89 e0 	! . . 
-	dec (hl)			;2945	35 	5 
-	ret			;2946	c9 	. 
+	dec (hl)		;2945	35 	5 
+	ret			;2946	c9 	.
+KBDASC:				; KEYBOARD TO LOWERCASE ASCII
 	push de			;2947	d5 	. 
 	push hl			;2948	e5 	. 
 	ld hl,029f3h		;2949	21 f3 29 	! . ) 
 	ld d,000h		;294c	16 00 	. . 
 	ld e,b			;294e	58 	X 
-	add hl,de			;294f	19 	. 
-	ld a,(hl)			;2950	7e 	~ 
+	add hl,de		;294f	19 	. 
+	ld a,(hl)		;2950	7e 	~ 
 	pop hl			;2951	e1 	. 
 	pop de			;2952	d1 	. 
-	ret			;2953	c9 	. 
+	ret			;2953	c9 	.
+KBDLCK:				; LOCK KEYBOARD
 	xor a			;2954	af 	. 
 	ld (RPTACT),a		;2955	32 df e0 	2 . . 
 	inc a			;2958	3c 	< 
 	ld (KBLKD),a		;2959	32 ca e0 	2 . . 
 	ld a,(LIGHTS)		;295c	3a ce e0 	: . . 
-	or 004h		;295f	f6 04 	. . 
-	jr $+11		;2961	18 09 	. . 
+	or 004h			;295f	f6 04 	. . 
+	jr $+11			;2961	18 09 	. .
+KBDUNL:				; UNLOCK KEYBOARD
 	xor a			;2963	af 	. 
 	ld (KBLKD),a		;2964	32 ca e0 	2 . . 
 	ld a,(LIGHTS)		;2967	3a ce e0 	: . . 
@@ -5442,14 +5493,14 @@ clear_buffers:
 	ld b,b			;298f	40 	@ 
 	nop			;2990	00 	. 
 	xor c			;2991	a9 	. 
-	and (hl)			;2992	a6 	. 
+	and (hl)		;2992	a6 	. 
 	ld bc,08080h		;2993	01 80 80 	. . . 
 	add a,b			;2996	80 	. 
 	add a,b			;2997	80 	. 
 	ld b,b			;2998	40 	@ 
 	xor d			;2999	aa 	. 
 	and a			;299a	a7 	. 
-	ld (bc),a			;299b	02 	. 
+	ld (bc),a		;299b	02 	. 
 	add a,b			;299c	80 	. 
 	add a,b			;299d	80 	. 
 	add a,b			;299e	80 	. 
@@ -5470,7 +5521,7 @@ clear_buffers:
 	add a,b			;29ad	80 	. 
 	add a,b			;29ae	80 	. 
 	add a,b			;29af	80 	. 
-	ld (de),a			;29b0	12 	. 
+	ld (de),a		;29b0	12 	. 
 	xor l			;29b1	ad 	. 
 	and h			;29b2	a4 	. 
 	dec b			;29b3	05 	. 
@@ -5496,23 +5547,23 @@ clear_buffers:
 	rrca			;29c8	0f 	. 
 	dec de			;29c9	1b 	. 
 	nop			;29ca	00 	. 
-	ex af,af'			;29cb	08 	. 
+	ex af,af'		;29cb	08 	. 
 	add a,b			;29cc	80 	. 
 	add a,b			;29cd	80 	. 
 	add a,b			;29ce	80 	. 
 	add a,b			;29cf	80 	. 
-	ld a,(de)			;29d0	1a 	. 
+	ld a,(de)		;29d0	1a 	. 
 	nop			;29d1	00 	. 
-	add hl,de			;29d2	19 	. 
-	add hl,bc			;29d3	09 	. 
+	add hl,de		;29d2	19 	. 
+	add hl,bc		;29d3	09 	. 
 	add a,b			;29d4	80 	. 
 	add a,b			;29d5	80 	. 
 	add a,b			;29d6	80 	. 
 	add a,b			;29d7	80 	. 
 	nop			;29d8	00 	. 
-	ld (de),a			;29d9	12 	. 
+	ld (de),a		;29d9	12 	. 
 	nop			;29da	00 	. 
-	ld a,(bc)			;29db	0a 	. 
+	ld a,(bc)		;29db	0a 	. 
 	add a,b			;29dc	80 	. 
 	add a,b			;29dd	80 	. 
 	add a,b			;29de	80 	. 
@@ -5525,12 +5576,12 @@ clear_buffers:
 	add a,b			;29e7	80 	. 
 	sbc a,a			;29e8	9f 	. 
 	add a,b			;29e9	80 	. 
-	jr $+14		;29ea	18 0c 	. . 
+	jr $+14			;29ea	18 0c 	. . 
 	add a,b			;29ec	80 	. 
 	add a,b			;29ed	80 	. 
 	add a,b			;29ee	80 	. 
 	ld b,b			;29ef	40 	@ 
-	sbc a,(hl)			;29f0	9e 	. 
+	sbc a,(hl)		;29f0	9e 	. 
 	add a,b			;29f1	80 	. 
 	sub c			;29f2	91 	. 
 	add a,b			;29f3	80 	. 
@@ -5556,13 +5607,13 @@ clear_buffers:
 	cp h			;2a07	bc 	. 
 	add a,b			;2a08	80 	. 
 	scf			;2a09	37 	7 
-	inc (hl)			;2a0a	34 	4 
+	inc (hl)		;2a0a	34 	4 
 	and a			;2a0b	a7 	. 
 	ret pe			;2a0c	e8 	. 
 	add a,b			;2a0d	80 	. 
-	add hl,bc			;2a0e	09 	. 
+	add hl,bc		;2a0e	09 	. 
 	add a,b			;2a0f	80 	. 
-	xor (hl)			;2a10	ae 	. 
+	xor (hl)		;2a10	ae 	. 
 	jr c,$+55		;2a11	38 35 	8 5 
 	add a,c			;2a13	81 	. 
 	ld sp,07161h		;2a14	31 61 71 	1 a q 
@@ -5581,27 +5632,27 @@ clear_buffers:
 	adc a,l			;2a29	8d 	. 
 	dec de			;2a2a	1b 	. 
 	add a,h			;2a2b	84 	. 
-	inc (hl)			;2a2c	34 	4 
-	ld h,(hl)			;2a2d	66 	f 
-	ld (hl),d			;2a2e	72 	r 
+	inc (hl)		;2a2c	34 	4 
+	ld h,(hl)		;2a2d	66 	f 
+	ld (hl),d		;2a2e	72 	r 
 	ld h,e			;2a2f	63 	c 
-	ex (sp),hl			;2a30	e3 	. 
+	ex (sp),hl		;2a30	e3 	. 
 	ld l,033h		;2a31	2e 33 	. 3 
 	add a,l			;2a33	85 	. 
-	dec (hl)			;2a34	35 	5 
+	dec (hl)		;2a34	35 	5 
 	ld h,a			;2a35	67 	g 
-	ld (hl),h			;2a36	74 	t 
+	ld (hl),h		;2a36	74 	t 
 	halt			;2a37	76 	v 
 	sbc a,e			;2a38	9b 	. 
 	jr nc,$+52		;2a39	30 32 	0 2 
-	add a,(hl)			;2a3b	86 	. 
+	add a,(hl)		;2a3b	86 	. 
 	ld (hl),068h		;2a3c	36 68 	6 h 
 	call p,09e62h		;2a3e	f4 62 9e 	. b . 
 	inc l			;2a41	2c 	, 
 	ld sp,03787h		;2a42	31 87 37 	1 . 7 
 	ld l,d			;2a45	6a 	j 
-	ld (hl),l			;2a46	75 	u 
-	ld l,(hl)			;2a47	6e 	n 
+	ld (hl),l		;2a46	75 	u 
+	ld l,(hl)		;2a47	6e 	n 
 	adc a,a			;2a48	8f 	. 
 	sub d			;2a49	92 	. 
 	add a,b			;2a4a	80 	. 
@@ -5613,41 +5664,41 @@ clear_buffers:
 	add a,b			;2a51	80 	. 
 	sbc a,c			;2a52	99 	. 
 	adc a,c			;2a53	89 	. 
-	add hl,sp			;2a54	39 	9 
+	add hl,sp		;2a54	39 	9 
 	ld l,h			;2a55	6c 	l 
 	ld l,a			;2a56	6f 	o 
 	call m,0e380h		;2a57	fc 80 e3 	. . . 
 	add a,b			;2a5a	80 	. 
 	adc a,d			;2a5b	8a 	. 
 	jr nc,$-7		;2a5c	30 f7 	0 . 
-	ld (hl),b			;2a5e	70 	p 
+	ld (hl),b		;2a5e	70 	p 
 	defb 0fdh,00bh,097h	;illegal sequence		;2a5f	fd 0b 97 	. . . 
-	adc a,(hl)			;2a62	8e 	. 
+	adc a,(hl)		;2a62	8e 	. 
 	adc a,e			;2a63	8b 	. 
 	pop af			;2a64	f1 	. 
 	ret m			;2a65	f8 	. 
 	push af			;2a66	f5 	. 
-	cp 0ach		;2a67	fe ac 	. . 
+	cp 0ach			;2a67	fe ac 	. . 
 	pop hl			;2a69	e1 	. 
 	jp po,0f28ch		;2a6a	e2 8c f2 	. . . 
-	ld sp,hl			;2a6d	f9 	. 
-	or 080h		;2a6e	f6 80 	. . 
+	ld sp,hl		;2a6d	f9 	. 
+	or 080h			;2a6e	f6 80 	. . 
 	xor d			;2a70	aa 	. 
 	di			;2a71	f3 	. 
 	xor b			;2a72	a8 	. 
 	and b			;2a73	a0 	. 
-	add hl,de			;2a74	19 	. 
+	add hl,de		;2a74	19 	. 
 	sbc a,b			;2a75	98 	. 
-	ld a,(bc)			;2a76	0a 	. 
-	inc (hl)			;2a77	34 	4 
-	dec (hl)			;2a78	35 	5 
+	ld a,(bc)		;2a76	0a 	. 
+	inc (hl)		;2a77	34 	4 
+	dec (hl)		;2a78	35 	5 
 	ld (hl),032h		;2a79	36 32 	6 2 
 	pop bc			;2a7b	c1 	. 
-	ex af,af'			;2a7c	08 	. 
+	ex af,af'		;2a7c	08 	. 
 	rra			;2a7d	1f 	. 
 	dec c			;2a7e	0d 	. 
-	inc (hl)			;2a7f	34 	4 
-	dec (hl)			;2a80	35 	5 
+	inc (hl)		;2a7f	34 	4 
+	dec (hl)		;2a80	35 	5 
 	ld (hl),032h		;2a81	36 32 	6 2 
 	add a,b			;2a83	80 	. 
 	add a,b			;2a84	80 	. 
@@ -5674,7 +5725,7 @@ clear_buffers:
 	add a,b			;2a99	80 	. 
 	call po,0e8a7h		;2a9a	e4 a7 e8 	. . . 
 	add a,b			;2a9d	80 	. 
-	add hl,bc			;2a9e	09 	. 
+	add hl,bc		;2a9e	09 	. 
 	add a,b			;2a9f	80 	. 
 	xor a			;2aa0	af 	. 
 	rla			;2aa1	17 	. 
@@ -5694,24 +5745,24 @@ clear_buffers:
 	ld e,b			;2ab7	58 	X 
 	dec c			;2ab8	0d 	. 
 	adc a,l			;2ab9	8d 	. 
-	ld a,(bc)			;2aba	0a 	. 
+	ld a,(bc)		;2aba	0a 	. 
 	add a,h			;2abb	84 	. 
-	ex de,hl			;2abc	eb 	. 
-	ld b,(hl)			;2abd	46 	F 
+	ex de,hl		;2abc	eb 	. 
+	ld b,(hl)		;2abd	46 	F 
 	ld d,d			;2abe	52 	R 
 	ld b,e			;2abf	43 	C 
-	ex (sp),hl			;2ac0	e3 	. 
+	ex (sp),hl		;2ac0	e3 	. 
 	add a,b			;2ac1	80 	. 
 	add a,b			;2ac2	80 	. 
 	add a,l			;2ac3	85 	. 
 	dec h			;2ac4	25 	% 
 	ld b,a			;2ac5	47 	G 
 	ld d,h			;2ac6	54 	T 
-	ld d,(hl)			;2ac7	56 	V 
+	ld d,(hl)		;2ac7	56 	V 
 	sbc a,h			;2ac8	9c 	. 
 	add a,b			;2ac9	80 	. 
-	ld a,(de)			;2aca	1a 	. 
-	add a,(hl)			;2acb	86 	. 
+	ld a,(de)		;2aca	1a 	. 
+	add a,(hl)		;2acb	86 	. 
 	call pe,0f448h		;2acc	ec 48 f4 	. H . 
 	ld b,d			;2acf	42 	B 
 	sbc a,a			;2ad0	9f 	. 
@@ -5720,7 +5771,7 @@ clear_buffers:
 	add a,a			;2ad3	87 	. 
 	adc hl,bc		;2ad4	ed 4a 	. J 
 	ld d,l			;2ad6	55 	U 
-	ld c,(hl)			;2ad7	4e 	N 
+	ld c,(hl)		;2ad7	4e 	N 
 	adc a,a			;2ad8	8f 	. 
 	and e			;2ad9	a3 	. 
 	add a,b			;2ada	80 	. 
@@ -5728,7 +5779,7 @@ clear_buffers:
 	xor 04bh		;2adc	ee 4b 	. K 
 	ld c,c			;2ade	49 	I 
 	ld c,l			;2adf	4d 	M 
-	sub (hl)			;2ae0	96 	. 
+	sub (hl)		;2ae0	96 	. 
 	add a,b			;2ae1	80 	. 
 	sub l			;2ae2	95 	. 
 	adc a,c			;2ae3	89 	. 
@@ -5742,33 +5793,33 @@ clear_buffers:
 	rst 30h			;2aed	f7 	. 
 	ld d,b			;2aee	50 	P 
 	defb 0fdh,00ch,093h	;illegal sequence		;2aef	fd 0c 93 	. . . 
-	adc a,(hl)			;2af2	8e 	. 
+	adc a,(hl)		;2af2	8e 	. 
 	adc a,e			;2af3	8b 	. 
 	pop af			;2af4	f1 	. 
 	ret m			;2af5	f8 	. 
 	push af			;2af6	f5 	. 
-	cp 0adh		;2af7	fe ad 	. . 
+	cp 0adh			;2af7	fe ad 	. . 
 	pop hl			;2af9	e1 	. 
 	jp po,0f28ch		;2afa	e2 8c f2 	. . . 
-	ld sp,hl			;2afd	f9 	. 
-	or 080h		;2afe	f6 80 	. . 
+	ld sp,hl		;2afd	f9 	. 
+	or 080h			;2afe	f6 80 	. . 
 	xor e			;2b00	ab 	. 
 	di			;2b01	f3 	. 
 	xor b			;2b02	a8 	. 
 	and c			;2b03	a1 	. 
-	add hl,de			;2b04	19 	. 
+	add hl,de		;2b04	19 	. 
 	sub h			;2b05	94 	. 
-	ld a,(bc)			;2b06	0a 	. 
-	add hl,de			;2b07	19 	. 
-	ex af,af'			;2b08	08 	. 
-	jr $+28		;2b09	18 1a 	. . 
+	ld a,(bc)		;2b06	0a 	. 
+	add hl,de		;2b07	19 	. 
+	ex af,af'		;2b08	08 	. 
+	jr $+28			;2b09	18 1a 	. . 
 	and c			;2b0b	a1 	. 
-	ex af,af'			;2b0c	08 	. 
+	ex af,af'		;2b0c	08 	. 
 	sbc a,b			;2b0d	98 	. 
 	dec c			;2b0e	0d 	. 
-	ex af,af'			;2b0f	08 	. 
-	add hl,de			;2b10	19 	. 
-	jr $+28		;2b11	18 1a 	. . 
+	ex af,af'		;2b0f	08 	. 
+	add hl,de		;2b10	19 	. 
+	jr $+28			;2b11	18 1a 	. . 
 	add a,b			;2b13	80 	. 
 	add a,b			;2b14	80 	. 
 	add a,b			;2b15	80 	. 
@@ -5796,7 +5847,7 @@ clear_buffers:
 	add a,b			;2b2d	80 	. 
 	sub c			;2b2e	91 	. 
 	add a,b			;2b2f	80 	. 
-	xor (hl)			;2b30	ae 	. 
+	xor (hl)		;2b30	ae 	. 
 	jr c,$-25		;2b31	38 e5 	8 . 
 	add a,c			;2b33	81 	. 
 	ld sp,01101h		;2b34	31 01 11 	1 . . 
@@ -5805,7 +5856,7 @@ clear_buffers:
 	nop			;2b3c	00 	. 
 	inc de			;2b3d	13 	. 
 	rla			;2b3e	17 	. 
-	ld a,(de)			;2b3f	1a 	. 
+	ld a,(de)		;2b3f	1a 	. 
 	jr nz,$-126		;2b40	20 80 	  . 
 	add a,b			;2b42	80 	. 
 	add a,e			;2b43	83 	. 
@@ -5816,38 +5867,38 @@ clear_buffers:
 	adc a,l			;2b49	8d 	. 
 	dec de			;2b4a	1b 	. 
 	add a,h			;2b4b	84 	. 
-	inc (hl)			;2b4c	34 	4 
+	inc (hl)		;2b4c	34 	4 
 	ld b,012h		;2b4d	06 12 	. . 
 	inc bc			;2b4f	03 	. 
-	ex (sp),hl			;2b50	e3 	. 
+	ex (sp),hl		;2b50	e3 	. 
 	ld l,033h		;2b51	2e 33 	. 3 
 	add a,l			;2b53	85 	. 
-	dec (hl)			;2b54	35 	5 
+	dec (hl)		;2b54	35 	5 
 	rlca			;2b55	07 	. 
 	inc d			;2b56	14 	. 
 	ld d,09dh		;2b57	16 9d 	. . 
 	jr nc,$-23		;2b59	30 e7 	0 . 
-	add a,(hl)			;2b5b	86 	. 
+	add a,(hl)		;2b5b	86 	. 
 	ld (hl),008h		;2b5c	36 08 	6 . 
-	add hl,de			;2b5e	19 	. 
-	ld (bc),a			;2b5f	02 	. 
-	sbc a,(hl)			;2b60	9e 	. 
+	add hl,de		;2b5e	19 	. 
+	ld (bc),a		;2b5f	02 	. 
+	sbc a,(hl)		;2b60	9e 	. 
 	inc l			;2b61	2c 	, 
 	ld sp,03787h		;2b62	31 87 37 	1 . 7 
-	ld a,(bc)			;2b65	0a 	. 
+	ld a,(bc)		;2b65	0a 	. 
 	dec d			;2b66	15 	. 
 	ld c,08fh		;2b67	0e 8f 	. . 
 	ret nz			;2b69	c0 	. 
 	add a,b			;2b6a	80 	. 
 	adc a,b			;2b6b	88 	. 
 	jr c,$+13		;2b6c	38 0b 	8 . 
-	add hl,bc			;2b6e	09 	. 
+	add hl,bc		;2b6e	09 	. 
 	dec c			;2b6f	0d 	. 
 	sbc a,d			;2b70	9a 	. 
 	add a,b			;2b71	80 	. 
 	sbc a,c			;2b72	99 	. 
 	adc a,c			;2b73	89 	. 
-	add hl,sp			;2b74	39 	9 
+	add hl,sp		;2b74	39 	9 
 	inc c			;2b75	0c 	. 
 	rrca			;2b76	0f 	. 
 	call m,0e380h		;2b77	fc 80 e3 	. . . 
@@ -5857,12 +5908,12 @@ clear_buffers:
 	djnz $-1		;2b7e	10 fd 	. . 
 	dec bc			;2b80	0b 	. 
 	sub a			;2b81	97 	. 
-	adc a,(hl)			;2b82	8e 	. 
+	adc a,(hl)		;2b82	8e 	. 
 	adc a,e			;2b83	8b 	. 
 	rra			;2b84	1f 	. 
 	ret m			;2b85	f8 	. 
 	dec e			;2b86	1d 	. 
-	cp 0ach		;2b87	fe ac 	. . 
+	cp 0ach			;2b87	fe ac 	. . 
 	pop hl			;2b89	e1 	. 
 	sbc a,b			;2b8a	98 	. 
 	adc a,h			;2b8b	8c 	. 
@@ -5873,18 +5924,18 @@ clear_buffers:
 	di			;2b91	f3 	. 
 	xor c			;2b92	a9 	. 
 	and b			;2b93	a0 	. 
-	add hl,de			;2b94	19 	. 
+	add hl,de		;2b94	19 	. 
 	add a,b			;2b95	80 	. 
-	ld a,(bc)			;2b96	0a 	. 
-	add hl,de			;2b97	19 	. 
-	ex af,af'			;2b98	08 	. 
-	jr $+28		;2b99	18 1a 	. . 
+	ld a,(bc)		;2b96	0a 	. 
+	add hl,de		;2b97	19 	. 
+	ex af,af'		;2b98	08 	. 
+	jr $+28			;2b99	18 1a 	. . 
 	pop bc			;2b9b	c1 	. 
-	ex af,af'			;2b9c	08 	. 
+	ex af,af'		;2b9c	08 	. 
 	add a,b			;2b9d	80 	. 
 	dec c			;2b9e	0d 	. 
-	inc (hl)			;2b9f	34 	4 
-	dec (hl)			;2ba0	35 	5 
+	inc (hl)		;2b9f	34 	4 
+	dec (hl)		;2ba0	35 	5 
 	ld (hl),032h		;2ba1	36 32 	6 2 
 	add a,b			;2ba3	80 	. 
 	add a,b			;2ba4	80 	. 
@@ -5923,19 +5974,19 @@ clear_buffers:
 	nop			;2bcc	00 	. 
 	inc de			;2bcd	13 	. 
 	rla			;2bce	17 	. 
-	ld a,(de)			;2bcf	1a 	. 
+	ld a,(de)		;2bcf	1a 	. 
 	jr nz,$-126		;2bd0	20 80 	  . 
 	add a,b			;2bd2	80 	. 
 	add a,e			;2bd3	83 	. 
 	jp pe,00504h		;2bd4	ea 04 05 	. . . 
-	jr $+15		;2bd7	18 0d 	. . 
+	jr $+15			;2bd7	18 0d 	. . 
 	adc a,l			;2bd9	8d 	. 
-	ld a,(bc)			;2bda	0a 	. 
+	ld a,(bc)		;2bda	0a 	. 
 	add a,h			;2bdb	84 	. 
-	ex de,hl			;2bdc	eb 	. 
+	ex de,hl		;2bdc	eb 	. 
 	ld b,012h		;2bdd	06 12 	. . 
 	inc bc			;2bdf	03 	. 
-	ex (sp),hl			;2be0	e3 	. 
+	ex (sp),hl		;2be0	e3 	. 
 	add a,b			;2be1	80 	. 
 	add a,b			;2be2	80 	. 
 	add a,l			;2be3	85 	. 
@@ -5945,24 +5996,24 @@ clear_buffers:
 	ld d,09dh		;2be7	16 9d 	. . 
 	add a,b			;2be9	80 	. 
 	rst 20h			;2bea	e7 	. 
-	add a,(hl)			;2beb	86 	. 
+	add a,(hl)		;2beb	86 	. 
 	call pe,01908h		;2bec	ec 08 19 	. . . 
-	ld (bc),a			;2bef	02 	. 
+	ld (bc),a		;2bef	02 	. 
 	sbc a,a			;2bf0	9f 	. 
 	add a,b			;2bf1	80 	. 
 	add a,b			;2bf2	80 	. 
 	add a,a			;2bf3	87 	. 
 	defb 0edh;next byte illegal after ed		;2bf4	ed 	. 
-	ld a,(bc)			;2bf5	0a 	. 
+	ld a,(bc)		;2bf5	0a 	. 
 	dec d			;2bf6	15 	. 
 	ld c,08fh		;2bf7	0e 8f 	. . 
 	ret nz			;2bf9	c0 	. 
 	add a,b			;2bfa	80 	. 
 	adc a,b			;2bfb	88 	. 
 	xor 00bh		;2bfc	ee 0b 	. . 
-	add hl,bc			;2bfe	09 	. 
+	add hl,bc		;2bfe	09 	. 
 	dec c			;2bff	0d 	. 
-	sub (hl)			;2c00	96 	. 
+	sub (hl)		;2c00	96 	. 
 	add a,b			;2c01	80 	. 
 	sub l			;2c02	95 	. 
 	adc a,c			;2c03	89 	. 
@@ -5977,12 +6028,12 @@ clear_buffers:
 	djnz $-1		;2c0e	10 fd 	. . 
 	inc c			;2c10	0c 	. 
 	sub e			;2c11	93 	. 
-	adc a,(hl)			;2c12	8e 	. 
+	adc a,(hl)		;2c12	8e 	. 
 	adc a,e			;2c13	8b 	. 
 	rra			;2c14	1f 	. 
 	ret m			;2c15	f8 	. 
 	dec e			;2c16	1d 	. 
-	cp 0adh		;2c17	fe ad 	. . 
+	cp 0adh			;2c17	fe ad 	. . 
 	pop hl			;2c19	e1 	. 
 	sub h			;2c1a	94 	. 
 	adc a,h			;2c1b	8c 	. 
@@ -5993,27 +6044,27 @@ clear_buffers:
 	di			;2c21	f3 	. 
 	xor c			;2c22	a9 	. 
 	and c			;2c23	a1 	. 
-	add hl,de			;2c24	19 	. 
+	add hl,de		;2c24	19 	. 
 	add a,b			;2c25	80 	. 
-	ld a,(bc)			;2c26	0a 	. 
+	ld a,(bc)		;2c26	0a 	. 
 	and h			;2c27	a4 	. 
 	and l			;2c28	a5 	. 
-	and (hl)			;2c29	a6 	. 
+	and (hl)		;2c29	a6 	. 
 	and d			;2c2a	a2 	. 
 	and c			;2c2b	a1 	. 
-	ex af,af'			;2c2c	08 	. 
+	ex af,af'		;2c2c	08 	. 
 	add a,b			;2c2d	80 	. 
 	dec c			;2c2e	0d 	. 
-	ex af,af'			;2c2f	08 	. 
-	add hl,de			;2c30	19 	. 
-	jr $+28		;2c31	18 1a 	. . 
+	ex af,af'		;2c2f	08 	. 
+	add hl,de		;2c30	19 	. 
+	jr $+28			;2c31	18 1a 	. . 
 	ld b,e			;2c33	43 	C 
 	inc l			;2c34	2c 	, 
 	ld b,e			;2c35	43 	C 
 	inc l			;2c36	2c 	, 
 	ld e,d			;2c37	5a 	Z 
 	inc l			;2c38	2c 	, 
-	ld (hl),c			;2c39	71 	q 
+	ld (hl),c		;2c39	71 	q 
 	inc l			;2c3a	2c 	, 
 	adc a,b			;2c3b	88 	. 
 	inc l			;2c3c	2c 	, 
@@ -6039,11 +6090,11 @@ clear_buffers:
 	inc l			;2c57	2c 	, 
 	ld l,02fh		;2c58	2e 2f 	. / 
 	jp nz,03332h		;2c5a	c2 32 33 	. 2 3 
-	inc (hl)			;2c5d	34 	4 
+	inc (hl)		;2c5d	34 	4 
 	ld (hl),037h		;2c5e	36 37 	6 7 
 	jr c,$+59		;2c60	38 39 	8 9 
 	jr nc,$+41		;2c62	30 27 	0 ' 
-	ld e,(hl)			;2c64	5e 	^ 
+	ld e,(hl)		;2c64	5e 	^ 
 	add a,b			;2c65	80 	. 
 	ld a,c			;2c66	79 	y 
 	ld b,b			;2c67	40 	@ 
@@ -6055,7 +6106,7 @@ clear_buffers:
 	inc l			;2c6e	2c 	, 
 	ld l,02dh		;2c6f	2e 2d 	. - 
 	jp nz,03332h		;2c71	c2 32 33 	. 2 3 
-	inc (hl)			;2c74	34 	4 
+	inc (hl)		;2c74	34 	4 
 	ld (hl),037h		;2c75	36 37 	6 7 
 	jr c,$+59		;2c77	38 39 	8 9 
 	jr nc,$+128		;2c79	30 7e 	0 ~ 
@@ -6072,7 +6123,7 @@ clear_buffers:
 	inc l			;2c85	2c 	, 
 	ld l,02dh		;2c86	2e 2d 	. - 
 	jp nz,03332h		;2c88	c2 32 33 	. 2 3 
-	inc (hl)			;2c8b	34 	4 
+	inc (hl)		;2c8b	34 	4 
 	ld (hl),037h		;2c8c	36 37 	6 7 
 	jr c,$+59		;2c8e	38 39 	8 9 
 	jr nc,$+45		;2c90	30 2b 	0 + 
@@ -6080,7 +6131,7 @@ clear_buffers:
 	add a,b			;2c93	80 	. 
 	ld a,c			;2c94	79 	y 
 	ld a,l			;2c95	7d 	} 
-	ld a,(hl)			;2c96	7e 	~ 
+	ld a,(hl)		;2c96	7e 	~ 
 	ld a,h			;2c97	7c 	| 
 	ld a,e			;2c98	7b 	{ 
 	daa			;2c99	27 	' 
@@ -6121,7 +6172,7 @@ clear_buffers:
 	inc l			;2cca	2c 	, 
 	ld l,02fh		;2ccb	2e 2f 	. / 
 	jp nz,03332h		;2ccd	c2 32 33 	. 2 3 
-	inc (hl)			;2cd0	34 	4 
+	inc (hl)		;2cd0	34 	4 
 	ld (hl),037h		;2cd1	36 37 	6 7 
 	jr c,$+59		;2cd3	38 39 	8 9 
 	jr nc,$+45		;2cd5	30 2b 	0 + 
@@ -6129,7 +6180,7 @@ clear_buffers:
 	add a,b			;2cd8	80 	. 
 	ld a,c			;2cd9	79 	y 
 	ld a,l			;2cda	7d 	} 
-	ld a,(hl)			;2cdb	7e 	~ 
+	ld a,(hl)		;2cdb	7e 	~ 
 	ld a,h			;2cdc	7c 	| 
 	ld a,e			;2cdd	7b 	{ 
 	daa			;2cde	27 	' 
@@ -6147,18 +6198,18 @@ clear_buffers:
 	dec l			;2cef	2d 	- 
 	ld h,a			;2cf0	67 	g 
 	dec l			;2cf1	2d 	- 
-	ld a,(hl)			;2cf2	7e 	~ 
+	ld a,(hl)		;2cf2	7e 	~ 
 	dec l			;2cf3	2d 	- 
 	add a,b			;2cf4	80 	. 
 	ld b,b			;2cf5	40 	@ 
 	inc hl			;2cf6	23 	# 
 	inc h			;2cf7	24 	$ 
-	ld e,(hl)			;2cf8	5e 	^ 
+	ld e,(hl)		;2cf8	5e 	^ 
 	ld h,02ah		;2cf9	26 2a 	& * 
 	jr z,$+43		;2cfb	28 29 	( ) 
 	ld e,a			;2cfd	5f 	_ 
 	dec hl			;2cfe	2b 	+ 
-	ld a,(hl)			;2cff	7e 	~ 
+	ld a,(hl)		;2cff	7e 	~ 
 	ld e,c			;2d00	59 	Y 
 	ld e,l			;2d01	5d 	] 
 	ld a,h			;2d02	7c 	| 
@@ -6174,7 +6225,7 @@ clear_buffers:
 	jr z,$+43		;2d11	28 29 	( ) 
 	dec a			;2d13	3d 	= 
 	ccf			;2d14	3f 	? 
-	ld a,(hl)			;2d15	7e 	~ 
+	ld a,(hl)		;2d15	7e 	~ 
 	add a,b			;2d16	80 	. 
 	ld e,c			;2d17	59 	Y 
 	ld e,h			;2d18	5c 	\ 
@@ -6193,7 +6244,7 @@ clear_buffers:
 	ld e,d			;2d2e	5a 	Z 
 	ld e,l			;2d2f	5d 	] 
 	ld hl,(05b5ch)		;2d30	2a 5c 5b 	* \ [ 
-	ld e,(hl)			;2d33	5e 	^ 
+	ld e,(hl)		;2d33	5e 	^ 
 	ld a,059h		;2d34	3e 59 	> Y 
 	dec sp			;2d36	3b 	; 
 	ld a,(0c35fh)		;2d37	3a 5f c3 	: _ . 
@@ -6206,7 +6257,7 @@ clear_buffers:
 	add a,b			;2d44	80 	. 
 	ld e,c			;2d45	59 	Y 
 	ld e,l			;2d46	5d 	] 
-	ld e,(hl)			;2d47	5e 	^ 
+	ld e,(hl)		;2d47	5e 	^ 
 	ld e,h			;2d48	5c 	\ 
 	ld e,e			;2d49	5b 	[ 
 	ld hl,(05a3eh)		;2d4a	2a 3e 5a 	* > Z 
@@ -6215,7 +6266,7 @@ clear_buffers:
 	ld b,b			;2d51	40 	@ 
 	inc hl			;2d52	23 	# 
 	inc h			;2d53	24 	$ 
-	ld e,(hl)			;2d54	5e 	^ 
+	ld e,(hl)		;2d54	5e 	^ 
 	ld h,02ah		;2d55	26 2a 	& * 
 	jr z,$+43		;2d57	28 29 	( ) 
 	ld e,a			;2d59	5f 	_ 
@@ -6228,11 +6279,11 @@ clear_buffers:
 	ld a,05ah		;2d62	3e 5a 	> Z 
 	inc l			;2d64	2c 	, 
 	ld l,03fh		;2d65	2e 3f 	. ? 
-	ld a,(hl)			;2d67	7e 	~ 
+	ld a,(hl)		;2d67	7e 	~ 
 	ld b,b			;2d68	40 	@ 
 	inc hl			;2d69	23 	# 
 	inc h			;2d6a	24 	$ 
-	ld e,(hl)			;2d6b	5e 	^ 
+	ld e,(hl)		;2d6b	5e 	^ 
 	ld h,02ah		;2d6c	26 2a 	& * 
 	jr z,$+43		;2d6e	28 29 	( ) 
 	ld e,a			;2d70	5f 	_ 
@@ -6253,7 +6304,7 @@ clear_buffers:
 	add a,b			;2d89	80 	. 
 	ld e,c			;2d8a	59 	Y 
 	ld e,l			;2d8b	5d 	] 
-	ld e,(hl)			;2d8c	5e 	^ 
+	ld e,(hl)		;2d8c	5e 	^ 
 	ld e,h			;2d8d	5c 	\ 
 	ld e,e			;2d8e	5b 	[ 
 	ld hl,(05a3eh)		;2d8f	2a 3e 5a 	* > Z 
@@ -6261,7 +6312,8 @@ clear_buffers:
 	ld a,(0cd5fh)		;2d93	3a 5f cd 	: _ . 
 	sbc a,d			;2d96	9a 	. 
 	dec l			;2d97	2d 	- 
-	jr $-3		;2d98	18 fb 	. . 
+	jr $-3			;2d98	18 fb 	. .
+MNTOR:				; USER ENTRY TO MONITOR
 	ld a,(NOPTR)		;2d9a	3a f8 e0 	: . . 
 	and a			;2d9d	a7 	. 
 	jr nz,$+10		;2d9e	20 08 	  . 
@@ -6272,7 +6324,7 @@ clear_buffers:
 	and a			;2dab	a7 	. 
 	jr z,$+7		;2dac	28 05 	( . 
 	call 02e55h		;2dae	cd 55 2e 	. U . 
-	jr $+19		;2db1	18 11 	. . 
+	jr $+19			;2db1	18 11 	. . 
 	ld a,(0e0f7h)		;2db3	3a f7 e0 	: . . 
 	and a			;2db6	a7 	. 
 	jr nz,$+13		;2db7	20 0b 	  . 
@@ -6313,7 +6365,7 @@ clear_buffers:
 	call 0070bh		;2e00	cd 0b 07 	. . . 
 	ret			;2e03	c9 	. 
 	ld b,001h		;2e04	06 01 	. . 
-	jr $+4		;2e06	18 02 	. . 
+	jr $+4			;2e06	18 02 	. . 
 	ld b,003h		;2e08	06 03 	. . 
 	ld a,(NOPTR)		;2e0a	3a f8 e0 	: . . 
 	and a			;2e0d	a7 	. 
@@ -6338,7 +6390,8 @@ clear_buffers:
 	ld b,00ch		;2e36	06 0c 	. . 
 	call 02e7fh		;2e38	cd 7f 2e 	.  . 
 	call 021cah		;2e3b	cd ca 21 	. . ! 
-	ret			;2e3e	c9 	. 
+	ret			;2e3e	c9 	.
+PRINTB:				; PRINT B
 	ld a,(NOPTR)		;2e3f	3a f8 e0 	: . . 
 	and a			;2e42	a7 	. 
 	ret nz			;2e43	c0 	. 
@@ -6349,7 +6402,8 @@ clear_buffers:
 	and 020h		;2e4d	e6 20 	.   
 	jr z,$-5		;2e4f	28 f9 	( . 
 	call 005d1h		;2e51	cd d1 05 	. . . 
-	ret			;2e54	c9 	. 
+	ret			;2e54	c9 	.
+PRINTC:				; PRINT NEXT CHARACTER
 	call 005c8h		;2e55	cd c8 05 	. . . 
 	and 020h		;2e58	e6 20 	.   
 	ret z			;2e5a	c8 	. 
@@ -6362,12 +6416,12 @@ clear_buffers:
 	ld a,(PCRLF)		;2e66	3a da e0 	: . . 
 	and a			;2e69	a7 	. 
 	jr z,$+28		;2e6a	28 1a 	( . 
-	cp 001h		;2e6c	fe 01 	. . 
+	cp 001h			;2e6c	fe 01 	. . 
 	jr nz,$+11		;2e6e	20 09 	  . 
 	ld a,002h		;2e70	3e 02 	> . 
 	ld (PCRLF),a		;2e72	32 da e0 	2 . . 
 	ld b,00dh		;2e75	06 0d 	. . 
-	jr $+8		;2e77	18 06 	. . 
+	jr $+8			;2e77	18 06 	. . 
 	xor a			;2e79	af 	. 
 	ld (PCRLF),a		;2e7a	32 da e0 	2 . . 
 	ld b,00ah		;2e7d	06 0a 	. . 
@@ -6380,40 +6434,40 @@ clear_buffers:
 	ld b,a			;2e8c	47 	G 
 	xor a			;2e8d	af 	. 
 	ld (PNTNXT),a		;2e8e	32 db e0 	2 . . 
-	jr $+41		;2e91	18 27 	. ' 
+	jr $+41			;2e91	18 27 	. ' 
 	ld hl,(CURSOR)		;2e93	2a b7 e0 	* . . 
-	ld b,(hl)			;2e96	46 	F 
+	ld b,(hl)		;2e96	46 	F 
 	ld a,(PRINTA)		;2e97	3a dd e0 	: . . 
-	cp 001h		;2e9a	fe 01 	. . 
+	cp 001h			;2e9a	fe 01 	. . 
 	jr z,$+10		;2e9c	28 08 	( . 
 	inc hl			;2e9e	23 	# 
-	ld a,(hl)			;2e9f	7e 	~ 
+	ld a,(hl)		;2e9f	7e 	~ 
 	and 01fh		;2ea0	e6 1f 	. . 
 	jr z,$+4		;2ea2	28 02 	( . 
 	ld b,020h		;2ea4	06 20 	.   
 	ld a,b			;2ea6	78 	x 
-	cp 020h		;2ea7	fe 20 	.   
+	cp 020h			;2ea7	fe 20 	.   
 	jr z,$+8		;2ea9	28 06 	( . 
 	xor a			;2eab	af 	. 
 	ld (SPFLAG),a		;2eac	32 e7 e0 	2 . . 
-	jr $+11		;2eaf	18 09 	. . 
+	jr $+11			;2eaf	18 09 	. . 
 	ld a,(SPFLAG)		;2eb1	3a e7 e0 	: . . 
 	rra			;2eb4	1f 	. 
 	jr c,$+5		;2eb5	38 03 	8 . 
 	call 02f1ch		;2eb7	cd 1c 2f 	. . / 
 	ld a,b			;2eba	78 	x 
-	cp 07fh		;2ebb	fe 7f 	.  
+	cp 07fh			;2ebb	fe 7f 	.  
 	jr c,$+4		;2ebd	38 02 	8 . 
 	ld b,020h		;2ebf	06 20 	.   
 	call 005d1h		;2ec1	cd d1 05 	. . . 
 	ld a,b			;2ec4	78 	x 
-	cp 00dh		;2ec5	fe 0d 	. . 
+	cp 00dh			;2ec5	fe 0d 	. . 
 	jr nz,$+11		;2ec7	20 09 	  . 
 	ld a,00ah		;2ec9	3e 0a 	> . 
 	ld (PNTNXT),a		;2ecb	32 db e0 	2 . . 
 	call 02defh		;2ece	cd ef 2d 	. . - 
 	ret			;2ed1	c9 	. 
-	cp 00ah		;2ed2	fe 0a 	. . 
+	cp 00ah			;2ed2	fe 0a 	. . 
 	jr nz,$+29		;2ed4	20 1b 	  . 
 	call 02defh		;2ed6	cd ef 2d 	. . - 
 	xor a			;2ed9	af 	. 
@@ -6458,20 +6512,22 @@ clear_buffers:
 	inc b			;2f2c	04 	. 
 	inc hl			;2f2d	23 	# 
 	inc hl			;2f2e	23 	# 
-	ld a,(hl)			;2f2f	7e 	~ 
-	cp 020h		;2f30	fe 20 	.   
+	ld a,(hl)		;2f2f	7e 	~ 
+	cp 020h			;2f30	fe 20 	.   
 	jr z,$-15		;2f32	28 ef 	( . 
 	ld a,001h		;2f34	3e 01 	> . 
 	ld (SPFLAG),a		;2f36	32 e7 e0 	2 . . 
 	ld b,020h		;2f39	06 20 	.   
-	ret			;2f3b	c9 	. 
+	ret			;2f3b	c9 	.
+RESET:				; RESET
 	ld a,(MBYTE5)		;2f3c	3a 44 e0 	: D . 
 	and 001h		;2f3f	e6 01 	. . 
 	jr z,$+6		;2f41	28 04 	( . 
 	call 021f5h		;2f43	cd f5 21 	. . ! 
 	ret			;2f46	c9 	. 
 	call 021fah		;2f47	cd fa 21 	. . ! 
-	ret			;2f4a	c9 	. 
+	ret			;2f4a	c9 	.
+RSETXY:				; RESET CURSOR TO OLD XY
 	ld a,(CHRSAV)		;2f4b	3a b2 e0 	: . . 
 	ld d,a			;2f4e	57 	W 
 	ld a,(LNSAV)		;2f4f	3a d3 e0 	: . . 
@@ -6479,14 +6535,16 @@ clear_buffers:
 	call 031fbh		;2f53	cd fb 31 	. . 1 
 	ld a,(ATTSAV)		;2f56	3a aa e0 	: . . 
 	ld (ATTRIB),a		;2f59	32 a9 e0 	2 . . 
-	ret			;2f5c	c9 	. 
+	ret			;2f5c	c9 	.
+SAVEXY:				; SAVE CURRENT XY POSITION
 	ld a,(CHRCNT)		;2f5d	3a b1 e0 	: . . 
 	ld (CHRSAV),a		;2f60	32 b2 e0 	2 . . 
 	ld a,(LNCNT)		;2f63	3a d1 e0 	: . . 
 	ld (LNSAV),a		;2f66	32 d3 e0 	2 . . 
 	ld a,(ATTRIB)		;2f69	3a a9 e0 	: . . 
 	ld (ATTSAV),a		;2f6c	32 aa e0 	2 . . 
-	ret			;2f6f	c9 	. 
+	ret			;2f6f	c9 	.
+SCROLL:				; SCROLL
 	call 02f5dh		;2f70	cd 5d 2f 	. ] / 
 	ld h,0e0h		;2f73	26 e0 	& . 
 	ld a,(SRLFST)		;2f75	3a e8 e0 	: . . 
@@ -6500,7 +6558,7 @@ clear_buffers:
 	ld a,l			;2f87	7d 	} 
 	rlca			;2f88	07 	. 
 	ld l,a			;2f89	6f 	o 
-	ex de,hl			;2f8a	eb 	. 
+	ex de,hl		;2f8a	eb 	. 
 	xor a			;2f8b	af 	. 
 	ld (CHRCNT),a		;2f8c	32 b1 e0 	2 . . 
 	ld a,(PROTE)		;2f8f	3a de e0 	: . . 
@@ -6510,7 +6568,7 @@ clear_buffers:
 	call 0210fh		;2f97	cd 0f 21 	. . ! 
 	pop af			;2f9a	f1 	. 
 	ld (PROTE),a		;2f9b	32 de e0 	2 . . 
-	ex de,hl			;2f9e	eb 	. 
+	ex de,hl		;2f9e	eb 	. 
 	call 02fach		;2f9f	cd ac 2f 	. . / 
 	ld a,(FLAG2)		;2fa2	3a bf e0 	: . . 
 	rra			;2fa5	1f 	. 
@@ -6519,9 +6577,9 @@ clear_buffers:
 	ret			;2fab	c9 	. 
 	ld d,h			;2fac	54 	T 
 	ld e,l			;2fad	5d 	] 
-	ld c,(hl)			;2fae	4e 	N 
+	ld c,(hl)		;2fae	4e 	N 
 	inc hl			;2faf	23 	# 
-	ld b,(hl)			;2fb0	46 	F 
+	ld b,(hl)		;2fb0	46 	F 
 	push bc			;2fb1	c5 	. 
 	inc hl			;2fb2	23 	# 
 	ld a,(SRLFST)		;2fb3	3a e8 e0 	: . . 
@@ -6537,32 +6595,32 @@ clear_buffers:
 	ld a,(FLAG2)		;2fc3	3a bf e0 	: . . 
 	and 002h		;2fc6	e6 02 	. . 
 	jr nz,$+11		;2fc8	20 09 	  . 
-	ldir		;2fca	ed b0 	. . 
+	ldir			;2fca	ed b0 	. . 
 	pop hl			;2fcc	e1 	. 
 	ld a,l			;2fcd	7d 	} 
-	ld (de),a			;2fce	12 	. 
+	ld (de),a		;2fce	12 	. 
 	inc de			;2fcf	13 	. 
 	ld a,h			;2fd0	7c 	| 
-	ld (de),a			;2fd1	12 	. 
+	ld (de),a		;2fd1	12 	. 
 	ret			;2fd2	c9 	. 
 	dec hl			;2fd3	2b 	+ 
 	dec hl			;2fd4	2b 	+ 
 	dec hl			;2fd5	2b 	+ 
 	inc de			;2fd6	13 	. 
-	lddr		;2fd7	ed b8 	. . 
+	lddr			;2fd7	ed b8 	. . 
 	pop hl			;2fd9	e1 	. 
 	ld a,h			;2fda	7c 	| 
-	ld (de),a			;2fdb	12 	. 
+	ld (de),a		;2fdb	12 	. 
 	dec de			;2fdc	1b 	. 
 	ld a,l			;2fdd	7d 	} 
-	ld (de),a			;2fde	12 	. 
+	ld (de),a		;2fde	12 	. 
 	ret			;2fdf	c9 	. 
 	pop hl			;2fe0	e1 	. 
 	ld a,l			;2fe1	7d 	} 
-	ld (de),a			;2fe2	12 	. 
+	ld (de),a		;2fe2	12 	. 
 	inc de			;2fe3	13 	. 
 	ld a,h			;2fe4	7c 	| 
-	ld (de),a			;2fe5	12 	. 
+	ld (de),a		;2fe5	12 	. 
 	ret			;2fe6	c9 	. 
 	ld a,(PROTE)		;2fe7	3a de e0 	: . . 
 	and a			;2fea	a7 	. 
@@ -6583,7 +6641,7 @@ clear_buffers:
 	jr z,$-10		;3008	28 f4 	( . 
 	dec c			;300a	0d 	. 
 	ld a,c			;300b	79 	y 
-	jr $+5		;300c	18 03 	. . 
+	jr $+5			;300c	18 03 	. . 
 	ld a,(LASTLN)		;300e	3a cd e0 	: . . 
 	ld (SRLLST),a		;3011	32 e9 e0 	2 . . 
 	ld a,(LNCNT)		;3014	3a d1 e0 	: . . 
@@ -6592,16 +6650,17 @@ clear_buffers:
 	ld l,c			;301b	69 	i 
 	ld h,0e0h		;301c	26 e0 	& . 
 	call 01fcdh		;301e	cd cd 1f 	. . . 
-	ex de,hl			;3021	eb 	. 
+	ex de,hl		;3021	eb 	. 
 	ld a,(LNSIZE)		;3022	3a d4 e0 	: . . 
 	ld b,a			;3025	47 	G 
 	inc hl			;3026	23 	# 
-	ld a,(hl)			;3027	7e 	~ 
+	ld a,(hl)		;3027	7e 	~ 
 	and 080h		;3028	e6 80 	. . 
 	ret nz			;302a	c0 	. 
 	inc hl			;302b	23 	# 
 	djnz $-6		;302c	10 f8 	. . 
-	ret			;302e	c9 	. 
+	ret			;302e	c9 	.
+SEND:				; SEND NEXT CODE FROM COMM BUFFER
 	ld a,(PCDACT)		;302f	3a 97 e0 	: . . 
 	and a			;3032	a7 	. 
 	ret nz			;3033	c0 	. 
@@ -6622,7 +6681,7 @@ clear_buffers:
 	jr nz,$+14		;3051	20 0c 	  . 
 	call 02954h		;3053	cd 54 29 	. T ) 
 	ld a,(KBLKD)		;3056	3a ca e0 	: . . 
-	or 002h		;3059	f6 02 	. . 
+	or 002h			;3059	f6 02 	. . 
 	ld (KBLKD),a		;305b	32 ca e0 	2 . . 
 	ret			;305e	c9 	. 
 	ld a,(KBLKD)		;305f	3a ca e0 	: . . 
@@ -6636,7 +6695,7 @@ clear_buffers:
 	and 002h		;3074	e6 02 	. . 
 	jr nz,$+11		;3076	20 09 	  . 
 	call 0049dh		;3078	cd 9d 04 	. . . 
-	or 002h		;307b	f6 02 	. . 
+	or 002h			;307b	f6 02 	. . 
 	ld b,a			;307d	47 	G 
 	call 004afh		;307e	cd af 04 	. . . 
 	call 004a1h		;3081	cd a1 04 	. . . 
@@ -6650,15 +6709,15 @@ clear_buffers:
 	ld a,(PROTE)		;3092	3a de e0 	: . . 
 	rra			;3095	1f 	. 
 	jr nc,$+7		;3096	30 05 	0 . 
-	ld a,(hl)			;3098	7e 	~ 
+	ld a,(hl)		;3098	7e 	~ 
 	and 080h		;3099	e6 80 	. . 
 	jr nz,$+14		;309b	20 0c 	  . 
 	ld hl,(CURSOR)		;309d	2a b7 e0 	* . . 
-	ld b,(hl)			;30a0	46 	F 
+	ld b,(hl)		;30a0	46 	F 
 	inc hl			;30a1	23 	# 
-	ld a,(hl)			;30a2	7e 	~ 
+	ld a,(hl)		;30a2	7e 	~ 
 	and 0dfh		;30a3	e6 df 	. . 
-	ld (hl),a			;30a5	77 	w 
+	ld (hl),a		;30a5	77 	w 
 	call 0314ch		;30a6	cd 4c 31 	. L 1 
 	ld a,(LNSIZE)		;30a9	3a d4 e0 	: . . 
 	ld c,a			;30ac	4f 	O 
@@ -6678,11 +6737,11 @@ clear_buffers:
 	jr nz,$+10		;30c8	20 08 	  . 
 	ld hl,(SAVEHL)		;30ca	2a e4 e0 	* . . 
 	call 0268bh		;30cd	cd 8b 26 	. . & 
-	jr $+26		;30d0	18 18 	. . 
+	jr $+26			;30d0	18 18 	. . 
 	ld b,01eh		;30d2	06 1e 	. . 
 	call 0314ch		;30d4	cd 4c 31 	. L 1 
 	ld a,(FNCODE)		;30d7	3a f5 e0 	: . . 
-	bit 7,a		;30da	cb 7f 	.  
+	bit 7,a			;30da	cb 7f 	.  
 	jr z,$+7		;30dc	28 05 	( . 
 	ld b,012h		;30de	06 12 	. . 
 	call 0314ch		;30e0	cd 4c 31 	. L 1 
@@ -6698,13 +6757,13 @@ clear_buffers:
 	ld a,(TXCNT)		;30f8	3a 8e e0 	: . . 
 	dec a			;30fb	3d 	= 
 	ld (TXCNT),a		;30fc	32 8e e0 	2 . . 
-	cp 060h		;30ff	fe 60 	. ` 
+	cp 060h			;30ff	fe 60 	. ` 
 	call z,02963h		;3101	cc 63 29 	. c ) 
 	ld hl,(TXOTAD)		;3104	2a 91 e0 	* . . 
-	ld b,(hl)			;3107	46 	F 
+	ld b,(hl)		;3107	46 	F 
 	inc hl			;3108	23 	# 
 	ld a,l			;3109	7d 	} 
-	cp 0c0h		;310a	fe c0 	. . 
+	cp 0c0h			;310a	fe c0 	. . 
 	jr nz,$+5		;310c	20 03 	  . 
 	ld hl,0df00h		;310e	21 00 df 	! . . 
 	ld (TXOTAD),hl		;3111	22 91 e0 	" . . 
@@ -6718,15 +6777,15 @@ clear_buffers:
 	ld a,(BLKSND)		;3126	3a ac e0 	: . . 
 	rra			;3129	1f 	. 
 	ret c			;312a	d8 	. 
-	res 7,b		;312b	cb b8 	. . 
+	res 7,b			;312b	cb b8 	. . 
 	ld a,b			;312d	78 	x 
-	cp 00dh		;312e	fe 0d 	. . 
+	cp 00dh			;312e	fe 0d 	. . 
 	jr z,$+13		;3130	28 0b 	( . 
-	cp 00ah		;3132	fe 0a 	. . 
+	cp 00ah			;3132	fe 0a 	. . 
 	jr z,$+9		;3134	28 07 	( . 
-	cp 006h		;3136	fe 06 	. . 
+	cp 006h			;3136	fe 06 	. . 
 	jr z,$+5		;3138	28 03 	( . 
-	cp 015h		;313a	fe 15 	. . 
+	cp 015h			;313a	fe 15 	. . 
 	ret nz			;313c	c0 	. 
 	call 03188h		;313d	cd 88 31 	. . 1 
 	ret			;3140	c9 	. 
@@ -6735,29 +6794,31 @@ clear_buffers:
 	jr z,$+7		;3145	28 05 	( . 
 	ld a,(KBINP)		;3147	3a c9 e0 	: . . 
 	and a			;314a	a7 	. 
-	ret nz			;314b	c0 	. 
-	res 7,b		;314c	cb b8 	. . 
+	ret nz			;314b	c0 	.
+SENDB:				; STORE B IN COMM SEND BUFFER
+	res 7,b			;314c	cb b8 	. . 
 	ld a,(MBYTE3)		;314e	3a 42 e0 	: B . 
 	and 004h		;3151	e6 04 	. . 
 	jr z,$+4		;3153	28 02 	( . 
-	set 7,b		;3155	cb f8 	. . 
+	set 7,b			;3155	cb f8 	. .
+SENDB8:				; STORE B IN COM SEND BUFFER
 	ld a,(OBYTE1)		;3157	3a 46 e0 	: F . 
 	and 001h		;315a	e6 01 	. . 
 	ret nz			;315c	c0 	. 
 	push af			;315d	f5 	. 
 	push hl			;315e	e5 	. 
 	ld hl,(TXINAD)		;315f	2a 8f e0 	* . . 
-	ld (hl),b			;3162	70 	p 
+	ld (hl),b		;3162	70 	p 
 	inc hl			;3163	23 	# 
 	ld a,l			;3164	7d 	} 
-	cp 0c0h		;3165	fe c0 	. . 
+	cp 0c0h			;3165	fe c0 	. . 
 	jr nz,$+5		;3167	20 03 	  . 
 	ld hl,0df00h		;3169	21 00 df 	! . . 
 	ld (TXINAD),hl		;316c	22 8f e0 	" . . 
 	ld a,(TXCNT)		;316f	3a 8e e0 	: . . 
 	inc a			;3172	3c 	< 
 	ld (TXCNT),a		;3173	32 8e e0 	2 . . 
-	cp 0b0h		;3176	fe b0 	. . 
+	cp 0b0h			;3176	fe b0 	. . 
 	call z,02954h		;3178	cc 54 29 	. T ) 
 	xor a			;317b	af 	. 
 	ld (TXDACT),a		;317c	32 99 e0 	2 . . 
@@ -6781,7 +6842,7 @@ clear_buffers:
 	ret			;31a0	c9 	. 
 	call 00499h		;31a1	cd 99 04 	. . . 
 	and 060h		;31a4	e6 60 	. ` 
-	cp 060h		;31a6	fe 60 	. ` 
+	cp 060h			;31a6	fe 60 	. ` 
 	jr nz,$+7		;31a8	20 05 	  . 
 	ld a,001h		;31aa	3e 01 	> . 
 	ld (TXEMPF),a		;31ac	32 f0 e0 	2 . . 
@@ -6795,15 +6856,15 @@ clear_buffers:
 	call 02f5dh		;31c0	cd 5d 2f 	. ] / 
 	call 021fah		;31c3	cd fa 21 	. . ! 
 	ld hl,0d89dh		;31c6	21 9d d8 	! . . 
-	ld a,(hl)			;31c9	7e 	~ 
+	ld a,(hl)		;31c9	7e 	~ 
 	inc hl			;31ca	23 	# 
 	and 003h		;31cb	e6 03 	. . 
-	cp 001h		;31cd	fe 01 	. . 
+	cp 001h			;31cd	fe 01 	. . 
 	ret nz			;31cf	c0 	. 
-	ld d,(hl)			;31d0	56 	V 
+	ld d,(hl)		;31d0	56 	V 
 	inc hl			;31d1	23 	# 
-	ld e,(hl)			;31d2	5e 	^ 
-	ex de,hl			;31d3	eb 	. 
+	ld e,(hl)		;31d2	5e 	^ 
+	ex de,hl		;31d3	eb 	. 
 	call 0268bh		;31d4	cd 8b 26 	. . & 
 	ret			;31d7	c9 	. 
 	ld a,(DLMENA)		;31d8	3a b9 e0 	: . . 
@@ -6824,21 +6885,23 @@ clear_buffers:
 	ld b,a			;31f5	47 	G 
 	call 0314ch		;31f6	cd 4c 31 	. L 1 
 	pop bc			;31f9	c1 	. 
-	ret			;31fa	c9 	. 
+	ret			;31fa	c9 	.
+SETDE:				; SET CURSOR TO DE
 	ld a,d			;31fb	7a 	z 
 	ld (CHRCNT),a		;31fc	32 b1 e0 	2 . . 
 	ld a,e			;31ff	7b 	{ 
-	ld (LNCNT),a		;3200	32 d1 e0 	2 . . 
+	ld (LNCNT),a		;3200	32 d1 e0 	2 . .
+SETCR:				; SET CURSOR
 	ld h,0e0h		;3203	26 e0 	& . 
 	ld a,(LNCNT)		;3205	3a d1 e0 	: . . 
 	ld l,a			;3208	6f 	o 
 	call 01fcdh		;3209	cd cd 1f 	. . . 
-	ex de,hl			;320c	eb 	. 
+	ex de,hl		;320c	eb 	. 
 	ld a,(CHRCNT)		;320d	3a b1 e0 	: . . 
 	ld e,a			;3210	5f 	_ 
 	ld d,000h		;3211	16 00 	. . 
-	add hl,de			;3213	19 	. 
-	add hl,de			;3214	19 	. 
+	add hl,de		;3213	19 	. 
+	add hl,de		;3214	19 	. 
 	ld (CURSOR),hl		;3215	22 b7 e0 	" . . 
 	ld a,(CHRCNT)		;3218	3a b1 e0 	: . . 
 	inc a			;321b	3c 	< 
@@ -6851,16 +6914,17 @@ clear_buffers:
 	and 004h		;3227	e6 04 	. . 
 	jr z,$+11		;3229	28 09 	( . 
 	ld a,b			;322b	78 	x 
-	cp 01eh		;322c	fe 1e 	. . 
+	cp 01eh			;322c	fe 1e 	. . 
 	jr c,$+13		;322e	38 0b 	8 . 
 	sub 01eh		;3230	d6 1e 	. . 
-	jr $+9		;3232	18 07 	. . 
+	jr $+9			;3232	18 07 	. . 
 	ld a,b			;3234	78 	x 
-	cp 018h		;3235	fe 18 	. . 
+	cp 018h			;3235	fe 18 	. . 
 	jr c,$+4		;3237	38 02 	8 . 
 	sub 018h		;3239	d6 18 	. . 
 	out (01dh),a		;323b	d3 1d 	. . 
-	ret			;323d	c9 	. 
+	ret			;323d	c9 	.
+TABBK:				; TAB BACKWARDS
 	call 0330ah		;323e	cd 0a 33 	. . 3 
 	ld a,b			;3241	78 	x 
 	or c			;3242	b1 	. 
@@ -6870,44 +6934,44 @@ clear_buffers:
 	ld a,(LASTLN)		;3249	3a cd e0 	: . . 
 	ld e,a			;324c	5f 	_ 
 	call 031fbh		;324d	cd fb 31 	. . 1 
-	jr $-18		;3250	18 ec 	. . 
+	jr $-18			;3250	18 ec 	. . 
 	ld a,b			;3252	78 	x 
 	and a			;3253	a7 	. 
 	jr nz,$+7		;3254	20 05 	  . 
 	call 0329bh		;3256	cd 9b 32 	. . 2 
-	jr $+9		;3259	18 07 	. . 
+	jr $+9			;3259	18 07 	. . 
 	dec b			;325b	05 	. 
 	dec hl			;325c	2b 	+ 
 	dec hl			;325d	2b 	+ 
-	dec ix		;325e	dd 2b 	. + 
-	dec ix		;3260	dd 2b 	. + 
+	dec ix			;325e	dd 2b 	. + 
+	dec ix			;3260	dd 2b 	. + 
 	ld a,(ix+000h)		;3262	dd 7e 00 	. ~ . 
 	and 040h		;3265	e6 40 	. @ 
 	jr nz,$+45		;3267	20 2b 	  + 
-	ld a,(hl)			;3269	7e 	~ 
+	ld a,(hl)		;3269	7e 	~ 
 	and d			;326a	a2 	. 
 	jr nz,$-25		;326b	20 e5 	  . 
 	ld a,b			;326d	78 	x 
 	and a			;326e	a7 	. 
 	jr nz,$+7		;326f	20 05 	  . 
 	call 0329bh		;3271	cd 9b 32 	. . 2 
-	jr $+9		;3274	18 07 	. . 
+	jr $+9			;3274	18 07 	. . 
 	dec b			;3276	05 	. 
 	dec hl			;3277	2b 	+ 
 	dec hl			;3278	2b 	+ 
-	dec ix		;3279	dd 2b 	. + 
-	dec ix		;327b	dd 2b 	. + 
+	dec ix			;3279	dd 2b 	. + 
+	dec ix			;327b	dd 2b 	. + 
 	ld a,(ix+000h)		;327d	dd 7e 00 	. ~ . 
 	and 040h		;3280	e6 40 	. @ 
 	jr nz,$+18		;3282	20 10 	  . 
-	ld a,(hl)			;3284	7e 	~ 
+	ld a,(hl)		;3284	7e 	~ 
 	and d			;3285	a2 	. 
 	jr z,$-25		;3286	28 e5 	( . 
 	ld a,(LNSIZE)		;3288	3a d4 e0 	: . . 
 	cp b			;328b	b8 	. 
 	jr z,$+5		;328c	28 03 	( . 
 	inc b			;328e	04 	. 
-	jr $+5		;328f	18 03 	. . 
+	jr $+5			;328f	18 03 	. . 
 	inc c			;3291	0c 	. 
 	ld b,000h		;3292	06 00 	. . 
 	ld d,b			;3294	50 	P 
@@ -6923,42 +6987,43 @@ clear_buffers:
 	ld d,a			;32a4	57 	W 
 	call 031fbh		;32a5	cd fb 31 	. . 1 
 	call 0330ah		;32a8	cd 0a 33 	. . 3 
-	ret			;32ab	c9 	. 
+	ret			;32ab	c9 	.
+TABFW:				; TAB FORWARDS
 	call 0330ah		;32ac	cd 0a 33 	. . 3 
-	jr $+27		;32af	18 19 	. . 
+	jr $+27			;32af	18 19 	. . 
 	ld a,(LNSIZE)		;32b1	3a d4 e0 	: . . 
 	cp b			;32b4	b8 	. 
 	jr nz,$+7		;32b5	20 05 	  . 
 	call 032edh		;32b7	cd ed 32 	. . 2 
-	jr $+9		;32ba	18 07 	. . 
+	jr $+9			;32ba	18 07 	. . 
 	inc b			;32bc	04 	. 
 	inc hl			;32bd	23 	# 
 	inc hl			;32be	23 	# 
-	inc ix		;32bf	dd 23 	. # 
-	inc ix		;32c1	dd 23 	. # 
+	inc ix			;32bf	dd 23 	. # 
+	inc ix			;32c1	dd 23 	. # 
 	ld a,(ix+000h)		;32c3	dd 7e 00 	. ~ . 
 	and 040h		;32c6	e6 40 	. @ 
 	jr nz,$-52		;32c8	20 ca 	  . 
-	ld a,(hl)			;32ca	7e 	~ 
+	ld a,(hl)		;32ca	7e 	~ 
 	and d			;32cb	a2 	. 
 	jr z,$-27		;32cc	28 e3 	( . 
 	ld a,(LNSIZE)		;32ce	3a d4 e0 	: . . 
 	cp b			;32d1	b8 	. 
 	jr nz,$+7		;32d2	20 05 	  . 
 	call 032edh		;32d4	cd ed 32 	. . 2 
-	jr $+9		;32d7	18 07 	. . 
+	jr $+9			;32d7	18 07 	. . 
 	inc b			;32d9	04 	. 
 	inc hl			;32da	23 	# 
 	inc hl			;32db	23 	# 
-	inc ix		;32dc	dd 23 	. # 
-	inc ix		;32de	dd 23 	. # 
+	inc ix			;32dc	dd 23 	. # 
+	inc ix			;32de	dd 23 	. # 
 	ld a,(ix+000h)		;32e0	dd 7e 00 	. ~ . 
 	and 040h		;32e3	e6 40 	. @ 
 	jr nz,$-81		;32e5	20 ad 	  . 
-	ld a,(hl)			;32e7	7e 	~ 
+	ld a,(hl)		;32e7	7e 	~ 
 	and d			;32e8	a2 	. 
 	jr nz,$-27		;32e9	20 e3 	  . 
-	jr $-87		;32eb	18 a7 	. . 
+	jr $-87			;32eb	18 a7 	. . 
 	ld a,(LASTLN)		;32ed	3a cd e0 	: . . 
 	cp c			;32f0	b9 	. 
 	jr z,$+13		;32f1	28 0b 	( . 
@@ -6981,7 +7046,7 @@ clear_buffers:
 	ld ix,0d900h		;3311	dd 21 00 d9 	. ! . . 
 	add ix,de		;3315	dd 19 	. . 
 	add ix,de		;3317	dd 19 	. . 
-	inc ix		;3319	dd 23 	. # 
+	inc ix			;3319	dd 23 	. # 
 	ld hl,(CURSOR)		;331b	2a b7 e0 	* . . 
 	inc hl			;331e	23 	# 
 	ld a,(LNCNT)		;331f	3a d1 e0 	: . . 
@@ -7007,29 +7072,32 @@ clear_buffers:
 	inc hl			;3346	23 	# 
 	inc hl			;3347	23 	# 
 	djnz $-5		;3348	10 f9 	. . 
-	ret			;334a	c9 	. 
+	ret			;334a	c9 	.
+TABSET:				; TAB SET
 	ld a,001h		;334b	3e 01 	> . 
 	ld (TABST),a		;334d	32 ed e0 	2 . . 
-	jr $+6		;3350	18 04 	. . 
+	jr $+6			;3350	18 04 	. .
+TABCLR:				; TAB CLEAR
 	xor a			;3352	af 	. 
 	ld (TABST),a		;3353	32 ed e0 	2 . . 
 	ld a,(CHRCNT)		;3356	3a b1 e0 	: . . 
 	ld e,a			;3359	5f 	_ 
 	ld d,000h		;335a	16 00 	. . 
 	ld hl,0d900h		;335c	21 00 d9 	! . . 
-	add hl,de			;335f	19 	. 
-	add hl,de			;3360	19 	. 
+	add hl,de		;335f	19 	. 
+	add hl,de		;3360	19 	. 
 	inc hl			;3361	23 	# 
 	ld a,(TABST)		;3362	3a ed e0 	: . . 
 	rra			;3365	1f 	. 
 	jr c,$+7		;3366	38 05 	8 . 
-	ld a,(hl)			;3368	7e 	~ 
+	ld a,(hl)		;3368	7e 	~ 
 	and 0bfh		;3369	e6 bf 	. . 
-	jr $+5		;336b	18 03 	. . 
-	ld a,(hl)			;336d	7e 	~ 
-	or 040h		;336e	f6 40 	. @ 
-	ld (hl),a			;3370	77 	w 
-	ret			;3371	c9 	. 
+	jr $+5			;336b	18 03 	. . 
+	ld a,(hl)		;336d	7e 	~ 
+	or 040h			;336e	f6 40 	. @ 
+	ld (hl),a		;3370	77 	w 
+	ret			;3371	c9 	.
+TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	ld a,(BLKMD)		;3372	3a ab e0 	: . . 
 	and a			;3375	a7 	. 
 	ret z			;3376	c8 	. 
@@ -7041,7 +7109,7 @@ clear_buffers:
 	ret z			;3380	c8 	. 
 	ld hl,(CURSOR)		;3381	2a b7 e0 	* . . 
 	inc hl			;3384	23 	# 
-	ld a,(hl)			;3385	7e 	~ 
+	ld a,(hl)		;3385	7e 	~ 
 	and 080h		;3386	e6 80 	. . 
 	ret			;3388	c9 	. 
 	nop			;3389	00 	. 
@@ -9479,7 +9547,7 @@ clear_buffers:
 	ld de,0fffeh		;3d18	11 fe ff 	. . . 
 	ld bc,03fffh		;3d1b	01 ff 3f 	. . ? 
 	ld (hl),000h		;3d1e	36 00 	6 . 
-	lddr		;3d20	ed b8 	. . 
+	lddr			;3d20	ed b8 	. . 
 	call INIT00		;3d22	cd 03 00 	. . . 
 	call INIT01		;3d25	cd 06 00 	. . . 
     ; Since memory was zeroed, we call TIPRAM to mirror
@@ -9487,99 +9555,99 @@ clear_buffers:
 	call 000bah		;3d28	move terminal installation
     ; Switch from NVRAM to 16K rom
 	ld a,008h		;3d2b	3e 08 	> . 
-	out (BANKSELECT),a		;3d2d	d3 70 	. p 
+	out (BANKSELECT),a	;3d2d	d3 70 	. p 
     ; store new bank config in BANKS location
 	ld (BANKS),a		;3d2f	32 f2 e0 	2 . . 
     ; Jump to beginning of 16K rom
 	jp 04000h		;3d32	c3 00 40 	. . @ 
 	ld a,008h		;3d35	3e 08 	> . 
-	out (BANKSELECT),a		;3d37	d3 70 	. p 
+	out (BANKSELECT),a	;3d37	d3 70 	. p 
 	ld (BANKS),a		;3d39	32 f2 e0 	2 . . 
 	jp 04003h		;3d3c	c3 03 40 	. . @ 
 	ld a,008h		;3d3f	3e 08 	> . 
-	out (BANKSELECT),a		;3d41	d3 70 	. p 
+	out (BANKSELECT),a	;3d41	d3 70 	. p 
 	ld (BANKS),a		;3d43	32 f2 e0 	2 . . 
 	jp 04006h		;3d46	c3 06 40 	. . @ 
 	xor a			;3d49	af 	. 
-	out (BANKSELECT),a		;3d4a	d3 70 	. p 
+	out (BANKSELECT),a	;3d4a	d3 70 	. p 
 	ld (BANKS),a		;3d4c	32 f2 e0 	2 . . 
-	jp (ix)		;3d4f	dd e9 	. . 
+	jp (ix)			;3d4f	dd e9 	. . 
 	call 03e17h		;3d51	cd 17 3e 	. . > 
 	jp 0400ch		;3d54	c3 0c 40 	. . @ 
 	call 03e17h		;3d57	cd 17 3e 	. . > 
 	jp 0400fh		;3d5a	c3 0f 40 	. . @ 
 	ld a,008h		;3d5d	3e 08 	> . 
-	out (BANKSELECT),a		;3d5f	d3 70 	. p 
+	out (BANKSELECT),a	;3d5f	d3 70 	. p 
 	jp 04012h		;3d61	c3 12 40 	. . @ 
 	push af			;3d64	f5 	. 
 	ld a,01ch		;3d65	3e 1c 	> . 
-	out (BANKSELECT),a		;3d67	d3 70 	. p 
+	out (BANKSELECT),a	;3d67	d3 70 	. p 
 	pop af			;3d69	f1 	. 
 	push af			;3d6a	f5 	. 
-	ld (de),a			;3d6b	12 	. 
+	ld (de),a		;3d6b	12 	. 
 	ld a,008h		;3d6c	3e 08 	> . 
-	out (BANKSELECT),a		;3d6e	d3 70 	. p 
+	out (BANKSELECT),a	;3d6e	d3 70 	. p 
 	pop af			;3d70	f1 	. 
 	ret			;3d71	c9 	. 
 	ld a,01ch		;3d72	3e 1c 	> . 
-	out (BANKSELECT),a		;3d74	d3 70 	. p 
-	ld a,(de)			;3d76	1a 	. 
+	out (BANKSELECT),a	;3d74	d3 70 	. p 
+	ld a,(de)		;3d76	1a 	. 
 	push af			;3d77	f5 	. 
 	ld a,008h		;3d78	3e 08 	> . 
-	out (BANKSELECT),a		;3d7a	d3 70 	. p 
+	out (BANKSELECT),a	;3d7a	d3 70 	. p 
 	pop af			;3d7c	f1 	. 
 	ret			;3d7d	c9 	. 
 	push af			;3d7e	f5 	. 
 	ld a,01ch		;3d7f	3e 1c 	> . 
-	out (BANKSELECT),a		;3d81	d3 70 	. p 
+	out (BANKSELECT),a	;3d81	d3 70 	. p 
 	pop af			;3d83	f1 	. 
 	push af			;3d84	f5 	. 
-	ld (hl),a			;3d85	77 	w 
+	ld (hl),a		;3d85	77 	w 
 	ld a,008h		;3d86	3e 08 	> . 
-	out (BANKSELECT),a		;3d88	d3 70 	. p 
+	out (BANKSELECT),a	;3d88	d3 70 	. p 
 	pop af			;3d8a	f1 	. 
 	ret			;3d8b	c9 	. 
 	ld a,01ch		;3d8c	3e 1c 	> . 
-	out (BANKSELECT),a		;3d8e	d3 70 	. p 
+	out (BANKSELECT),a	;3d8e	d3 70 	. p 
 	ld (BANKS),a		;3d90	32 f2 e0 	2 . . 
 	jp (hl)			;3d93	e9 	. 
 	ld a,01ch		;3d94	3e 1c 	> . 
-	out (BANKSELECT),a		;3d96	d3 70 	. p 
+	out (BANKSELECT),a	;3d96	d3 70 	. p 
 	ld (BANKS),a		;3d98	32 f2 e0 	2 . . 
-	jp (iy)		;3d9b	fd e9 	. . 
+	jp (iy)			;3d9b	fd e9 	. . 
 	ld a,01ch		;3d9d	3e 1c 	> . 
-	out (BANKSELECT),a		;3d9f	d3 70 	. p 
+	out (BANKSELECT),a	;3d9f	d3 70 	. p 
 	ld (BANKS),a		;3da1	32 f2 e0 	2 . . 
-	jp (ix)		;3da4	dd e9 	. . 
-	pop iy		;3da6	fd e1 	. . 
+	jp (ix)			;3da4	dd e9 	. . 
+	pop iy			;3da6	fd e1 	. . 
 	xor a			;3da8	af 	. 
-	out (BANKSELECT),a		;3da9	d3 70 	. p 
+	out (BANKSELECT),a	;3da9	d3 70 	. p 
 	ld hl,SAVEA		;3dab	21 e2 e0 	! . . 
 	ld a,055h		;3dae	3e 55 	> U 
-	ld (hl),a			;3db0	77 	w 
+	ld (hl),a		;3db0	77 	w 
 	ld de,04800h		;3db1	11 00 48 	. . H 
 	ld bc,00400h		;3db4	01 00 04 	. . . 
-	ldi		;3db7	ed a0 	. . 
+	ldi			;3db7	ed a0 	. . 
 	dec hl			;3db9	2b 	+ 
 	jp pe,03db7h		;3dba	ea b7 3d 	. . = 
 	ld hl,04800h		;3dbd	21 00 48 	! . H 
 	ld bc,00400h		;3dc0	01 00 04 	. . . 
 	ld a,055h		;3dc3	3e 55 	> U 
-	cpi		;3dc5	ed a1 	. . 
+	cpi			;3dc5	ed a1 	. . 
 	jr nz,$+62		;3dc7	20 3c 	  < 
 	jp pe,03dc3h		;3dc9	ea c3 3d 	. . = 
 	ld hl,SAVEA		;3dcc	21 e2 e0 	! . . 
 	ld a,0aah		;3dcf	3e aa 	> . 
-	ld (hl),a			;3dd1	77 	w 
+	ld (hl),a		;3dd1	77 	w 
 	ld de,04800h		;3dd2	11 00 48 	. . H 
 	ld bc,00400h		;3dd5	01 00 04 	. . . 
-	ldi		;3dd8	ed a0 	. . 
+	ldi			;3dd8	ed a0 	. . 
 	dec hl			;3dda	2b 	+ 
 	jp pe,03dd8h		;3ddb	ea d8 3d 	. . = 
 	ld hl,04800h		;3dde	21 00 48 	! . H 
 	ld bc,00400h		;3de1	01 00 04 	. . . 
 	ld a,0aah		;3de4	3e aa 	> . 
-	cpi		;3de6	ed a1 	. . 
+	cpi			;3de6	ed a1 	. . 
 	jr nz,$+29		;3de8	20 1b 	  . 
 	jp pe,03de4h		;3dea	ea e4 3d 	. . = 
 	ld hl,041a2h		;3ded	21 a2 41 	! . A 
@@ -9587,23 +9655,23 @@ clear_buffers:
 	ld hl,0e000h		;3df3	21 00 e0 	! . . 
 	ld de,04800h		;3df6	11 00 48 	. . H 
 	ld bc,00111h		;3df9	01 11 01 	. . . 
-	ldir		;3dfc	ed b0 	. . 
+	ldir			;3dfc	ed b0 	. . 
 	ld a,008h		;3dfe	3e 08 	> . 
-	out (BANKSELECT),a		;3e00	d3 70 	. p 
+	out (BANKSELECT),a	;3e00	d3 70 	. p 
 	xor a			;3e02	af 	. 
-	jp (iy)		;3e03	fd e9 	. . 
+	jp (iy)			;3e03	fd e9 	. . 
 	ld a,008h		;3e05	3e 08 	> . 
-	out (BANKSELECT),a		;3e07	d3 70 	. p 
+	out (BANKSELECT),a	;3e07	d3 70 	. p 
 	scf			;3e09	37 	7 
-	jp (iy)		;3e0a	fd e9 	. . 
+	jp (iy)			;3e0a	fd e9 	. . 
 	xor a			;3e0c	af 	. 
-	out (BANKSELECT),a		;3e0d	d3 70 	. p 
+	out (BANKSELECT),a	;3e0d	d3 70 	. p 
 	call 03e4ch		;3e0f	cd 4c 3e 	. L > 
 	ld a,008h		;3e12	3e 08 	> . 
-	out (BANKSELECT),a		;3e14	d3 70 	. p 
+	out (BANKSELECT),a	;3e14	d3 70 	. p 
 	ret			;3e16	c9 	. 
 	ld a,008h		;3e17	3e 08 	> . 
-	out (BANKSELECT),a		;3e19	d3 70 	. p 
+	out (BANKSELECT),a	;3e19	d3 70 	. p 
 	ld (BANKS),a		;3e1b	32 f2 e0 	2 . . 
 	ld a,(MBYTE5)		;3e1e	3a 44 e0 	: D . 
 	ld (0d91bh),a		;3e21	32 1b d9 	2 . . 
@@ -9614,20 +9682,20 @@ clear_buffers:
 	ld (OBYTE2),a		;3e2e	32 47 e0 	2 G . 
 	ret			;3e31	c9 	. 
 	xor a			;3e32	af 	. 
-	out (BANKSELECT),a		;3e33	d3 70 	. p 
+	out (BANKSELECT),a	;3e33	d3 70 	. p 
 	ld hl,04800h		;3e35	21 00 48 	! . H 
 	ld de,0e000h		;3e38	11 00 e0 	. . . 
 	ld bc,00111h		;3e3b	01 11 01 	. . . 
-	ldir		;3e3e	ed b0 	. . 
+	ldir			;3e3e	ed b0 	. . 
 	ld a,0e1h		;3e40	3e e1 	> . 
-	ld i,a		;3e42	ed 47 	. G 
+	ld i,a			;3e42	ed 47 	. G 
 	call 00042h		;3e44	cd 42 00 	. B . 
 	ld a,008h		;3e47	3e 08 	> . 
-	out (BANKSELECT),a		;3e49	d3 70 	. p 
+	out (BANKSELECT),a	;3e49	d3 70 	. p 
 	ret			;3e4b	c9 	. 
 	ld bc,00000h		;3e4c	01 00 00 	. . .  CHECKSUM
 	ld l,000h		;3e4f	2e 00 	. . 
-	ld a,(hl)			;3e51	7e 	~ 
+	ld a,(hl)		;3e51	7e 	~ 
 	ld e,a			;3e52	5f 	_ 
 	xor c			;3e53	a9 	. 
 	rlca			;3e54	07 	. 
@@ -9636,9 +9704,9 @@ clear_buffers:
 	and 07fh		;3e57	e6 7f 	.  
 	xor b			;3e59	a8 	. 
 	rlca			;3e5a	07 	. 
-	bit 4,a		;3e5b	cb 67 	. g 
+	bit 4,a			;3e5b	cb 67 	. g 
 	jr z,$+4		;3e5d	28 02 	( . 
-	or 001h		;3e5f	f6 01 	. . 
+	or 001h			;3e5f	f6 01 	. . 
 	and 00fh		;3e61	e6 0f 	. . 
 	ld b,a			;3e63	47 	G 
 	inc hl			;3e64	23 	# 
@@ -9654,7 +9722,7 @@ clear_buffers:
 	ld hl,0ff00h		;3e74	21 00 ff 	! . . 
 	ld b,000h		;3e77	06 00 	. . 
 	ld a,055h		;3e79	3e 55 	> U 
-	ld (hl),a			;3e7b	77 	w 
+	ld (hl),a		;3e7b	77 	w 
 	inc hl			;3e7c	23 	# 
 	djnz $-2		;3e7d	10 fc 	. . 
 	ld hl,0ff00h		;3e7f	21 00 ff 	! . . 
@@ -9667,7 +9735,7 @@ clear_buffers:
 	ld hl,0ff00h		;3e8d	21 00 ff 	! . . 
 	ld b,000h		;3e90	06 00 	. . 
 	ld a,0aah		;3e92	3e aa 	> . 
-	ld (hl),a			;3e94	77 	w 
+	ld (hl),a		;3e94	77 	w 
 	inc hl			;3e95	23 	# 
 	djnz $-2		;3e96	10 fc 	. . 
 	ld hl,0ff00h		;3e98	21 00 ff 	! . . 
@@ -9678,10 +9746,10 @@ clear_buffers:
 	inc hl			;3ea3	23 	# 
 	djnz $-7		;3ea4	10 f7 	. . 
 	xor a			;3ea6	af 	. 
-	jp (iy)		;3ea7	fd e9 	. . 
+	jp (iy)			;3ea7	fd e9 	. . 
 	ld iy,04054h		;3ea9	fd 21 54 40 	. ! T @ 
 	ld b,a			;3ead	47 	G 
-	ld a,(hl)			;3eae	7e 	~ 
+	ld a,(hl)		;3eae	7e 	~ 
 	jp 04015h		;3eaf	c3 15 40 	. . @ 
 	nop			;3eb2	00 	. 
 	nop			;3eb3	00 	. 
@@ -10056,13 +10124,13 @@ clear_buffers:
 	jr nc,$+10		;4044	30 08 	0 . 
 	ld hl,049d1h		;4046	21 d1 49 	! . I 
 	call 04702h		;4049	cd 02 47 	. . G 
-	jr $+26		;404c	18 18 	. . 
+	jr $+26			;404c	18 18 	. . 
 	jp 03e70h		;404e	c3 70 3e 	. p > 
 	call 04144h		;4051	cd 44 41 	. D A 
 	push af			;4054	f5 	. 
 	call 03e32h		;4055	cd 32 3e 	. 2 > 
 	ld a,0e1h		;4058	3e e1 	> . 
-	ld i,a		;405a	ed 47 	. G 
+	ld i,a			;405a	ed 47 	. G 
 	call 00042h		;405c	cd 42 00 	. B . 
 	pop af			;405f	f1 	. 
 	ld hl,0485eh		;4060	21 5e 48 	! ^ H 
@@ -10079,18 +10147,18 @@ clear_buffers:
 	call 042feh		;407d	cd fe 42 	. . B 
 	call 0429fh		;4080	cd 9f 42 	. . B 
 	ld a,(TBYTE2)		;4083	3a 61 e0 	: a . 
-	bit 2,a		;4086	cb 57 	. W 
+	bit 2,a			;4086	cb 57 	. W 
 	jr z,$+16		;4088	28 0e 	( . 
 	ld a,028h		;408a	3e 28 	> ( 
-	out (BANKSELECT),a		;408c	d3 70 	. p 
+	out (BANKSELECT),a	;408c	d3 70 	. p 
 	ld a,(08009h)		;408e	3a 09 80 	: . . 
-	cp 0c3h		;4091	fe c3 	. . 
+	cp 0c3h			;4091	fe c3 	. . 
 	jr nz,$+5		;4093	20 03 	  . 
 	call 08009h		;4095	cd 09 80 	. . . 
 	ld a,008h		;4098	3e 08 	> . 
-	out (BANKSELECT),a		;409a	d3 70 	. p 
+	out (BANKSELECT),a	;409a	d3 70 	. p 
 	ld a,(TBYTE1)		;409c	3a 60 e0 	: ` . 
-	bit 2,a		;409f	cb 57 	. W 
+	bit 2,a			;409f	cb 57 	. W 
 	jr z,$+31		;40a1	28 1d 	( . 
 	ld hl,04a04h		;40a3	21 04 4a 	! . J 
 	xor a			;40a6	af 	. 
@@ -10100,7 +10168,7 @@ clear_buffers:
 	ld c,a			;40ad	4f 	O 
 	in a,(096h)		;40ae	db 96 	. . 
 	or c			;40b0	b1 	. 
-	bit 6,a		;40b1	cb 77 	. w 
+	bit 6,a			;40b1	cb 77 	. w 
 	jr z,$+13		;40b3	28 0b 	( . 
 	call 00063h		;40b5	cd 63 00 	. c . 
 	ld hl,ERRORF		;40b8	21 ff e0 	! . . 
@@ -10125,12 +10193,12 @@ clear_buffers:
 	and 040h		;40ea	e6 40 	. @ 
 	jr z,$+10		;40ec	28 08 	( . 
 	ld a,(08003h)		;40ee	3a 03 80 	: . . 
-	cp 0c3h		;40f1	fe c3 	. . 
+	cp 0c3h			;40f1	fe c3 	. . 
 	call z,08003h		;40f3	cc 03 80 	. . . 
 	ld a,(ERRORF)		;40f6	3a ff e0 	: . . 
-	bit 2,a		;40f9	cb 57 	. W 
+	bit 2,a			;40f9	cb 57 	. W 
 	jr z,$+12		;40fb	28 0a 	( . 
-	bit 0,a		;40fd	cb 47 	. G 
+	bit 0,a			;40fd	cb 47 	. G 
 	jr nz,$+0		;40ff	20 fe 	  . 
 	call 00042h		;4101	cd 42 00 	. B . 
 	jp 043d3h		;4104	c3 d3 43 	. . C 
@@ -10157,10 +10225,10 @@ clear_buffers:
 	call 00012h		;413b	cd 12 00 	. . . 
 	call 00018h		;413e	cd 18 00 	. . . 
 	jp 03d49h		;4141	c3 49 3d 	. I = 
-	pop iy		;4144	fd e1 	. . 
+	pop iy			;4144	fd e1 	. . 
 	ld sp,0ffffh		;4146	31 ff ff 	1 . . 
 	ld a,049h		;4149	3e 49 	> I 
-	ld i,a		;414b	ed 47 	. G 
+	ld i,a			;414b	ed 47 	. G 
 	ld a,07fh		;414d	3e 7f 	>  
 	out (031h),a		;414f	d3 31 	. 1 
 	ei			;4151	fb 	. 
@@ -10172,16 +10240,16 @@ clear_buffers:
 	ld h,0c0h		;415d	26 c0 	& . 
 	call 04165h		;415f	cd 65 41 	. e A 
 	di			;4162	f3 	. 
-	jr $+87		;4163	18 55 	. U 
+	jr $+87			;4163	18 55 	. U 
 	ld l,000h		;4165	2e 00 	. . 
 	push hl			;4167	e5 	. 
-	ld (hl),b			;4168	70 	p 
+	ld (hl),b		;4168	70 	p 
 	inc hl			;4169	23 	# 
 	ld a,h			;416a	7c 	| 
 	cp d			;416b	ba 	. 
 	jr nz,$-4		;416c	20 fa 	  . 
 	pop hl			;416e	e1 	. 
-	ld a,(hl)			;416f	7e 	~ 
+	ld a,(hl)		;416f	7e 	~ 
 	cp b			;4170	b8 	. 
 	jr nz,$+49		;4171	20 2f 	  / 
 	inc hl			;4173	23 	# 
@@ -10190,11 +10258,11 @@ clear_buffers:
 	jr nz,$-7		;4176	20 f7 	  . 
 	ret			;4178	c9 	. 
 	ld a,01eh		;4179	3e 1e 	> . 
-	out (BANKSELECT),a		;417b	d3 70 	. p 
+	out (BANKSELECT),a	;417b	d3 70 	. p 
 	ld hl,0c03dh		;417d	21 3d c0 	! = . 
 	ld (0e10eh),hl		;4180	22 0e e1 	" . . 
 	ld a,0e1h		;4183	3e e1 	> . 
-	ld i,a		;4185	ed 47 	. G 
+	ld i,a			;4185	ed 47 	. G 
 	ei			;4187	fb 	. 
 	ld h,000h		;4188	26 00 	& . 
 	ld d,0c0h		;418a	16 c0 	. . 
@@ -10206,8 +10274,8 @@ clear_buffers:
 	di			;4198	f3 	. 
 	ld sp,0e000h		;4199	31 00 e0 	1 . . 
 	ld a,008h		;419c	3e 08 	> . 
-	out (BANKSELECT),a		;419e	d3 70 	. p 
-	jp (iy)		;41a0	fd e9 	. . 
+	out (BANKSELECT),a	;419e	d3 70 	. p 
+	jp (iy)			;41a0	fd e9 	. . 
 	di			;41a2	f3 	. 
 	ld c,a			;41a3	4f 	O 
 	ld a,0c0h		;41a4	3e c0 	> . 
@@ -10215,30 +10283,30 @@ clear_buffers:
 	ld a,0e0h		;41a8	3e e0 	> . 
 	out (030h),a		;41aa	d3 30 	. 0 
 	ld a,008h		;41ac	3e 08 	> . 
-	out (BANKSELECT),a		;41ae	d3 70 	. p 
+	out (BANKSELECT),a	;41ae	d3 70 	. p 
 	out (0ffh),a		;41b0	d3 ff 	. . 
 	ld sp,0e000h		;41b2	31 00 e0 	1 . . 
 	push bc			;41b5	c5 	. 
 	push hl			;41b6	e5 	. 
 	scf			;41b7	37 	7 
-	jp (iy)		;41b8	fd e9 	. . 
+	jp (iy)			;41b8	fd e9 	. . 
 	xor a			;41ba	af 	. 
 	ld sp,0e000h		;41bb	31 00 e0 	1 . . 
 	ld hl,04165h		;41be	21 65 41 	! e A 
 	ld de,0c000h		;41c1	11 00 c0 	. . . 
 	ld bc,00100h		;41c4	01 00 01 	. . . 
-	ldir		;41c7	ed b0 	. . 
+	ldir			;41c7	ed b0 	. . 
 	jp 0c014h		;41c9	c3 14 c0 	. . . 
-	pop iy		;41cc	fd e1 	. . 
+	pop iy			;41cc	fd e1 	. . 
 	xor a			;41ce	af 	. 
 	ld a,(TBYTE3)		;41cf	3a 62 e0 	: b . 
-	bit 0,a		;41d2	cb 47 	. G 
+	bit 0,a			;41d2	cb 47 	. G 
 	jr z,$-28		;41d4	28 e2 	( . 
 	ld a,060h		;41d6	3e 60 	> ` 
 	out (030h),a		;41d8	d3 30 	. 0 
 	out (0fdh),a		;41da	d3 fd 	. . 
 	ld a,0fah		;41dc	3e fa 	> . 
-	out (BANKSELECT),a		;41de	d3 70 	. p 
+	out (BANKSELECT),a	;41de	d3 70 	. p 
 	ld sp,03fffh		;41e0	31 ff 3f 	1 . ? 
 	ld b,055h		;41e3	06 55 	. U 
 	ld h,080h		;41e5	26 80 	& . 
@@ -10252,23 +10320,23 @@ clear_buffers:
 	out (0fch),a		;41f7	d3 fc 	. . 
 	ld hl,00fffh		;41f9	21 ff 0f 	! . . 
 	in a,(0fdh)		;41fc	db fd 	. . 
-	bit 0,a		;41fe	cb 47 	. G 
+	bit 0,a			;41fe	cb 47 	. G 
 	jr z,$+31		;4200	28 1d 	( . 
 	in a,(0fdh)		;4202	db fd 	. . 
-	bit 0,a		;4204	cb 47 	. G 
+	bit 0,a			;4204	cb 47 	. G 
 	jr z,$+9		;4206	28 07 	( . 
 	call 04725h		;4208	cd 25 47 	. % G 
 	jr nz,$-9		;420b	20 f5 	  . 
-	jr $+18		;420d	18 10 	. . 
+	jr $+18			;420d	18 10 	. . 
 	ld hl,08000h		;420f	21 00 80 	! . . 
 	ld bc,08000h		;4212	01 00 80 	. . . 
 	xor a			;4215	af 	. 
-	cpi		;4216	ed a1 	. . 
+	cpi			;4216	ed a1 	. . 
 	jr nz,$+7		;4218	20 05 	  . 
 	jp po,04229h		;421a	e2 29 42 	. ) B 
-	jr $-7		;421d	18 f7 	. . 
+	jr $-7			;421d	18 f7 	. . 
 	ld a,008h		;421f	3e 08 	> . 
-	out (BANKSELECT),a		;4221	d3 70 	. p 
+	out (BANKSELECT),a	;4221	d3 70 	. p 
 	ld hl,04863h		;4223	21 63 48 	! c H 
 	call 04702h		;4226	cd 02 47 	. . G 
 	ld a,0e0h		;4229	3e e0 	> . 
@@ -10298,7 +10366,7 @@ clear_buffers:
 	ld b,003h		;4263	06 03 	. . 
 	push bc			;4265	c5 	. 
 	push hl			;4266	e5 	. 
-	ld a,(hl)			;4267	7e 	~ 
+	ld a,(hl)		;4267	7e 	~ 
 	call 046fah		;4268	cd fa 46 	. . F 
 	pop hl			;426b	e1 	. 
 	dec hl			;426c	2b 	+ 
@@ -10309,14 +10377,14 @@ clear_buffers:
 	call 03e0ch		;4275	cd 0c 3e 	. . > 
 	ld a,b			;4278	78 	x 
 	and a			;4279	a7 	. 
-	ld hl,04872h		;427a	21 72 48 	! r H   fetch addr of "NVM"
+	ld hl,04872h		;427a	fetch addr of "NVM"
 	call nz,04702h		;427d	c4 02 47 	. . G 
 	ld a,0f0h		;4280	3e f0 	> . 
 	ld (0cff3h),a		;4282	32 f3 cf 	2 . . 
 	call 04750h		;4285	cd 50 47 	. P G 
 	ld c,040h		;4288	0e 40 	. @ 
 	call 0461eh		;428a	cd 1e 46 	. . F 
-	ld hl,0487ah		;428d	21 7a 48 	! z H   fetch addr of "COMM"
+	ld hl,0487ah		;428d	fetch addr of "COMM"
 	call nz,04702h		;4290	c4 02 47 	. . G 
 	ld c,020h		;4293	0e 20 	.   
 	call 0461eh		;4295	cd 1e 46 	. . F 
@@ -10324,7 +10392,7 @@ clear_buffers:
 	ld hl,04883h		;4299	21 83 48 	! . H 
 	jp 04702h		;429c	c3 02 47 	. . G 
 	ld a,(TBYTE1)		;429f	3a 60 e0 	: ` . 
-	bit 2,a		;42a2	cb 57 	. W 
+	bit 2,a			;42a2	cb 57 	. W 
 	ret z			;42a4	c8 	. 
 	call 047c6h		;42a5	cd c6 47 	. . G 
 	ld c,080h		;42a8	0e 80 	. . 
@@ -10352,24 +10420,24 @@ clear_buffers:
 	xor a			;42df	af 	. 
 	ld (0cfe5h),a		;42e0	32 e5 cf 	2 . . 
 	ld a,(0cfe5h)		;42e3	3a e5 cf 	: . . 
-	cp 055h		;42e6	fe 55 	. U 
+	cp 055h			;42e6	fe 55 	. U 
 	ret z			;42e8	c8 	. 
 	inc de			;42e9	13 	. 
-	bit 7,d		;42ea	cb 7a 	. z 
+	bit 7,d			;42ea	cb 7a 	. z 
 	jr z,$-9		;42ec	28 f5 	( . 
 	ret			;42ee	c9 	. 
 	push af			;42ef	f5 	. 
 	ld a,033h		;42f0	3e 33 	> 3 
 	out (PPIC+PPIC_CONTROL),a		;42f2	d3 03 	. . 
-	out (PPIC+PPIC_PORTA),a		;42f4	d3 00 	. . 
+	out (PPIC+PPIC_PORTA),a	;42f4	d3 00 	. . 
 	ld a,055h		;42f6	3e 55 	> U 
 	ld (0cfe5h),a		;42f8	32 e5 cf 	2 . . 
 	pop af			;42fb	f1 	. 
-	retn		;42fc	ed 45 	. E 
+	retn			;42fc	ed 45 	. E 
 	xor a			;42fe	af 	. 
 	out (024h),a		;42ff	d3 24 	. $ 
 	in a,(026h)		;4301	db 26 	. & 
-	bit 7,a		;4303	cb 7f 	.  
+	bit 7,a			;4303	cb 7f 	.  
 	ret z			;4305	c8 	. 
 	ld hl,ERRORF		;4306	21 ff e0 	! . . 
 	set 1,(hl)		;4309	cb ce 	. . 
@@ -10398,7 +10466,7 @@ clear_buffers:
 	ld b,a			;433a	47 	G 
 	call 043b4h		;433b	cd b4 43 	. . C 
 	ld a,b			;433e	78 	x 
-	cp 055h		;433f	fe 55 	. U 
+	cp 055h			;433f	fe 55 	. U 
 	jr nz,$+125		;4341	20 7b 	  { 
 	ld a,00ah		;4343	3e 0a 	> . 
 	out (0abh),a		;4345	d3 ab 	. . 
@@ -10411,7 +10479,7 @@ clear_buffers:
 	xor 0aah		;4352	ee aa 	. . 
 	jr nz,$+106		;4354	20 68 	  h 
 	ld a,e			;4356	7b 	{ 
-	bit 1,a		;4357	cb 4f 	. O 
+	bit 1,a			;4357	cb 4f 	. O 
 	jr z,$+101		;4359	28 63 	( c 
 	ld a,002h		;435b	3e 02 	> . 
 	out (0abh),a		;435d	d3 ab 	. . 
@@ -10435,7 +10503,7 @@ clear_buffers:
 	jr z,$+64		;437e	28 3e 	( > 
 	call 04bc8h		;4380	cd c8 4b 	. . K 
 	call 043b1h		;4383	cd b1 43 	. . C 
-	cp 040h		;4386	fe 40 	. @ 
+	cp 040h			;4386	fe 40 	. @ 
 	jr nz,$-13		;4388	20 f1 	  . 
 	ld b,a			;438a	47 	G 
 	ld a,004h		;438b	3e 04 	> . 
@@ -10461,7 +10529,7 @@ clear_buffers:
 	ld c,a			;43b3	4f 	O 
 	in a,(088h)		;43b4	db 88 	. . 
 	ld e,a			;43b6	5f 	_ 
-	bit 0,a		;43b7	cb 47 	. G 
+	bit 0,a			;43b7	cb 47 	. G 
 	jr nz,$+4		;43b9	20 02 	  . 
 	ld a,c			;43bb	79 	y 
 	ret			;43bc	c9 	. 
@@ -10469,10 +10537,10 @@ clear_buffers:
 	scf			;43be	37 	7 
 	ret			;43bf	c9 	. 
 	ld a,(KBINP)		;43c0	3a c9 e0 	: . . 
-	bit 0,a		;43c3	cb 47 	. G 
+	bit 0,a			;43c3	cb 47 	. G 
 	jr z,$+14		;43c5	28 0c 	( . 
 	ld a,(OBYTE1)		;43c7	3a 46 e0 	: F . 
-	bit 0,a		;43ca	cb 47 	. G 
+	bit 0,a			;43ca	cb 47 	. G 
 	jr z,$+22		;43cc	28 14 	( . 
 	ld a,004h		;43ce	3e 04 	> . 
 	ld (ERRORF),a		;43d0	32 ff e0 	2 . . 
@@ -10482,9 +10550,9 @@ clear_buffers:
 	ld (ERRORF),a		;43d9	32 ff e0 	2 . . 
 	call 04610h		;43dc	cd 10 46 	. . F 
 	jp 0401eh		;43df	c3 1e 40 	. . @ 
-	pop ix		;43e2	dd e1 	. . 
+	pop ix			;43e2	dd e1 	. . 
 	jp 03d49h		;43e4	c3 49 3d 	. I = 
-	pop iy		;43e7	fd e1 	. . 
+	pop iy			;43e7	fd e1 	. . 
 	call 04702h		;43e9	cd 02 47 	. . G 
 	pop hl			;43ec	e1 	. 
 	push hl			;43ed	e5 	. 
@@ -10500,7 +10568,7 @@ clear_buffers:
 	pop bc			;43fd	c1 	. 
 	ld a,b			;43fe	78 	x 
 	call 04716h		;43ff	cd 16 47 	. . G 
-	jp (iy)		;4402	fd e9 	. . 
+	jp (iy)			;4402	fd e9 	. . 
 	ld c,006h		;4404	0e 06 	. . 
 	ld b,040h		;4406	06 40 	. @ 
 	ld de,042efh		;4408	11 ef 42 	. . B 
@@ -10531,7 +10599,7 @@ clear_buffers:
 	ld de,00024h		;4437	11 24 00 	. $ . 
 	call 0001eh		;443a	cd 1e 00 	. . . 
 	ld a,(TBYTE3)		;443d	3a 62 e0 	: b . 
-	bit 0,a		;4440	cb 47 	. G 
+	bit 0,a			;4440	cb 47 	. G 
 	jr z,$+47		;4442	28 2d 	( - 
 	call 04518h		;4444	cd 18 45 	. . E 
 	ei			;4447	fb 	. 
@@ -10539,11 +10607,11 @@ clear_buffers:
 	out (030h),a		;444a	d3 30 	. 0 
 	out (0fdh),a		;444c	d3 fd 	. . 
 	ld a,0f8h		;444e	3e f8 	> . 
-	out (BANKSELECT),a		;4450	d3 70 	. p 
+	out (BANKSELECT),a	;4450	d3 70 	. p 
 	ld a,055h		;4452	3e 55 	> U 
 	ld (08000h),a		;4454	32 00 80 	2 . . 
 	ld a,008h		;4457	3e 08 	> . 
-	out (BANKSELECT),a		;4459	d3 70 	. p 
+	out (BANKSELECT),a	;4459	d3 70 	. p 
 	out (0fch),a		;445b	d3 fc 	. . 
 	out (0feh),a		;445d	d3 fe 	. . 
 	call 045f6h		;445f	cd f6 45 	. . E 
@@ -10614,7 +10682,7 @@ clear_buffers:
 	ld hl,00fffh		;44f9	21 ff 0f 	! . . 
 	push hl			;44fc	e5 	. 
 	ld a,(KBCNT)		;44fd	3a 89 e0 	: . . 
-	cp 000h		;4500	fe 00 	. . 
+	cp 000h			;4500	fe 00 	. . 
 	call nz,046ach		;4502	c4 ac 46 	. . F 
 	call 046ebh		;4505	cd eb 46 	. . F 
 	jr nz,$+26		;4508	20 18 	  . 
@@ -10624,7 +10692,7 @@ clear_buffers:
 	ld a,(0cff3h)		;4510	3a f3 cf 	: . . 
 	out (050h),a		;4513	d3 50 	. P 
 	rlca			;4515	07 	. 
-	jr $-32		;4516	18 de 	. . 
+	jr $-32			;4516	18 de 	. . 
 	ld a,05fh		;4518	3e 5f 	> _ 
 	out (013h),a		;451a	d3 13 	. . 
 	xor a			;451c	af 	. 
@@ -10640,18 +10708,18 @@ clear_buffers:
 	ld hl,048eeh		;4533	21 ee 48 	! . H 
 	call nz,04702h		;4536	c4 02 47 	. . G 
 	ld a,(TBYTE1)		;4539	3a 60 e0 	: ` . 
-	bit 3,a		;453c	cb 5f 	. _ 
+	bit 3,a			;453c	cb 5f 	. _ 
 	jr z,$+7		;453e	28 05 	( . 
 	call 0432bh		;4540	cd 2b 43 	. + C 
-	jr $+12		;4543	18 0a 	. . 
+	jr $+12			;4543	18 0a 	. . 
 	ld a,(TBYTE2)		;4545	3a 61 e0 	: a . 
-	bit 0,a		;4548	cb 47 	. G 
+	bit 0,a			;4548	cb 47 	. G 
 	jr z,$+18		;454a	28 10 	( . 
 	call 04360h		;454c	cd 60 43 	. ` C 
 	ld hl,04932h		;454f	21 32 49 	! 2 I 
 	jr nc,$+7		;4552	30 05 	0 . 
 	call 0470dh		;4554	cd 0d 47 	. . G 
-	jr $+5		;4557	18 03 	. . 
+	jr $+5			;4557	18 03 	. . 
 	call 00063h		;4559	cd 63 00 	. c . 
 	call 04750h		;455c	cd 50 47 	. P G 
 	call 047c6h		;455f	cd c6 47 	. . G 
@@ -10664,7 +10732,7 @@ clear_buffers:
 	ld b,000h		;4571	06 00 	. . 
 	call 045e5h		;4573	cd e5 45 	. . E 
 	ld a,(TBYTE1)		;4576	3a 60 e0 	: ` . 
-	bit 2,a		;4579	cb 57 	. W 
+	bit 2,a			;4579	cb 57 	. W 
 	jr z,$+22		;457b	28 14 	( . 
 	ld hl,0491ah		;457d	21 1a 49 	! . I 
 	ld c,086h		;4580	0e 86 	. . 
@@ -10688,7 +10756,7 @@ clear_buffers:
 	ld hl,04877h		;45ac	21 77 48 	! w H 
 	call nz,0470dh		;45af	c4 0d 47 	. . G 
 	ld a,(TBYTE1)		;45b2	3a 60 e0 	: ` . 
-	bit 2,a		;45b5	cb 57 	. W 
+	bit 2,a			;45b5	cb 57 	. W 
 	jr z,$+29		;45b7	28 1b 	( . 
 	ld a,0b0h		;45b9	3e b0 	> . 
 	ld (0cff3h),a		;45bb	32 f3 cf 	2 . . 
@@ -10702,7 +10770,7 @@ clear_buffers:
 	call nz,0470dh		;45d1	c4 0d 47 	. . G 
 	call 046ebh		;45d4	cd eb 46 	. . F 
 	jp z,0442dh		;45d7	ca 2d 44 	. - D 
-	jr $-73		;45da	18 b5 	. . 
+	jr $-73			;45da	18 b5 	. . 
 	out (024h),a		;45dc	d3 24 	. $ 
 	out (044h),a		;45de	d3 44 	. D 
 	out (094h),a		;45e0	d3 94 	. . 
@@ -10719,7 +10787,7 @@ clear_buffers:
 	call 04725h		;45f9	cd 25 47 	. % G 
 	ret z			;45fc	c8 	. 
 	ld a,(KBCNT)		;45fd	3a 89 e0 	: . . 
-	bit 1,a		;4600	cb 4f 	. O 
+	bit 1,a			;4600	cb 4f 	. O 
 	jr z,$-9		;4602	28 f5 	( . 
 	ret			;4604	c9 	. 
 	ld a,c			;4605	79 	y 
@@ -10756,7 +10824,7 @@ clear_buffers:
 	jr z,$+92		;463f	28 5a 	( Z 
 	in a,(c)		;4641	ed 78 	. x 
 	and 060h		;4643	e6 60 	. ` 
-	cp 060h		;4645	fe 60 	. ` 
+	cp 060h			;4645	fe 60 	. ` 
 	jr nz,$-11		;4647	20 f3 	  . 
 	ld a,006h		;4649	3e 06 	> . 
 	add a,b			;464b	80 	. 
@@ -10768,7 +10836,7 @@ clear_buffers:
 	cp l			;4655	bd 	. 
 	jr z,$+7		;4656	28 05 	( . 
 	ld a,b			;4658	78 	x 
-	cp 020h		;4659	fe 20 	.   
+	cp 020h			;4659	fe 20 	.   
 	jr nz,$+64		;465b	20 3e 	  > 
 	ld c,b			;465d	48 	H 
 	out (c),d		;465e	ed 51 	. Q 
@@ -10789,7 +10857,7 @@ clear_buffers:
 	add a,b			;467e	80 	. 
 	ld c,a			;467f	4f 	O 
 	in a,(c)		;4680	ed 78 	. x 
-	bit 0,a		;4682	cb 47 	. G 
+	bit 0,a			;4682	cb 47 	. G 
 	jr z,$+23		;4684	28 15 	( . 
 	and 01eh		;4686	e6 1e 	. . 
 	and a			;4688	a7 	. 
@@ -10801,7 +10869,7 @@ clear_buffers:
 	ei			;4691	fb 	. 
 	jr nz,$+9		;4692	20 07 	  . 
 	inc d			;4694	14 	. 
-	bit 7,d		;4695	cb 7a 	. z 
+	bit 7,d			;4695	cb 7a 	. z 
 	jr nz,$+10		;4697	20 08 	  . 
 	jr $-100		;4699	18 9a 	. . 
 	ld c,b			;469b	48 	H 
@@ -10814,13 +10882,13 @@ clear_buffers:
 	ld a,0aah		;46a4	3e aa 	> . 
 	ld (0cfe5h),a		;46a6	32 e5 cf 	2 . . 
 	pop af			;46a9	f1 	. 
-	reti		;46aa	ed 4d 	. M 
+	reti			;46aa	ed 4d 	. M 
 	ld bc,01313h		;46ac	01 13 13 	. . . 
 	call 04605h		;46af	cd 05 46 	. . F 
 	call 0006fh		;46b2	cd 6f 00 	. o . 
 	ld a,b			;46b5	78 	x 
 	call 04716h		;46b6	cd 16 47 	. . G 
-	retn		;46b9	ed 45 	. E 
+	retn			;46b9	ed 45 	. E 
 	push bc			;46bb	c5 	. 
 	call 0005ah		;46bc	cd 5a 00 	. Z . 
 	pop bc			;46bf	c1 	. 
@@ -10856,14 +10924,14 @@ clear_buffers:
 	and 00fh		;46f1	e6 0f 	. . 
 	out (024h),a		;46f3	d3 24 	. $ 
 	in a,(026h)		;46f5	db 26 	. & 
-	bit 4,a		;46f7	cb 67 	. g 
+	bit 4,a			;46f7	cb 67 	. g 
 	ret			;46f9	c9 	. 
 	call 04716h		;46fa	cd 16 47 	. . G 
 	ld b,020h		;46fd	06 20 	.   
 	jp 00039h		;46ff	c3 39 00 	. 9 . 
 	call 04b05h		;4702	cd 05 4b 	. . K 
 	ld a,(ERRORF)		;4705	3a ff e0 	: . . 
-	or 001h		;4708	f6 01 	. . 
+	or 001h			;4708	f6 01 	. . 
 	ld (ERRORF),a		;470a	32 ff e0 	2 . . 
 	call 00063h		;470d	cd 63 00 	. c . 
 	ld hl,048e4h		;4710	21 e4 48 	! . H 
@@ -10972,7 +11040,7 @@ clear_buffers:
 	ld b,004h		;47ec	06 04 	. . 
 	ld de,046a3h		;47ee	11 a3 46 	. . F 
 	call 0001eh		;47f1	cd 1e 00 	. . . 
-	jr $-93		;47f4	18 a1 	. . 
+	jr $-93			;47f4	18 a1 	. . 
 	push af			;47f6	f5 	. 
 	exx			;47f7	d9 	. 
 	call 0009fh		;47f8	cd 9f 00 	. . . 
@@ -11107,7 +11175,7 @@ clear_buffers:
 	call 00042h		;4a25	cd 42 00 	. B . 
 	ld a,(MDACT)		;4a28	3a fe e0 	: . . 
 	and 007h		;4a2b	e6 07 	. . 
-	cp 001h		;4a2d	fe 01 	. . 
+	cp 001h			;4a2d	fe 01 	. . 
 	jp nz,04a39h		;4a2f	c2 39 4a 	. 9 J 
 	ld ix,00030h		;4a32	dd 21 30 00 	. ! 0 . 
 	jp 04ad9h		;4a36	c3 d9 4a 	. . J 
@@ -11117,7 +11185,7 @@ clear_buffers:
 	out (BANKSELECT),a		;4a42	d3 70 	. p 
 	call 03e17h		;4a44	cd 17 3e 	. . > 
 	ld a,(MBYTE1)		;4a47	3a 40 e0 	: @ . 
-	bit 2,a		;4a4a	cb 57 	. W 
+	bit 2,a			;4a4a	cb 57 	. W 
 	jr z,$+72		;4a4c	28 46 	( F 
 	xor a			;4a4e	af 	. 
 	ld (0cffdh),a		;4a4f	32 fd cf 	2 . . 
@@ -11131,64 +11199,64 @@ clear_buffers:
 	call 04f72h		;4a63	cd 72 4f 	. r O 
 	jr c,$+26		;4a66	38 18 	8 . 
 	ld hl,0cffdh		;4a68	21 fd cf 	! . . 
-	ld a,(hl)			;4a6b	7e 	~ 
+	ld a,(hl)		;4a6b	7e 	~ 
 	ld (hl),000h		;4a6c	36 00 	6 . 
-	cp 063h		;4a6e	fe 63 	. c 
+	cp 063h			;4a6e	fe 63 	. c 
 	jr z,$+84		;4a70	28 52 	( R 
-	cp 073h		;4a72	fe 73 	. s 
+	cp 073h			;4a72	fe 73 	. s 
 	jp z,04bdch		;4a74	ca dc 4b 	. . K 
-	cp 093h		;4a77	fe 93 	. . 
+	cp 093h			;4a77	fe 93 	. . 
 	jr z,$+31		;4a79	28 1d 	( . 
 	call 0007eh		;4a7b	cd 7e 00 	. ~ . 
-	jr $-27		;4a7e	18 e3 	. . 
-	cp 064h		;4a80	fe 64 	. d 
+	jr $-27			;4a7e	18 e3 	. . 
+	cp 064h			;4a80	fe 64 	. d 
 	jr z,$+66		;4a82	28 40 	( @ 
-	cp 072h		;4a84	fe 72 	. r 
+	cp 072h			;4a84	fe 72 	. r 
 	jr z,$+18		;4a86	28 10 	( . 
-	cp 068h		;4a88	fe 68 	. h 
+	cp 068h			;4a88	fe 68 	. h 
 	jp z,04bdch		;4a8a	ca dc 4b 	. . K 
-	cp 0e3h		;4a8d	fe e3 	. . 
+	cp 0e3h			;4a8d	fe e3 	. . 
 	jr nz,$-44		;4a8f	20 d2 	  . 
 	ld a,(MBYTE1)		;4a91	3a 40 e0 	: @ . 
-	bit 3,a		;4a94	cb 5f 	. _ 
+	bit 3,a			;4a94	cb 5f 	. _ 
 	jr nz,$+39		;4a96	20 25 	  % 
 	ld a,(MBYTE6)		;4a98	3a 45 e0 	: E . 
-	bit 3,a		;4a9b	cb 5f 	. _ 
+	bit 3,a			;4a9b	cb 5f 	. _ 
 	call z,04fe7h		;4a9d	cc e7 4f 	. . O 
 	jp z,00030h		;4aa0	ca 30 00 	. 0 . 
 	in a,(026h)		;4aa3	db 26 	. & 
 	and 040h		;4aa5	e6 40 	. @ 
 	jp z,00072h		;4aa7	ca 72 00 	. r . 
 	ld a,(08000h)		;4aaa	3a 00 80 	: . . 
-	cp 0c3h		;4aad	fe c3 	. . 
+	cp 0c3h			;4aad	fe c3 	. . 
 	jp nz,00072h		;4aaf	c2 72 00 	. r . 
 	ld b,004h		;4ab2	06 04 	. . 
 	call 04fe7h		;4ab4	cd e7 4f 	. . O 
 	call 04b0ch		;4ab7	cd 0c 4b 	. . K 
 	jp 08000h		;4aba	c3 00 80 	. . . 
 	ld a,(MBYTE2)		;4abd	3a 41 e0 	: A . 
-	bit 0,a		;4ac0	cb 47 	. G 
+	bit 0,a			;4ac0	cb 47 	. G 
 	jr z,$+20		;4ac2	28 12 	( . 
 	ld a,(TBYTE2)		;4ac4	3a 61 e0 	: a . 
-	bit 0,a		;4ac7	cb 47 	. G 
+	bit 0,a			;4ac7	cb 47 	. G 
 	jp z,00072h		;4ac9	ca 72 00 	. r . 
 	ld ix,00000h		;4acc	dd 21 00 00 	. ! . . 
 	ld iy,00072h		;4ad0	fd 21 72 00 	. ! r . 
-	jr $+66		;4ad4	18 40 	. @ 
+	jr $+66			;4ad4	18 40 	. @ 
 	jp 04bdch		;4ad6	c3 dc 4b 	. . K 
 	ld a,(MBYTE2)		;4ad9	3a 41 e0 	: A . 
 	and 002h		;4adc	e6 02 	. . 
 	jr nz,$+4		;4ade	20 02 	  . 
-	jp (ix)		;4ae0	dd e9 	. . 
+	jp (ix)			;4ae0	dd e9 	. . 
 	ld a,(TBYTE2)		;4ae2	3a 61 e0 	: a . 
 	and 004h		;4ae5	e6 04 	. . 
 	jr nz,$+4		;4ae7	20 02 	  . 
-	jp (ix)		;4ae9	dd e9 	. . 
+	jp (ix)			;4ae9	dd e9 	. . 
 	ld a,028h		;4aeb	3e 28 	> ( 
-	out (BANKSELECT),a		;4aed	d3 70 	. p 
+	out (BANKSELECT),a	;4aed	d3 70 	. p 
 	ld hl,08000h		;4aef	21 00 80 	! . . 
-	ld a,(hl)			;4af2	7e 	~ 
-	cp 0c3h		;4af3	fe c3 	. . 
+	ld a,(hl)		;4af2	7e 	~ 
+	cp 0c3h			;4af3	fe c3 	. . 
 	jp nz,00072h		;4af5	c2 72 00 	. r . 
 	jp (hl)			;4af8	e9 	. 
 	ld a,(LIGHTS)		;4af9	3a ce e0 	: . . 
@@ -11198,8 +11266,8 @@ clear_buffers:
 	out (050h),a		;4b02	d3 50 	. P 
 	ret			;4b04	c9 	. 
 	ld a,(LIGHTS)		;4b05	3a ce e0 	: . . 
-	or 001h		;4b08	f6 01 	. . 
-	jr $-12		;4b0a	18 f2 	. . 
+	or 001h			;4b08	f6 01 	. . 
+	jr $-12			;4b0a	18 f2 	. . 
 	ld a,(0e0fch)		;4b0c	3a fc e0 	: . . 
 	and 0f8h		;4b0f	e6 f8 	. . 
 	or b			;4b11	b0 	. 
@@ -11246,7 +11314,7 @@ clear_buffers:
 	in a,(0aeh)		;4b5e	db ae 	. . 
 	ld h,a			;4b60	67 	g 
 	push hl			;4b61	e5 	. 
-	ex de,hl			;4b62	eb 	. 
+	ex de,hl		;4b62	eb 	. 
 	exx			;4b63	d9 	. 
 	pop hl			;4b64	e1 	. 
 	exx			;4b65	d9 	. 
@@ -11281,7 +11349,7 @@ clear_buffers:
 	call 04b0ch		;4b91	cd 0c 4b 	. . K 
 	call 04fe7h		;4b94	cd e7 4f 	. . O 
 	ld c,002h		;4b97	0e 02 	. . 
-	push ix		;4b99	dd e5 	. . 
+	push ix			;4b99	dd e5 	. . 
 	pop hl			;4b9b	e1 	. 
 	ld a,h			;4b9c	7c 	| 
 	or l			;4b9d	b5 	. 
@@ -11293,7 +11361,7 @@ clear_buffers:
 	di			;4ba7	f3 	. 
 	jp 03d8ch		;4ba8	c3 8c 3d 	. . = 
 	ld hl,0d90bh		;4bab	21 0b d9 	! . . 
-	dec (hl)			;4bae	35 	5 
+	dec (hl)		;4bae	35 	5 
 	jp nz,04b1ch		;4baf	c2 1c 4b 	. . K 
 	call 04b05h		;4bb2	cd 05 4b 	. . K 
 	ld hl,049f2h		;4bb5	21 f2 49 	! . I 
@@ -11345,7 +11413,7 @@ clear_buffers:
 	or b			;4c16	b0 	. 
 	ld (FILEN),a		;4c17	32 fd e0 	2 . . 
 	ld a,(MBYTE1)		;4c1a	3a 40 e0 	: @ . 
-	bit 2,a		;4c1d	cb 57 	. W 
+	bit 2,a			;4c1d	cb 57 	. W 
 	jr z,$+8		;4c1f	28 06 	( . 
 	call 04f85h		;4c21	cd 85 4f 	. . O 
 	call 00042h		;4c24	cd 42 00 	. B . 
@@ -11390,7 +11458,7 @@ clear_buffers:
 	ld hl,04bd1h		;4c79	21 d1 4b 	! . K 
 	ld de,0d91dh		;4c7c	11 1d d9 	. . . 
 	ld bc,0000ah		;4c7f	01 0a 00 	. . . 
-	ldir		;4c82	ed b0 	. . 
+	ldir			;4c82	ed b0 	. . 
 	pop bc			;4c84	c1 	. 
 	ld a,c			;4c85	79 	y 
 	ld (0d902h),a		;4c86	32 02 d9 	2 . . 
@@ -11400,12 +11468,12 @@ clear_buffers:
 	ld (0d909h),a		;4c91	32 09 d9 	2 . . 
 	ld ix,04c9fh		;4c94	dd 21 9f 4c 	. ! . L 
 	call 04ecbh		;4c98	cd cb 4e 	. . N 
-	cp 0afh		;4c9b	fe af 	. . 
+	cp 0afh			;4c9b	fe af 	. . 
 	jr nz,$-5		;4c9d	20 f9 	  . 
 	ld a,002h		;4c9f	3e 02 	> . 
 	ld (0d90bh),a		;4ca1	32 0b d9 	2 . . 
 	ld ix,04cebh		;4ca4	dd 21 eb 4c 	. ! . L 
-	jr $+70		;4ca8	18 44 	. D 
+	jr $+70			;4ca8	18 44 	. D 
 	call 04b05h		;4caa	cd 05 4b 	. . K 
 	ld a,(0d90bh)		;4cad	3a 0b d9 	: . . 
 	or a			;4cb0	b7 	. 
@@ -11451,11 +11519,11 @@ clear_buffers:
 	ld a,078h		;4d1b	3e 78 	> x 
 	ld (0d909h),a		;4d1d	32 09 d9 	2 . . 
 	call 04ecbh		;4d20	cd cb 4e 	. . N 
-	cp 090h		;4d23	fe 90 	. . 
+	cp 090h			;4d23	fe 90 	. . 
 	jr nz,$-5		;4d25	20 f9 	  . 
 	call 04ecbh		;4d27	cd cb 4e 	. . N 
 	ld a,(0d90ch)		;4d2a	3a 0c d9 	: . . 
-	cp 082h		;4d2d	fe 82 	. . 
+	cp 082h			;4d2d	fe 82 	. . 
 	jr nz,$-12		;4d2f	20 f2 	  . 
 	call 04af9h		;4d31	cd f9 4a 	. . J 
 	ld a,001h		;4d34	3e 01 	> . 
@@ -11478,20 +11546,20 @@ clear_buffers:
 	ld e,002h		;4d63	1e 02 	. . 
 	call 04ecbh		;4d65	cd cb 4e 	. . N 
 	ld c,a			;4d68	4f 	O 
-	cp 090h		;4d69	fe 90 	. . 
+	cp 090h			;4d69	fe 90 	. . 
 	jr z,$+36		;4d6b	28 22 	( " 
 	ld a,e			;4d6d	7b 	{ 
 	or a			;4d6e	b7 	. 
 	jr nz,$+43		;4d6f	20 29 	  ) 
 	ld a,(0d916h)		;4d71	3a 16 d9 	: . . 
-	cp 000h		;4d74	fe 00 	. . 
+	cp 000h			;4d74	fe 00 	. . 
 	jr nz,$+10		;4d76	20 08 	  . 
 	ld a,b			;4d78	78 	x 
-	cp 004h		;4d79	fe 04 	. . 
+	cp 004h			;4d79	fe 04 	. . 
 	jr z,$+5		;4d7b	28 03 	( . 
-	ld (hl),c			;4d7d	71 	q 
-	jr $+6		;4d7e	18 04 	. . 
-	ld a,(hl)			;4d80	7e 	~ 
+	ld (hl),c		;4d7d	71 	q 
+	jr $+6			;4d7e	18 04 	. . 
+	ld a,(hl)		;4d80	7e 	~ 
 	cp c			;4d81	b9 	. 
 	jr nz,$+34		;4d82	20 20 	    
 	push de			;4d84	d5 	. 
@@ -11500,17 +11568,17 @@ clear_buffers:
 	dec b			;4d89	05 	. 
 	jr z,$+61		;4d8a	28 3b 	( ; 
 	inc hl			;4d8c	23 	# 
-	jr $-40		;4d8d	18 d6 	. . 
+	jr $-40			;4d8d	18 d6 	. . 
 	call 04ecbh		;4d8f	cd cb 4e 	. . N 
 	ld c,a			;4d92	4f 	O 
-	cp 090h		;4d93	fe 90 	. . 
+	cp 090h			;4d93	fe 90 	. . 
 	jr z,$-40		;4d95	28 d6 	( . 
 	jp 04e05h		;4d97	c3 05 4e 	. . N 
-	ld a,(hl)			;4d9a	7e 	~ 
+	ld a,(hl)		;4d9a	7e 	~ 
 	cp c			;4d9b	b9 	. 
 	jr nz,$+5		;4d9c	20 03 	  . 
 	dec e			;4d9e	1d 	. 
-	jr $-27		;4d9f	18 e3 	. . 
+	jr $-27			;4d9f	18 e3 	. . 
 	jp nc,04d20h		;4da1	d2 20 4d 	.   M 
 	call 04b05h		;4da4	cd 05 4b 	. . K 
 	ld hl,(0d900h)		;4da7	2a 00 d9 	* . . 
@@ -11538,14 +11606,14 @@ clear_buffers:
 	ld (0d90fh),a		;4dcf	32 0f d9 	2 . . 
 	ld (0d906h),a		;4dd2	32 06 d9 	2 . . 
 	call 04ecbh		;4dd5	cd cb 4e 	. . N 
-	cp 090h		;4dd8	fe 90 	. . 
+	cp 090h			;4dd8	fe 90 	. . 
 	jr nz,$+10		;4dda	20 08 	  . 
 	call 04ecbh		;4ddc	cd cb 4e 	. . N 
-	cp 090h		;4ddf	fe 90 	. . 
+	cp 090h			;4ddf	fe 90 	. . 
 	jr nz,$+36		;4de1	20 22 	  " 
 	inc b			;4de3	04 	. 
 	ld a,b			;4de4	78 	x 
-	cp 0f0h		;4de5	fe f0 	. . 
+	cp 0f0h			;4de5	fe f0 	. . 
 	jr nc,$-67		;4de7	30 bb 	0 . 
 	ld a,(0d90ch)		;4de9	3a 0c d9 	: . . 
 	ld c,a			;4dec	4f 	O 
@@ -11559,12 +11627,12 @@ clear_buffers:
 	ld a,(0d90fh)		;4dfc	3a 0f d9 	: . . 
 	inc a			;4dff	3c 	< 
 	ld (0d90fh),a		;4e00	32 0f d9 	2 . . 
-	jr $-46		;4e03	18 d0 	. . 
-	cp 017h		;4e05	fe 17 	. . 
+	jr $-46			;4e03	18 d0 	. . 
+	cp 017h			;4e05	fe 17 	. . 
 	jr z,$+18		;4e07	28 10 	( . 
-	cp 003h		;4e09	fe 03 	. . 
+	cp 003h			;4e09	fe 03 	. . 
 	jr z,$+9		;4e0b	28 07 	( . 
-	cp 082h		;4e0d	fe 82 	. . 
+	cp 082h			;4e0d	fe 82 	. . 
 	jp z,04d31h		;4e0f	ca 31 4d 	. 1 M 
 	jr $-110		;4e12	18 90 	. . 
 	ld a,001h		;4e14	3e 01 	> . 
@@ -11593,20 +11661,20 @@ clear_buffers:
 	ld (0d916h),a		;4e48	32 16 d9 	2 . . 
 	ld a,(0d90fh)		;4e4b	3a 0f d9 	: . . 
 	ld hl,0d905h		;4e4e	21 05 d9 	! . . 
-	add a,(hl)			;4e51	86 	. 
-	ld (hl),a			;4e52	77 	w 
+	add a,(hl)		;4e51	86 	. 
+	ld (hl),a		;4e52	77 	w 
 	jr nc,$+4		;4e53	30 02 	0 . 
 	dec hl			;4e55	2b 	+ 
-	inc (hl)			;4e56	34 	4 
+	inc (hl)		;4e56	34 	4 
 	ld hl,0d901h		;4e57	21 01 d9 	! . . 
-	inc (hl)			;4e5a	34 	4 
+	inc (hl)		;4e5a	34 	4 
 	dec hl			;4e5b	2b 	+ 
 	jr nz,$+3		;4e5c	20 01 	  . 
-	inc (hl)			;4e5e	34 	4 
+	inc (hl)		;4e5e	34 	4 
 	ld a,(0d910h)		;4e5f	3a 10 d9 	: . . 
 	ld hl,0d911h		;4e62	21 11 d9 	! . . 
-	add a,(hl)			;4e65	86 	. 
-	ld (hl),a			;4e66	77 	w 
+	add a,(hl)		;4e65	86 	. 
+	ld (hl),a		;4e66	77 	w 
 	ld a,(0d90ah)		;4e67	3a 0a d9 	: . . 
 	or a			;4e6a	b7 	. 
 	jp z,04d1bh		;4e6b	ca 1b 4d 	. . M 
@@ -11622,14 +11690,14 @@ clear_buffers:
 	ld a,078h		;4e85	3e 78 	> x 
 	ld (0d909h),a		;4e87	32 09 d9 	2 . . 
 	call 04ecbh		;4e8a	cd cb 4e 	. . N 
-	cp 0afh		;4e8d	fe af 	. . 
+	cp 0afh			;4e8d	fe af 	. . 
 	jr nz,$-5		;4e8f	20 f9 	  . 
 	ld a,(0d911h)		;4e91	3a 11 d9 	: . . 
 	ld c,a			;4e94	4f 	O 
 	or a			;4e95	b7 	. 
 	ret			;4e96	c9 	. 
 	call 04caah		;4e97	cd aa 4c 	. . L 
-	jr $-35		;4e9a	18 db 	. . 
+	jr $-35			;4e9a	18 db 	. . 
 	ld hl,0d91eh		;4e9c	21 1e d9 	! . . 
 	ld a,(0d902h)		;4e9f	3a 02 d9 	: . . 
 	ld c,a			;4ea2	4f 	O 
@@ -11654,7 +11722,7 @@ clear_buffers:
 	daa			;4ec2	27 	' 
 	jp pe,04ec8h		;4ec3	ea c8 4e 	. . N 
 	xor 080h		;4ec6	ee 80 	. . 
-	ld (hl),a			;4ec8	77 	w 
+	ld (hl),a		;4ec8	77 	w 
 	inc hl			;4ec9	23 	# 
 	ret			;4eca	c9 	. 
 	push bc			;4ecb	c5 	. 
@@ -11668,21 +11736,21 @@ clear_buffers:
 	ld hl,019c8h		;4ed8	21 c8 19 	! . . 
 	ld (0d907h),hl		;4edb	22 07 d9 	" . . 
 	ld hl,0d909h		;4ede	21 09 d9 	! . . 
-	ld a,(hl)			;4ee1	7e 	~ 
+	ld a,(hl)		;4ee1	7e 	~ 
 	or a			;4ee2	b7 	. 
 	jr z,$+13		;4ee3	28 0b 	( . 
-	dec (hl)			;4ee5	35 	5 
+	dec (hl)		;4ee5	35 	5 
 	jr nz,$+10		;4ee6	20 08 	  . 
 	pop hl			;4ee8	e1 	. 
 	pop bc			;4ee9	c1 	. 
 	ex (sp),ix		;4eea	dd e3 	. . 
-	pop ix		;4eec	dd e1 	. . 
-	jp (ix)		;4eee	dd e9 	. . 
+	pop ix			;4eec	dd e1 	. . 
+	jp (ix)			;4eee	dd e9 	. . 
 	ld a,(MBYTE4)		;4ef0	3a 43 e0 	: C . 
 	and 008h		;4ef3	e6 08 	. . 
 	jr nz,$+10		;4ef5	20 08 	  . 
 	call 04f31h		;4ef7	cd 31 4f 	. 1 O 
-	bit 7,a		;4efa	cb 7f 	.  
+	bit 7,a			;4efa	cb 7f 	.  
 	jp z,04cc5h		;4efc	ca c5 4c 	. . L 
 	ld hl,(BFCNT)		;4eff	2a 83 e0 	* . . 
 	ld a,l			;4f02	7d 	} 
@@ -11698,7 +11766,7 @@ clear_buffers:
 	pop bc			;4f11	c1 	. 
 	ret			;4f12	c9 	. 
 	push bc			;4f13	c5 	. 
-	ld b,(hl)			;4f14	46 	F 
+	ld b,(hl)		;4f14	46 	F 
 	call 000a2h		;4f15	cd a2 00 	. . . 
 	pop bc			;4f18	c1 	. 
 	ld de,007d0h		;4f19	11 d0 07 	. . . 
@@ -11770,7 +11838,7 @@ clear_buffers:
 	and a			;4f76	a7 	. 
 	ret z			;4f77	c8 	. 
 	call 0006fh		;4f78	cd 6f 00 	. o . 
-	bit 7,b		;4f7b	cb 78 	. x 
+	bit 7,b			;4f7b	cb 78 	. x 
 	jr nz,$-11		;4f7d	20 f3 	  . 
 	call 0006ch		;4f7f	cd 6c 00 	. l . 
 	ld b,a			;4f82	47 	G 
@@ -11785,19 +11853,19 @@ clear_buffers:
 	call 04f72h		;4f92	cd 72 4f 	. r O 
 	pop de			;4f95	d1 	. 
 	jr nc,$-5		;4f96	30 f9 	0 . 
-	cp 0e3h		;4f98	fe e3 	. . 
+	cp 0e3h			;4f98	fe e3 	. . 
 	jr nz,$+18		;4f9a	20 10 	  . 
 	ld a,d			;4f9c	7a 	z 
-	cp 002h		;4f9d	fe 02 	. . 
+	cp 002h			;4f9d	fe 02 	. . 
 	jr nz,$+6		;4f9f	20 04 	  . 
 	ld a,(FILEN)		;4fa1	3a fd e0 	: . . 
 	ret			;4fa4	c9 	. 
 	ld a,(0d91dh)		;4fa5	3a 1d d9 	: . . 
 	ld (FILEN),a		;4fa8	32 fd e0 	2 . . 
 	ret			;4fab	c9 	. 
-	cp 0e2h		;4fac	fe e2 	. . 
+	cp 0e2h			;4fac	fe e2 	. . 
 	jr nz,$+4		;4fae	20 02 	  . 
-	jr $-43		;4fb0	18 d3 	. . 
+	jr $-43			;4fb0	18 d3 	. . 
 	ld a,d			;4fb2	7a 	z 
 	or a			;4fb3	b7 	. 
 	jr z,$-4		;4fb4	28 fa 	( . 
@@ -11810,10 +11878,10 @@ clear_buffers:
 	ld a,b			;4fc0	78 	x 
 	sub 030h		;4fc1	d6 30 	. 0 
 	jr c,$-19		;4fc3	38 eb 	8 . 
-	cp 00ah		;4fc5	fe 0a 	. . 
+	cp 00ah			;4fc5	fe 0a 	. . 
 	jr c,$+8		;4fc7	38 06 	8 . 
 	sub 027h		;4fc9	d6 27 	. ' 
-	cp 010h		;4fcb	fe 10 	. . 
+	cp 010h			;4fcb	fe 10 	. . 
 	jr nc,$-29		;4fcd	30 e1 	0 . 
 	ld e,a			;4fcf	5f 	_ 
 	ld a,(0d91dh)		;4fd0	3a 1d d9 	: . . 
@@ -11822,14 +11890,14 @@ clear_buffers:
 	rlca			;4fd5	07 	. 
 	rlca			;4fd6	07 	. 
 	or e			;4fd7	b3 	. 
-	cp 040h		;4fd8	fe 40 	. @ 
+	cp 040h			;4fd8	fe 40 	. @ 
 	jr nc,$-42		;4fda	30 d4 	0 . 
 	ld (0d91dh),a		;4fdc	32 1d d9 	2 . . 
 	dec d			;4fdf	15 	. 
 	push de			;4fe0	d5 	. 
 	call 04716h		;4fe1	cd 16 47 	. . G 
 	pop de			;4fe4	d1 	. 
-	jr $-84		;4fe5	18 aa 	. . 
+	jr $-84			;4fe5	18 aa 	. . 
 	ld a,(0d91bh)		;4fe7	3a 1b d9 	: . . 
 	ld (MBYTE5),a		;4fea	32 44 e0 	2 D . 
 	ld a,(0d91ch)		;4fed	3a 1c d9 	: . . 
@@ -11846,4 +11914,4 @@ clear_buffers:
 	nop			;4ffc	00 	. 
 	nop			;4ffd	00 	. 
 	nop			;4ffe	00 	. 
-	ld a,(hl)			;4fff	7e 	~ 
+	ld a,(hl)		;4fff	7e 	~ 
