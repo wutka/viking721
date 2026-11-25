@@ -5,7 +5,10 @@ import com.codingrodent.microprocessor.ProcessorException;
 import com.codingrodent.microprocessor.Z80.CPUConstants;
 import com.codingrodent.microprocessor.Z80.Z80Core;
 
+import java.io.BufferedReader;
+import java.io.Console;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
@@ -22,6 +25,9 @@ public class Debugger {
     Memory[] banks;
     int[] blockBankNums;
     JPanel display;
+    Console console;
+    BufferedReader reader;
+
 
     public Debugger(Z80Core z80, IMemory mem, Memory[] banks, int[] blockBankNums, JPanel display) {
         this.z80 = z80;
@@ -33,6 +39,10 @@ public class Debugger {
         this.banks = banks;
         this.blockBankNums = blockBankNums;
         this.display = display;
+        this.console = System.console();
+        if (this.console == null) {
+            this.reader = new BufferedReader(new InputStreamReader(System.in));
+        }
     }
 
     public void step() {
@@ -81,7 +91,17 @@ public class Debugger {
             System.out.print("> ");
             System.out.flush();
             try {
-                String line = System.console().readLine();
+                String line;
+                if (console != null) {
+                    line = System.console().readLine();
+                } else {
+                    try {
+                        line = reader.readLine();
+                    } catch (IOException exc) {
+                        System.out.println("Error reading input");
+                        return;
+                    }
+                }
                 String[] parts = line.split(" ");
                 switch (parts[0]) {
                     case "c":
