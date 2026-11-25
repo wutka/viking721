@@ -38,6 +38,7 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
     VikingQueue keyboardQueue;
     VikingQueue sendQueue;
     VikingQueue receiveQueue;
+    Uart8250 commUart;
 
     Deque<Byte> keyboardData;
     Deque<Byte> sendData;
@@ -56,10 +57,10 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
             banks[2] = createBank(0x4000);
             banks[3] = createBank(0x4000);
             banks[4] = createBank(0x4000);
-            banks[5] = createBank(0x4000, true);
+            banks[5] = createBankFromFile("gfxfw.rom", 0x4000, true);
             banks[6] = createBank(0x4000);
-            banks[7] = createBank(0x4000, true);
-            banks[8] = createBank(0x4000, true);
+            banks[7] = createBank(0x4000, false);
+            banks[8] = createBank(0x4000, false);
             banks[9] = createBank(0x4000);
             banks[10] = null;
             banks[11] = createBank(0x4000);
@@ -107,6 +108,8 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
             if (debug) {
                 this.debugger = new Debugger(z80, this, banks, currBlockBanks, this);
             }
+
+            commUart = new Uart8250("comm", this, 1);
 
             (new Thread(this)).start();
 
@@ -226,6 +229,9 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
     @Override
     public int IORead(int address) {
         address = address & 0xff;
+        if (address >= 0x40 && address <= 0x47) {
+            return commUart.readRegister(address - 0x40);
+        }
         return portData[address] & 0xff;
     }
 
@@ -240,6 +246,10 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
                 currBlockBanks[blockNum] = blockBanks[blockNum][data & 3];
                 data = data >> 2;
             }
+        } else if (address >= 0x40 && address <= 0x47) {
+            System.out.printf("Writing %02x to UART reg %1d at pc = %04x\n",
+                    data, address - 0x40, z80.getProgramCounter());
+            commUart.writeRegister(address - 0x40, data);
         } else {
             portData[address] = (byte) data;
         }
@@ -408,12 +418,16 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
     @Override
     public void setInterruptLine(int line) {
         pendingInterrupts |= (1 << line);
+        z80.setIRQ(true);
     }
 
     @Override
     public void clearInterruptLine(int line) {
         if ((pendingInterrupts & (1 << line)) != 0) {
             pendingInterrupts -= (1 << line);
+        }
+        if (pendingInterrupts == 0) {
+            z80.setIRQ(false);
         }
     }
 
