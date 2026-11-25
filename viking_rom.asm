@@ -10316,7 +10316,7 @@ clear_buffers:
 	call 04750h		;4285	cd 50 47 	. P G 
 	ld c,040h		;4288	0e 40 	. @ 
 	call 0461eh		;428a	cd 1e 46 	. . F 
-	ld hl,0487ah		;428d	21 7a 48 	! z H 
+	ld hl,0487ah		;428d	21 7a 48 	! z H   fetch addr of "COMM"
 	call nz,04702h		;4290	c4 02 47 	. . G 
 	ld c,020h		;4293	0e 20 	.   
 	call 0461eh		;4295	cd 1e 46 	. . F 
