@@ -9,6 +9,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -20,6 +21,7 @@ import java.util.Deque;
 public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDevice, InterruptBus {
     Memory[] banks;
     Memory[] blocks;
+    int[] currBlockBanks;
     int [][]blockBanks;
     byte[] charmap;
     byte[] portData = new byte[256];
@@ -42,37 +44,48 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
     Deque<Byte> receiveData;
 
     boolean initialized;
+    boolean debug;
+    Debugger debugger;
 
-    public TerminalPanel() {
+    public TerminalPanel(boolean debug) {
         try {
+            this.debug = debug;
             banks = new Memory[15];
-            banks[0] = createBankFromFile("resident.bin", 0x4000);
+            banks[0] = createBankFromFile("resident.bin", 0x4000, true);
             banks[1] = createBank(0x4000);
             banks[2] = createBank(0x4000);
             banks[3] = createBank(0x4000);
             banks[4] = createBank(0x4000);
             banks[5] = createBank(0x4000, true);
             banks[6] = createBank(0x4000);
-            banks[7] = createBank(0x4000);
-            banks[8] = createBank(0x4000);
-            banks[9] = createBank(0x4000, true);
+            banks[7] = createBank(0x4000, true);
+            banks[8] = createBank(0x4000, true);
+            banks[9] = createBank(0x4000);
             banks[10] = null;
             banks[11] = createBank(0x4000);
             banks[12] = createBank(0x4000);
-            banks[13] = createBankFromFile("16krom.bin", 0x4000);
+            banks[13] = createBankFromFile("16krom.bin", 0x4000, true);
             banks[14] = createBank(0x4000);
 
+            try {
+                byte[] nvram = Files.readAllBytes(Path.of("nvram.bin"));
+                System.arraycopy(nvram, 0, banks[6].data, 0, nvram.length);
+            } catch (IOException exc) {
+                System.out.println("Unable to read nvram.bin: "+exc.getMessage());
+            }
             blocks = new Memory[4];
             blocks[0] = banks[0];
             blocks[1] = banks[6];
             blocks[2] = banks[5];
             blocks[3] = banks[4];
 
+            currBlockBanks = new int[] { 0, 6, 5, 4};
+
             blockBanks = new int[][] {
-                    new int[] { 0, 7, 1, 14},
-                    new int[] { 6, 8, 13, 2},
-                    new int[] { 5, 3, 11, 9},
-                    new int[] { 4, 6, 12, 9}
+                    new int[] { 0, 9, 1, 14},
+                    new int[] { 6, 10, 13, 2},
+                    new int[] { 5, 3, 11, 7},
+                    new int[] { 4, 6, 12, 8}
             };
             charmap = Files.readAllBytes(Path.of("chargen.bin"));
             lastBlinkTime = System.currentTimeMillis();
@@ -91,6 +104,9 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
             sendData = new ArrayDeque<>();
 
             z80 = new Z80Core(this, this);
+            if (debug) {
+                this.debugger = new Debugger(z80, this, banks, currBlockBanks, this);
+            }
 
             (new Thread(this)).start();
 
@@ -102,7 +118,7 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
         }
     }
 
-    public Memory createBankFromFile(String filename, int bankSize) {
+    public Memory createBankFromFile(String filename, int bankSize, boolean readOnly) {
         try {
             byte[] data = Files.readAllBytes(Path.of(filename));
             if (data.length < bankSize) {
@@ -110,7 +126,7 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
                 System.arraycopy(data, 0, newData, 0, data.length);
                 data = newData;
             }
-            return new Memory(data, true);
+            return new Memory(data, readOnly);
         } catch (Exception exc) {
             System.err.println("Error loading ROM file: "+filename);
             exc.printStackTrace();
@@ -221,6 +237,7 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
         if (address == 0x70) {
             for (int blockNum = 0; blockNum < 4; blockNum++) {
                 blocks[blockNum] = banks[blockBanks[blockNum][data & 3]];
+                currBlockBanks[blockNum] = blockBanks[blockNum][data & 3];
                 data = data >> 2;
             }
         } else {
@@ -232,6 +249,7 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
     public int readByte(int address) {
         address = address & 0xffff;
         Memory block = blocks[address >> 14];
+
         return block.getData(address & 0x3fff);
     }
 
@@ -248,6 +266,15 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
         address = address & 0xffff;
         data = data & 0xff;
         Memory block = blocks[address >> 14];
+/*        if (currBlockBanks[address >> 14] == 6 && ((address & 0x3fff) < 0x100)) {
+            System.out.printf("Truncating write to %04x\n", address);
+            data = data & 0xff;
+            if ((address & 0x3fff) == 0x1f) {
+                data = 0x0c;
+            }
+        }
+
+ */
         block.putData(address & 0x3fff, data);
         if ((address >= 0xe110) && (address <= 0xffff)) {
 //           System.out.printf("Write %02x to video ram at %04x\n", value, address & 0xffff);
@@ -326,7 +353,11 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
                 boolean showPC = false;
                 int pc = z80.getProgramCounter() & 0xffff;
 
-                z80.executeOneInstruction();
+                if (this.debug) {
+                    this.debugger.step();
+                } else {
+                    z80.executeOneInstruction();
+                }
 
                 pc = z80.getProgramCounter() & 0xffff;
                 if (showPC) {

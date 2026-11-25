@@ -1519,260 +1519,20 @@ clear_buffers:
 	inc b			;08ca	04 	. 
 	inc b			;08cb	04 	. 
 	inc b			;08cc	04 	. 
-	ld b,l			;08cd	45 	E 
-	ld c,(hl)			;08ce	4e 	N 
-	ld d,h			;08cf	54 	T 
-	ld b,l			;08d0	45 	E 
-	ld d,d			;08d1	52 	R 
-	jr nz,$+67		;08d2	20 41 	  A 
-	ld b,e			;08d4	43 	C 
-	ld b,e			;08d5	43 	C 
-	ld b,l			;08d6	45 	E 
-	ld d,e			;08d7	53 	S 
-	ld d,e			;08d8	53 	S 
-	jr nz,$+69		;08d9	20 43 	  C 
-	ld c,a			;08db	4f 	O 
-	ld b,h			;08dc	44 	D 
-	ld b,l			;08dd	45 	E 
-	jr nz,$+1		;08de	20 ff 	  . 
-	inc b			;08e0	04 	. 
-	add a,h			;08e1	84 	. 
-	add a,h			;08e2	84 	. 
-	add a,h			;08e3	84 	. 
-	add a,h			;08e4	84 	. 
-	ld b,l			;08e5	45 	E 
-	ld c,(hl)			;08e6	4e 	N 
-	ld d,h			;08e7	54 	T 
-	ld b,l			;08e8	45 	E 
-	ld d,d			;08e9	52 	R 
-	jr nz,$+79		;08ea	20 4d 	  M 
-	ld c,a			;08ec	4f 	O 
-	ld b,h			;08ed	44 	D 
-	ld b,l			;08ee	45 	E 
-	jr nz,$+112		;08ef	20 6e 	  n 
-	jr nz,$+42		;08f1	20 28 	  ( 
-	ld sp,0362dh		;08f3	31 2d 36 	1 - 6 
-	add hl,hl			;08f6	29 	) 
-	jr nz,$+1		;08f7	20 ff 	  . 
-	ld d,b			;08f9	50 	P 
-	ld b,(hl)			;08fa	46 	F 
-	ld c,l			;08fb	4d 	M 
-	ld c,a			;08fc	4f 	O 
-	ld b,h			;08fd	44 	D 
-	ld b,l			;08fe	45 	E 
-	jr nz,$+51		;08ff	20 31 	  1 
-	jr nz,$+72		;0901	20 46 	  F 
-	ld c,l			;0903	4d 	M 
-	ld c,a			;0904	4f 	O 
-	ld b,h			;0905	44 	D 
-	ld b,l			;0906	45 	E 
-	jr nz,$+52		;0907	20 32 	  2 
-	jr nz,$+72		;0909	20 46 	  F 
-	ld c,l			;090b	4d 	M 
-	ld c,a			;090c	4f 	O 
-	ld b,h			;090d	44 	D 
-	ld b,l			;090e	45 	E 
-	jr nz,$+53		;090f	20 33 	  3 
-	jr nz,$+72		;0911	20 46 	  F 
-	ld c,l			;0913	4d 	M 
-	ld c,a			;0914	4f 	O 
-	ld b,h			;0915	44 	D 
-	ld b,l			;0916	45 	E 
-	jr nz,$+54		;0917	20 34 	  4 
-	jr nz,$+72		;0919	20 46 	  F 
-	ld c,l			;091b	4d 	M 
-	ld c,a			;091c	4f 	O 
-	ld b,h			;091d	44 	D 
-	ld b,l			;091e	45 	E 
-	jr nz,$+55		;091f	20 35 	  5 
-	jr nz,$+72		;0921	20 46 	  F 
-	ld c,l			;0923	4d 	M 
-	ld c,a			;0924	4f 	O 
-	ld b,h			;0925	44 	D 
-	ld b,l			;0926	45 	E 
-	jr nz,$+56		;0927	20 36 	  6 
-	jr nz,$+34		;0929	20 20 	    
-	ld b,(hl)			;092b	46 	F 
-	ld c,l			;092c	4d 	M 
-	ld c,a			;092d	4f 	O 
-	ld b,h			;092e	44 	D 
-	ld b,l			;092f	45 	E 
-	jr nz,$+57		;0930	20 37 	  7 
-	jr nz,$+72		;0932	20 46 	  F 
-	ld d,h			;0934	54 	T 
-	ld b,l			;0935	45 	E 
-	ld d,d			;0936	52 	R 
-	ld c,l			;0937	4d 	M 
-	ld c,(hl)			;0938	4e 	N 
-	ld c,h			;0939	4c 	L 
-	jr nz,$+72		;093a	20 46 	  F 
-	jr nz,$+34		;093c	20 20 	    
-	jr nz,$+34		;093e	20 20 	    
-	jr nz,$+34		;0940	20 20 	    
-	jr nz,$+72		;0942	20 46 	  F 
-	jr nz,$+34		;0944	20 20 	    
-	jr nz,$+34		;0946	20 20 	    
-	jr nz,$+34		;0948	20 20 	    
-	ld d,b			;094a	50 	P 
-	ld sp,05943h		;094b	31 43 59 	1 C Y 
-	ld b,d			;094e	42 	B 
-	ld b,l			;094f	45 	E 
-	ld d,d			;0950	52 	R 
-	jr nz,$+34		;0951	20 20 	    
-	ld (04c50h),a		;0953	32 50 4c 	2 P L 
-	ld b,c			;0956	41 	A 
-	ld d,h			;0957	54 	T 
-	ld c,a			;0958	4f 	O 
-	jr nz,$+34		;0959	20 20 	    
-	inc sp			;095b	33 	3 
-	jr nz,$+90		;095c	20 58 	  X 
-	ld e,b			;095e	58 	X 
-	ld e,b			;095f	58 	X 
-	ld e,b			;0960	58 	X 
-	jr nz,$+34		;0961	20 20 	    
-	inc (hl)			;0963	34 	4 
-	jr nz,$+90		;0964	20 58 	  X 
-	ld e,b			;0966	58 	X 
-	ld e,b			;0967	58 	X 
-	ld e,b			;0968	58 	X 
-	jr nz,$+34		;0969	20 20 	    
-	dec (hl)			;096b	35 	5 
-	jr nz,$+90		;096c	20 58 	  X 
-	ld e,b			;096e	58 	X 
-	ld e,b			;096f	58 	X 
-	ld e,b			;0970	58 	X 
-	jr nz,$+34		;0971	20 20 	    
-	ld (hl),020h		;0973	36 20 	6   
-	ld e,b			;0975	58 	X 
-	ld e,b			;0976	58 	X 
-	ld e,b			;0977	58 	X 
-	ld e,b			;0978	58 	X 
-	jr nz,$+34		;0979	20 20 	    
-	jr nz,$+57		;097b	20 37 	  7 
-	jr nz,$+82		;097d	20 50 	  P 
-	ld b,c			;097f	41 	A 
-	ld b,e			;0980	43 	C 
-	ld c,e			;0981	4b 	K 
-	jr nz,$+34		;0982	20 20 	    
-	jr c,$+34		;0984	38 20 	8   
-	ld d,h			;0986	54 	T 
-	ld b,l			;0987	45 	E 
-	ld d,e			;0988	53 	S 
-	ld d,h			;0989	54 	T 
-	jr nz,$+34		;098a	20 20 	    
-	add hl,sp			;098c	39 	9 
-	jr nz,$+34		;098d	20 20 	    
-	jr nz,$+34		;098f	20 20 	    
-	jr nz,$+34		;0991	20 20 	    
-	ld sp,02030h		;0993	31 30 20 	1 0   
-	jr nz,$+34		;0996	20 20 	    
-	jr nz,$+34		;0998	20 20 	    
-	jr nz,$+42		;099a	20 28 	  ( 
-	ld b,(hl)			;099c	46 	F 
-	ld (hl),d			;099d	72 	r 
-	ld h,l			;099e	65 	e 
-	ld (hl),h			;099f	74 	t 
-	ld (hl),l			;09a0	75 	u 
-	ld (hl),d			;09a1	72 	r 
-	ld l,(hl)			;09a2	6e 	n 
-	jr nz,$+72		;09a3	20 46 	  F 
-	ld b,e			;09a5	43 	C 
-	ld c,a			;09a6	4f 	O 
-	ld c,(hl)			;09a7	4e 	N 
-	ld b,(hl)			;09a8	46 	F 
-	ld c,c			;09a9	49 	I 
-	ld b,a			;09aa	47 	G 
-	jr nz,$+72		;09ab	20 46 	  F 
-	ld b,e			;09ad	43 	C 
-	ld c,a			;09ae	4f 	O 
-	ld c,(hl)			;09af	4e 	N 
-	ld b,(hl)			;09b0	46 	F 
-	ld c,c			;09b1	49 	I 
-	ld b,a			;09b2	47 	G 
-	jr nz,$+72		;09b3	20 46 	  F 
-	ld b,e			;09b5	43 	C 
-	ld c,a			;09b6	4f 	O 
-	ld c,(hl)			;09b7	4e 	N 
-	ld b,(hl)			;09b8	46 	F 
-	ld c,c			;09b9	49 	I 
-	ld b,a			;09ba	47 	G 
-	jr nz,$+72		;09bb	20 46 	  F 
-	ld b,e			;09bd	43 	C 
-	ld c,a			;09be	4f 	O 
-	ld c,(hl)			;09bf	4e 	N 
-	ld b,(hl)			;09c0	46 	F 
-	ld c,c			;09c1	49 	I 
-	ld b,a			;09c2	47 	G 
-	jr nz,$+42		;09c3	20 28 	  ( 
-	ld b,(hl)			;09c5	46 	F 
-	ld b,c			;09c6	41 	A 
-	ld d,e			;09c7	53 	S 
-	jr nz,$+90		;09c8	20 58 	  X 
-	jr nz,$+91		;09ca	20 59 	  Y 
-	jr nz,$+34		;09cc	20 20 	    
-	ld b,(hl)			;09ce	46 	F 
-	ld c,h			;09cf	4c 	L 
-	jr nz,$+34		;09d0	20 20 	    
-	ld c,c			;09d2	49 	I 
-	ld b,h			;09d3	44 	D 
-	jr nz,$+34		;09d4	20 20 	    
-	ld b,(hl)			;09d6	46 	F 
-	ld d,b			;09d7	50 	P 
-	ld c,a			;09d8	4f 	O 
-	ld d,d			;09d9	52 	R 
-	ld d,h			;09da	54 	T 
-	jr nz,$+67		;09db	20 41 	  A 
-	jr nz,$+72		;09dd	20 46 	  F 
-	ld d,b			;09df	50 	P 
-	ld c,a			;09e0	4f 	O 
-	ld d,d			;09e1	52 	R 
-	ld d,h			;09e2	54 	T 
-	jr nz,$+68		;09e3	20 42 	  B 
-	jr nz,$+72		;09e5	20 46 	  F 
-	ld l,c			;09e7	69 	i 
-	ld l,(hl)			;09e8	6e 	n 
-	ld (hl),e			;09e9	73 	s 
-	ld (hl),h			;09ea	74 	t 
-	ld l,h			;09eb	6c 	l 
-	jr nz,$+76		;09ec	20 4a 	  J 
-	ld sp,02020h		;09ee	31 20 20 	1     
-	jr nz,$+34		;09f1	20 20 	    
-	jr nz,$+34		;09f3	20 20 	    
-	jr nz,$+52		;09f5	20 32 	  2 
-	jr nz,$+34		;09f7	20 20 	    
-	jr nz,$+34		;09f9	20 20 	    
-	jr nz,$+34		;09fb	20 20 	    
-	jr nz,$+53		;09fd	20 33 	  3 
-	jr nz,$+34		;09ff	20 20 	    
-	jr nz,$+34		;0a01	20 20 	    
-	jr nz,$+34		;0a03	20 20 	    
-	jr nz,$+54		;0a05	20 34 	  4 
-	jr nz,$+34		;0a07	20 20 	    
-	jr nz,$+34		;0a09	20 20 	    
-	jr nz,$+34		;0a0b	20 20 	    
-	jr nz,$+55		;0a0d	20 35 	  5 
-	jr nz,$+34		;0a0f	20 20 	    
-	jr nz,$+34		;0a11	20 20 	    
-	jr nz,$+34		;0a13	20 20 	    
-	jr nz,$+56		;0a15	20 36 	  6 
-	jr nz,$+34		;0a17	20 20 	    
-	jr nz,$+34		;0a19	20 20 	    
-	jr nz,$+34		;0a1b	20 20 	    
-	jr nz,$+34		;0a1d	20 20 	    
-	scf			;0a1f	37 	7 
-	jr nz,$+34		;0a20	20 20 	    
-	jr nz,$+34		;0a22	20 20 	    
-	jr nz,$+34		;0a24	20 20 	    
-	jr nz,$+58		;0a26	20 38 	  8 
-	jr nz,$+34		;0a28	20 20 	    
-	jr nz,$+34		;0a2a	20 20 	    
-	jr nz,$+34		;0a2c	20 20 	    
-	jr nz,$+59		;0a2e	20 39 	  9 
-	jr nz,$+34		;0a30	20 20 	    
-	jr nz,$+34		;0a32	20 20 	    
-	jr nz,$+34		;0a34	20 20 	    
-	ld sp,00630h		;0a36	31 30 06 	1 0 . 
-	ld l,l			;0a39	6d 	m 
+	defm "ENTER ACCESS CODE " ;08cd
+	defb ffh, 04h, 84h, 84h, 84h, 84h
+        ;  08e5
+        defm "ENTER MODE n (1-6) "
+        defb ffh
+        ;;  08f9
+        defm "PFMODE 1 FMODE 2 FMODE 3 FMODE 4 FMODE 5 FMODE 6 FMODE 7 FTERMNL F       F      "
+        ;; 094a
+        defm "P1CYBER  2PLATO  3 XXXX  4 XXXX  5 XXXX  6 XXXX  7 PACK  8 TEST  9      10     "
+        ;; 099b
+        defm "(Freturn FCONFIG FCONFIG FCONFIG FCONFIG (FAS X Y  FL  ID  FPORT B Finstl"
+        defm " 1       2       3       4       5       6       7       9       9      10"
+        defb 06h
+        ld l,l			;0a39	6d 	m 
 	ld l,a			;0a3a	6f 	o 
 	ld h,h			;0a3b	64 	d 
 	ld h,l			;0a3c	65 	e 
@@ -1840,41 +1600,11 @@ clear_buffers:
 	inc b			;0a8d	04 	. 
 	inc b			;0a8e	04 	. 
 	inc b			;0a8f	04 	. 
-	inc b			;0a90	04 	. 
-	jr z,$+72		;0a91	28 46 	( F 
-	ld c,a			;0a93	4f 	O 
-	ld d,b			;0a94	50 	P 
-	ld d,d			;0a95	52 	R 
-	jr nz,$+70		;0a96	20 44 	  D 
-	ld b,(hl)			;0a98	46 	F 
-	jr nz,$+34		;0a99	20 20 	    
-	ld b,(hl)			;0a9b	46 	F 
-	ld b,c			;0a9c	41 	A 
-	dec l			;0a9d	2d 	- 
-	ld b,h			;0a9e	44 	D 
-	ld c,c			;0a9f	49 	I 
-	ld b,c			;0aa0	41 	A 
-	ld c,h			;0aa1	4c 	L 
-	jr nz,$+72		;0aa2	20 46 	  F 
-	ld b,c			;0aa4	41 	A 
-	dec l			;0aa5	2d 	- 
-	ld b,h			;0aa6	44 	D 
-	ld c,c			;0aa7	49 	I 
-	ld b,c			;0aa8	41 	A 
-	ld c,h			;0aa9	4c 	L 
-	jr nz,$+72		;0aaa	20 46 	  F 
-	ld b,h			;0aac	44 	D 
-	ld b,(hl)			;0aad	46 	F 
-	jr nz,$+86		;0aae	20 54 	  T 
-	jr nz,$+84		;0ab0	20 52 	  R 
-	jr nz,$+72		;0ab2	20 46 	  F 
-	ld b,c			;0ab4	41 	A 
-	ld b,e			;0ab5	43 	C 
-	ld b,e			;0ab6	43 	C 
-	ld b,l			;0ab7	45 	E 
-	ld d,e			;0ab8	53 	S 
-	ld d,e			;0ab9	53 	S 
-	jr z,$+2		;0aba	28 00 	( . 
+	inc b			;0a90	04 	.
+        ;; 0a91
+        defm "(FOPR D F  FA-DIAL FA-DIAL FDF T R FACCESS("
+        ;;  0abb
+        defb 00h
 	inc b			;0abc	04 	. 
 	call po,0e4e4h		;0abd	e4 e4 e4 	. . . 
 	call po,00004h		;0ac0	e4 04 00 	. . . 
@@ -1894,338 +1624,35 @@ clear_buffers:
 	nop			;0adc	00 	. 
 	inc b			;0add	04 	. 
 	call po,0e4e4h		;0ade	e4 e4 e4 	. . . 
-	call po,04504h		;0ae1	e4 04 45 	. . E 
-	ld c,(hl)			;0ae4	4e 	N 
-	ld d,h			;0ae5	54 	T 
-	ld b,l			;0ae6	45 	E 
-	ld d,d			;0ae7	52 	R 
-	jr nz,$+79		;0ae8	20 4d 	  M 
-	ld c,a			;0aea	4f 	O 
-	ld b,h			;0aeb	44 	D 
-	ld b,l			;0aec	45 	E 
-	jr nz,$+80		;0aed	20 4e 	  N 
-	ld b,c			;0aef	41 	A 
-	ld c,l			;0af0	4d 	M 
-	ld b,l			;0af1	45 	E 
-	jr nz,$+1		;0af2	20 ff 	  . 
-	inc b			;0af4	04 	. 
-	add a,h			;0af5	84 	. 
-	add a,h			;0af6	84 	. 
-	add a,h			;0af7	84 	. 
-	add a,h			;0af8	84 	. 
-	ld b,(hl)			;0af9	46 	F 
-	ld b,c			;0afa	41 	A 
-	ld c,c			;0afb	49 	I 
-	ld c,h			;0afc	4c 	L 
-	ld d,l			;0afd	55 	U 
-	ld d,d			;0afe	52 	R 
-	ld b,l			;0aff	45 	E 
-	jr nz,$+78		;0b00	20 4c 	  L 
-	ld c,a			;0b02	4f 	O 
-	ld b,c			;0b03	41 	A 
-	ld b,h			;0b04	44 	D 
-	ld c,c			;0b05	49 	I 
-	ld c,(hl)			;0b06	4e 	N 
-	ld b,a			;0b07	47 	G 
-	jr nz,$+79		;0b08	20 4d 	  M 
-	ld c,a			;0b0a	4f 	O 
-	ld b,h			;0b0b	44 	D 
-	ld b,l			;0b0c	45 	E 
-	rst 38h			;0b0d	ff 	. 
-	ld d,e			;0b0e	53 	S 
-	ld c,a			;0b0f	4f 	O 
-	ld d,d			;0b10	52 	R 
-	ld d,d			;0b11	52 	R 
-	ld e,c			;0b12	59 	Y 
-	rst 38h			;0b13	ff 	. 
-	ld d,b			;0b14	50 	P 
-	ld b,(hl)			;0b15	46 	F 
-	ld (hl),d			;0b16	72 	r 
-	ld h,l			;0b17	65 	e 
-	ld (hl),h			;0b18	74 	t 
-	ld (hl),l			;0b19	75 	u 
-	ld (hl),d			;0b1a	72 	r 
-	ld l,(hl)			;0b1b	6e 	n 
-	jr nz,$+72		;0b1c	20 46 	  F 
-	jr nz,$+78		;0b1e	20 4c 	  L 
-	ld c,c			;0b20	49 	I 
-	ld c,(hl)			;0b21	4e 	N 
-	ld b,l			;0b22	45 	E 
-	jr nz,$+34		;0b23	20 20 	    
-	ld b,(hl)			;0b25	46 	F 
-	ld d,b			;0b26	50 	P 
-	ld d,d			;0b27	52 	R 
-	ld c,c			;0b28	49 	I 
-	ld c,(hl)			;0b29	4e 	N 
-	ld d,h			;0b2a	54 	T 
-	ld d,d			;0b2b	52 	R 
-	jr nz,$+72		;0b2c	20 46 	  F 
-	ld c,l			;0b2e	4d 	M 
-	ld b,c			;0b2f	41 	A 
-	ld d,d			;0b30	52 	R 
-	ld b,a			;0b31	47 	G 
-	ld c,c			;0b32	49 	I 
-	ld c,(hl)			;0b33	4e 	N 
-	jr nz,$+72		;0b34	20 46 	  F 
-	ld b,c			;0b36	41 	A 
-	ld c,h			;0b37	4c 	L 
-	ld b,l			;0b38	45 	E 
-	ld d,d			;0b39	52 	R 
-	ld d,h			;0b3a	54 	T 
-	jr nz,$+34		;0b3b	20 20 	    
-	ld b,(hl)			;0b3d	46 	F 
-	jr nz,$+78		;0b3e	20 4c 	  L 
-	ld c,a			;0b40	4f 	O 
-	ld b,e			;0b41	43 	C 
-	ld c,e			;0b42	4b 	K 
-	jr nz,$+34		;0b43	20 20 	    
-	jr nz,$+72		;0b45	20 46 	  F 
-	ld c,(hl)			;0b47	4e 	N 
-	jr nz,$+82		;0b48	20 50 	  P 
-	ld b,c			;0b4a	41 	A 
-	ld b,h			;0b4b	44 	D 
-	jr nz,$+34		;0b4c	20 20 	    
-	ld b,(hl)			;0b4e	46 	F 
-	ld d,e			;0b4f	53 	S 
-	ld b,e			;0b50	43 	C 
-	ld d,d			;0b51	52 	R 
-	ld b,l			;0b52	45 	E 
-	ld b,l			;0b53	45 	E 
-	ld c,(hl)			;0b54	4e 	N 
-	jr nz,$+72		;0b55	20 46 	  F 
-	ld b,e			;0b57	43 	C 
-	ld e,c			;0b58	59 	Y 
-	ld b,d			;0b59	42 	B 
-	ld b,l			;0b5a	45 	E 
-	ld d,d			;0b5b	52 	R 
-	jr nz,$+34		;0b5c	20 20 	    
-	ld b,(hl)			;0b5e	46 	F 
-	jr nz,$+79		;0b5f	20 4d 	  M 
-	ld c,a			;0b61	4f 	O 
-	ld d,d			;0b62	52 	R 
-	ld b,l			;0b63	45 	E 
-	jr nz,$+73		;0b64	20 47 	  G 
-	ld b,d			;0b66	42 	B 
-	ld b,c			;0b67	41 	A 
-	ld b,e			;0b68	43 	C 
-	ld c,e			;0b69	4b 	K 
-	ld b,a			;0b6a	47 	G 
-	ld b,h			;0b6b	44 	D 
-	jr nz,$+72		;0b6c	20 46 	  F 
-	ld b,e			;0b6e	43 	C 
-	ld d,l			;0b6f	55 	U 
-	ld d,d			;0b70	52 	R 
-	ld d,e			;0b71	53 	S 
-	ld c,a			;0b72	4f 	O 
-	ld d,d			;0b73	52 	R 
-	jr nz,$+72		;0b74	20 46 	  F 
-	ld b,e			;0b76	43 	C 
-	ld d,l			;0b77	55 	U 
-	ld d,d			;0b78	52 	R 
-	ld d,e			;0b79	53 	S 
-	ld c,a			;0b7a	4f 	O 
-	ld d,d			;0b7b	52 	R 
-	jr nz,$+72		;0b7c	20 46 	  F 
-	jr nz,$+68		;0b7e	20 42 	  B 
-	ld b,c			;0b80	41 	A 
-	ld d,l			;0b81	55 	U 
-	ld b,h			;0b82	44 	D 
-	jr nz,$+34		;0b83	20 20 	    
-	ld b,(hl)			;0b85	46 	F 
-	ld b,h			;0b86	44 	D 
-	ld d,l			;0b87	55 	U 
-	ld d,b			;0b88	50 	P 
-	ld c,h			;0b89	4c 	L 
-	ld b,l			;0b8a	45 	E 
-	ld e,b			;0b8b	58 	X 
-	jr nz,$+34		;0b8c	20 20 	    
-	ld b,(hl)			;0b8e	46 	F 
-	ld b,e			;0b8f	43 	C 
-	ld c,b			;0b90	48 	H 
-	ld d,d			;0b91	52 	R 
-	cpl			;0b92	2f 	/ 
-	ld c,h			;0b93	4c 	L 
-	ld c,(hl)			;0b94	4e 	N 
-	jr nz,$+72		;0b95	20 46 	  F 
-	ld c,h			;0b97	4c 	L 
-	ld c,c			;0b98	49 	I 
-	ld c,(hl)			;0b99	4e 	N 
-	ld b,l			;0b9a	45 	E 
-	ld d,e			;0b9b	53 	S 
-	jr nz,$+34		;0b9c	20 20 	    
-	ld b,(hl)			;0b9e	46 	F 
-	ld e,b			;0b9f	58 	X 
-	ld d,b			;0ba0	50 	P 
-	ld b,c			;0ba1	41 	A 
-	ld d,d			;0ba2	52 	R 
-	ld c,(hl)			;0ba3	4e 	N 
-	ld d,h			;0ba4	54 	T 
-	jr nz,$+72		;0ba5	20 46 	  F 
-	jr nz,$+111		;0ba7	20 6d 	  m 
-	ld l,a			;0ba9	6f 	o 
-	ld h,h			;0baa	64 	d 
-	ld h,l			;0bab	65 	e 
-	jr nz,$+8		;0bac	20 06 	  . 
-	ld d,e			;0bae	53 	S 
-	ld b,l			;0baf	45 	E 
-	ld c,h			;0bb0	4c 	L 
-	ld b,l			;0bb1	45 	E 
-	ld b,e			;0bb2	43 	C 
-	ld d,h			;0bb3	54 	T 
-	jr nz,$+34		;0bb4	20 20 	    
-	ld c,a			;0bb6	4f 	O 
-	ld b,(hl)			;0bb7	46 	F 
-	ld b,(hl)			;0bb8	46 	F 
-	jr nz,$+34		;0bb9	20 20 	    
-	jr nz,$+81		;0bbb	20 4f 	  O 
-	ld c,(hl)			;0bbd	4e 	N 
-	jr nz,$+34		;0bbe	20 20 	    
-	jr nz,$+85		;0bc0	20 53 	  S 
-	ld c,a			;0bc2	4f 	O 
-	ld b,(hl)			;0bc3	46 	F 
-	ld d,h			;0bc4	54 	T 
-	jr nz,$+34		;0bc5	20 20 	    
-	ld c,h			;0bc7	4c 	L 
-	ld c,a			;0bc8	4f 	O 
-	ld d,l			;0bc9	55 	U 
-	ld b,h			;0bca	44 	D 
-	jr nz,$+34		;0bcb	20 20 	    
-	ld b,c			;0bcd	41 	A 
-	ld c,h			;0bce	4c 	L 
-	ld d,b			;0bcf	50 	P 
-	ld c,b			;0bd0	48 	H 
-	ld b,c			;0bd1	41 	A 
-	jr nz,$+85		;0bd2	20 53 	  S 
-	ld c,b			;0bd4	48 	H 
-	ld c,c			;0bd5	49 	I 
-	ld b,(hl)			;0bd6	46 	F 
-	ld d,h			;0bd7	54 	T 
-	ld c,(hl)			;0bd8	4e 	N 
-	ld c,a			;0bd9	4f 	O 
-	ld d,d			;0bda	52 	R 
-	ld c,l			;0bdb	4d 	M 
-	ld b,c			;0bdc	41 	A 
-	ld c,h			;0bdd	4c 	L 
-	jr nz,$+84		;0bde	20 52 	  R 
-	ld c,a			;0be0	4f 	O 
-	ld c,h			;0be1	4c 	L 
-	ld c,h			;0be2	4c 	L 
-	jr nz,$+34		;0be3	20 20 	    
-	ld d,b			;0be5	50 	P 
-	ld b,c			;0be6	41 	A 
-	ld b,a			;0be7	47 	G 
-	ld b,l			;0be8	45 	E 
-	jr nz,$+34		;0be9	20 20 	    
-	ld d,e			;0beb	53 	S 
-	ld c,l			;0bec	4d 	M 
-	ld b,c			;0bed	41 	A 
-	ld c,h			;0bee	4c 	L 
-	ld c,h			;0bef	4c 	L 
-	jr nz,$+78		;0bf0	20 4c 	  L 
-	ld b,c			;0bf2	41 	A 
-	ld d,d			;0bf3	52 	R 
-	ld b,a			;0bf4	47 	G 
-	ld b,l			;0bf5	45 	E 
-	jr nz,$+70		;0bf6	20 44 	  D 
-	ld b,c			;0bf8	41 	A 
-	ld d,d			;0bf9	52 	R 
-	ld c,e			;0bfa	4b 	K 
-	jr nz,$+34		;0bfb	20 20 	    
-	ld c,h			;0bfd	4c 	L 
-	ld c,c			;0bfe	49 	I 
-	ld b,a			;0bff	47 	G 
-	ld c,b			;0c00	48 	H 
-	ld d,h			;0c01	54 	T 
-	jr nz,$+78		;0c02	20 4c 	  L 
-	ld c,c			;0c04	49 	I 
-	ld c,(hl)			;0c05	4e 	N 
-	ld b,l			;0c06	45 	E 
-	jr nz,$+34		;0c07	20 20 	    
-	ld b,d			;0c09	42 	B 
-	ld c,h			;0c0a	4c 	L 
-	ld c,a			;0c0b	4f 	O 
-	ld b,e			;0c0c	43 	C 
-	ld c,e			;0c0d	4b 	K 
-	jr nz,$+68		;0c0e	20 42 	  B 
-	ld c,h			;0c10	4c 	L 
-	ld c,c			;0c11	49 	I 
-	ld c,(hl)			;0c12	4e 	N 
-	ld c,e			;0c13	4b 	K 
-	jr nz,$+85		;0c14	20 53 	  S 
-	ld c,a			;0c16	4f 	O 
-	ld c,h			;0c17	4c 	L 
-	ld c,c			;0c18	49 	I 
-	ld b,h			;0c19	44 	D 
-	jr nz,$+74		;0c1a	20 48 	  H 
-	ld b,c			;0c1c	41 	A 
-	ld c,h			;0c1d	4c 	L 
-	ld b,(hl)			;0c1e	46 	F 
-	jr nz,$+34		;0c1f	20 20 	    
-	ld b,(hl)			;0c21	46 	F 
-	ld d,l			;0c22	55 	U 
-	ld c,h			;0c23	4c 	L 
-	ld c,h			;0c24	4c 	L 
-	jr nz,$+34		;0c25	20 20 	    
-	jr nz,$+58		;0c27	20 38 	  8 
-	jr nc,$+34		;0c29	30 20 	0   
-	jr nz,$+34		;0c2b	20 20 	    
-	jr nz,$+51		;0c2d	20 31 	  1 
-	inc sp			;0c2f	33 	3 
-	ld (02020h),a		;0c30	32 20 20 	2     
-	jr nz,$+52		;0c33	20 32 	  2 
-	inc (hl)			;0c35	34 	4 
-	jr nz,$+34		;0c36	20 20 	    
-	jr nz,$+34		;0c38	20 20 	    
-	inc sp			;0c3a	33 	3 
-	jr nc,$+34		;0c3b	30 20 	0   
-	jr nz,$+34		;0c3d	20 20 	    
-	ld e,d			;0c3f	5a 	Z 
-	ld b,l			;0c40	45 	E 
-	ld d,d			;0c41	52 	R 
-	ld c,a			;0c42	4f 	O 
-	jr nz,$+34		;0c43	20 20 	    
-	ld c,a			;0c45	4f 	O 
-	ld c,(hl)			;0c46	4e 	N 
-	ld b,l			;0c47	45 	E 
-	jr nz,$+34		;0c48	20 20 	    
-	jr nz,$+34		;0c4a	20 20 	    
-	scf			;0c4c	37 	7 
-	dec (hl)			;0c4d	35 	5 
-	jr nz,$+34		;0c4e	20 20 	    
-	jr nz,$+34		;0c50	20 20 	    
-	ld sp,03031h		;0c52	31 31 30 	1 1 0 
-	jr nz,$+34		;0c55	20 20 	    
-	jr nz,$+51		;0c57	20 31 	  1 
-	dec (hl)			;0c59	35 	5 
-	jr nc,$+34		;0c5a	30 20 	0   
-	jr nz,$+34		;0c5c	20 20 	    
-	ld (03030h),a		;0c5e	32 30 30 	2 0 0 
-	jr nz,$+34		;0c61	20 20 	    
-	jr nz,$+53		;0c63	20 33 	  3 
-	jr nc,$+50		;0c65	30 30 	0 0 
-	jr nz,$+34		;0c67	20 20 	    
-	jr nz,$+56		;0c69	20 36 	  6 
-	jr nc,$+50		;0c6b	30 30 	0 0 
-	jr nz,$+34		;0c6d	20 20 	    
-	ld sp,03032h		;0c6f	31 32 30 	1 2 0 
-	jr nc,$+34		;0c72	30 20 	0   
-	jr nz,$+51		;0c74	20 31 	  1 
-	jr c,$+50		;0c76	38 30 	8 0 
-	jr nc,$+34		;0c78	30 20 	0   
-	jr nz,$+52		;0c7a	20 32 	  2 
-	inc (hl)			;0c7c	34 	4 
-	jr nc,$+50		;0c7d	30 30 	0 0 
-	jr nz,$+34		;0c7f	20 20 	    
-	inc (hl)			;0c81	34 	4 
-	jr c,$+50		;0c82	38 30 	8 0 
-	jr nc,$+34		;0c84	30 20 	0   
-	jr nz,$+59		;0c86	20 39 	  9 
-	ld (hl),030h		;0c88	36 30 	6 0 
-	jr nc,$+34		;0c8a	30 20 	0   
-	jr nz,$+51		;0c8c	20 31 	  1 
-	add hl,sp			;0c8e	39 	9 
-	ld l,032h		;0c8f	2e 32 	. 2 
-	jr nz,$-49		;0c91	20 cd 	  . 
+	call po,04504h		;0ae1	e4 04 45 	. . E
+        ;; 0ae1
+        defb e4h, 04h, 45h
+        ;; 0ae4
+        defm "ENTER MODE NAME "
+        ;; 0af3
+        defb ffh, 04h, 84h, 84h, 84h, 84h
+        ;; 0af9
+        defm "FAILURE LOADING MODE"
+        defb ffh
+        ;; 0b0e
+        defm "SORRY"
+        defb ffh
+        ;; 0b14
+        defm "PFreturnFLINE  FPRINTR FMARGIN FALERT  F LOCK   FN PAD  FSCREEN "
+        ;; 0b55
+        defm "FCYBER  F MORE GBACKGD FCURSOR FCIRSPR F BAUD  FDUPLEX  FCHR/LN "
+        ;; 0b96
+        defm "FLINES  FXPARNT F mode "
+        defb 06
+        ;; 0bae
+        defm "SELECT  OFF   ON   SOFT  LOUD  ALPHA SHIFTNORMAL ROLL  PAGE  "
+        ;; 0beb
+        defm "SMALL LARGE DARK  LIGHT LINE  BLOCK BLINK SOLID HALF  FULL   "
+        ;; 0c28
+        defm "80    132   224    30   ZERO  ONE    75    110   150  "
+        ;;  0c5e
+        defm "200   300  1800  2400  4800  9600  1920 "
+        defb 0cdh
 	ld h,002h		;0c93	26 02 	& . 
 	call 001f7h		;0c95	cd f7 01 	. . . 
 	ei			;0c98	fb 	. 
@@ -10198,7 +9625,7 @@ clear_buffers:
 	ld a,008h		;3e47	3e 08 	> . 
 	out (BANKSELECT),a		;3e49	d3 70 	. p 
 	ret			;3e4b	c9 	. 
-	ld bc,00000h		;3e4c	01 00 00 	. . . 
+	ld bc,00000h		;3e4c	01 00 00 	. . .  CHECKSUM
 	ld l,000h		;3e4f	2e 00 	. . 
 	ld a,(hl)			;3e51	7e 	~ 
 	ld e,a			;3e52	5f 	_ 
@@ -10882,7 +10309,7 @@ clear_buffers:
 	call 03e0ch		;4275	cd 0c 3e 	. . > 
 	ld a,b			;4278	78 	x 
 	and a			;4279	a7 	. 
-	ld hl,04872h		;427a	21 72 48 	! r H 
+	ld hl,04872h		;427a	21 72 48 	! r H   fetch addr of "NVM"
 	call nz,04702h		;427d	c4 02 47 	. . G 
 	ld a,0f0h		;4280	3e f0 	> . 
 	ld (0cff3h),a		;4282	32 f3 cf 	2 . . 
@@ -11556,476 +10983,127 @@ clear_buffers:
 	pop af			;4803	f1 	. 
 	ei			;4804	fb 	. 
 	ret			;4805	c9 	. 
-	inc bc			;4806	03 	. 
-	ld c,042h		;4807	0e 42 	. B 
-	ld c,h			;4809	4c 	L 
-	ld c,c			;480a	49 	I 
-	ld c,(hl)			;480b	4e 	N 
-	ld c,e			;480c	4b 	K 
-	jr nz,$+17		;480d	20 0f 	  . 
-	inc e			;480f	1c 	. 
-	ld b,h			;4810	44 	D 
-	ld c,c			;4811	49 	I 
-	ld c,l			;4812	4d 	M 
-	jr nz,$+31		;4813	20 1d 	  . 
-	inc d			;4815	14 	. 
-	ld d,l			;4816	55 	U 
-	ld c,(hl)			;4817	4e 	N 
-	ld b,h			;4818	44 	D 
-	ld b,l			;4819	45 	E 
-	ld d,d			;481a	52 	R 
-	ld d,e			;481b	53 	S 
-	ld b,e			;481c	43 	C 
-	ld c,a			;481d	4f 	O 
-	ld d,d			;481e	52 	R 
-	ld b,l			;481f	45 	E 
-	dec d			;4820	15 	. 
-	jr nz,$+32		;4821	20 1e 	  . 
-	ld b,h			;4823	44 	D 
-	ld c,c			;4824	49 	I 
-	ld c,(hl)			;4825	4e 	N 
-	ld d,(hl)			;4826	56 	V 
-	ld b,l			;4827	45 	E 
-	ld d,d			;4828	52 	R 
-	ld d,e			;4829	53 	S 
-	ld b,l			;482a	45 	E 
-	ld e,045h		;482b	1e 45 	. E 
-	jr nz,$+32		;482d	20 1e 	  . 
-	ld (de),a			;482f	12 	. 
-	ld e,e			;4830	5b 	[ 
-	ld b,d			;4831	42 	B 
-	ld c,h			;4832	4c 	L 
-	ld b,c			;4833	41 	A 
-	ld c,(hl)			;4834	4e 	N 
-	ld c,e			;4835	4b 	K 
-	ld e,012h		;4836	1e 12 	. . 
-	ld e,h			;4838	5c 	\ 
-	rst 38h			;4839	ff 	. 
-	ld c,e			;483a	4b 	K 
-	ld b,l			;483b	45 	E 
-	ld e,c			;483c	59 	Y 
-	ld b,d			;483d	42 	B 
-	ld c,a			;483e	4f 	O 
-	ld b,c			;483f	41 	A 
-	ld d,d			;4840	52 	R 
-	ld b,h			;4841	44 	D 
-	jr nz,$+86		;4842	20 54 	  T 
-	ld b,l			;4844	45 	E 
-	ld d,e			;4845	53 	S 
-	ld d,h			;4846	54 	T 
-	ld a,(bc)			;4847	0a 	. 
-	rst 38h			;4848	ff 	. 
-	ld d,h			;4849	54 	T 
-	ld c,a			;484a	4f 	O 
-	ld d,l			;484b	55 	U 
-	ld b,e			;484c	43 	C 
-	ld c,b			;484d	48 	H 
-	jr nz,$+82		;484e	20 50 	  P 
-	ld b,c			;4850	41 	A 
-	ld c,(hl)			;4851	4e 	N 
-	ld b,l			;4852	45 	E 
-	ld c,h			;4853	4c 	L 
-	jr nz,$+71		;4854	20 45 	  E 
-	ld c,(hl)			;4856	4e 	N 
-	ld b,c			;4857	41 	A 
-	ld b,d			;4858	42 	B 
-	ld c,h			;4859	4c 	L 
-	ld b,l			;485a	45 	E 
-	ld b,h			;485b	44 	D 
-	ld a,(bc)			;485c	0a 	. 
-	rst 38h			;485d	ff 	. 
-	ld a,(bc)			;485e	0a 	. 
-	ld d,d			;485f	52 	R 
-	ld b,c			;4860	41 	A 
-	ld c,l			;4861	4d 	M 
-	rst 38h			;4862	ff 	. 
-	ld a,(bc)			;4863	0a 	. 
-	ld b,a			;4864	47 	G 
-	ld d,d			;4865	52 	R 
-	ld b,c			;4866	41 	A 
-	ld d,b			;4867	50 	P 
-	ld c,b			;4868	48 	H 
-	ld c,c			;4869	49 	I 
-	ld b,e			;486a	43 	C 
-	ld d,e			;486b	53 	S 
-	rst 38h			;486c	ff 	. 
-	ld a,(bc)			;486d	0a 	. 
-	ld d,d			;486e	52 	R 
-	ld c,a			;486f	4f 	O 
-	ld c,l			;4870	4d 	M 
-	rst 38h			;4871	ff 	. 
-	ld a,(bc)			;4872	0a 	. 
-	ld c,(hl)			;4873	4e 	N 
-	ld d,(hl)			;4874	56 	V 
-	ld c,l			;4875	4d 	M 
-	rst 38h			;4876	ff 	. 
-	djnz $+5		;4877	10 03 	. . 
-	ld a,(bc)			;4879	0a 	. 
-	ld a,(bc)			;487a	0a 	. 
-	ld b,e			;487b	43 	C 
-	ld c,a			;487c	4f 	O 
-	ld c,l			;487d	4d 	M 
-	ld c,l			;487e	4d 	M 
-	rst 38h			;487f	ff 	. 
-	djnz $+5		;4880	10 03 	. . 
-	inc c			;4882	0c 	. 
-	ld a,(bc)			;4883	0a 	. 
-	ld c,e			;4884	4b 	K 
-	ld b,l			;4885	45 	E 
-	ld e,c			;4886	59 	Y 
-	ld b,d			;4887	42 	B 
-	ld c,a			;4888	4f 	O 
-	ld b,c			;4889	41 	A 
-	ld d,d			;488a	52 	R 
-	ld b,h			;488b	44 	D 
-	rst 38h			;488c	ff 	. 
-	ld a,(bc)			;488d	0a 	. 
-	ld d,h			;488e	54 	T 
-	ld c,c			;488f	49 	I 
-	ld c,l			;4890	4d 	M 
-	ld b,l			;4891	45 	E 
-	ld d,d			;4892	52 	R 
-	rst 38h			;4893	ff 	. 
-	ld a,(bc)			;4894	0a 	. 
-	ld b,d			;4895	42 	B 
-	ld b,c			;4896	41 	A 
-	ld d,h			;4897	54 	T 
-	ld d,h			;4898	54 	T 
-	ld b,l			;4899	45 	E 
-	ld d,d			;489a	52 	R 
-	ld e,c			;489b	59 	Y 
-	jr nz,$+78		;489c	20 4c 	  L 
-	ld c,a			;489e	4f 	O 
-	ld d,a			;489f	57 	W 
-	rst 38h			;48a0	ff 	. 
-	ld a,(bc)			;48a1	0a 	. 
-	ld d,h			;48a2	54 	T 
-	ld b,l			;48a3	45 	E 
-	ld d,e			;48a4	53 	S 
-	ld d,h			;48a5	54 	T 
-	jr nz,$+85		;48a6	20 53 	  S 
-	ld d,a			;48a8	57 	W 
-	ld c,c			;48a9	49 	I 
-	ld d,h			;48aa	54 	T 
-	ld b,e			;48ab	43 	C 
-	ld c,b			;48ac	48 	H 
-	jr nz,$+71		;48ad	20 45 	  E 
-	ld c,(hl)			;48af	4e 	N 
-	ld b,c			;48b0	41 	A 
-	ld b,d			;48b1	42 	B 
-	ld c,h			;48b2	4c 	L 
-	ld b,l			;48b3	45 	E 
-	ld b,h			;48b4	44 	D 
-	rst 38h			;48b5	ff 	. 
-	ld d,h			;48b6	54 	T 
-	ld c,a			;48b7	4f 	O 
-	jr nz,$+84		;48b8	20 52 	  R 
-	ld d,l			;48ba	55 	U 
-	ld c,(hl)			;48bb	4e 	N 
-	jr nz,$+71		;48bc	20 45 	  E 
-	ld e,b			;48be	58 	X 
-	ld d,h			;48bf	54 	T 
-	ld b,l			;48c0	45 	E 
-	ld d,d			;48c1	52 	R 
-	ld c,(hl)			;48c2	4e 	N 
-	ld b,c			;48c3	41 	A 
-	ld c,h			;48c4	4c 	L 
-	jr nz,$+78		;48c5	20 4c 	  L 
-	ld c,a			;48c7	4f 	O 
-	ld c,a			;48c8	4f 	O 
-	ld d,b			;48c9	50 	P 
-	ld b,d			;48ca	42 	B 
-	ld b,c			;48cb	41 	A 
-	ld b,e			;48cc	43 	C 
-	ld c,e			;48cd	4b 	K 
-	dec l			;48ce	2d 	- 
-	ld b,l			;48cf	45 	E 
-	ld c,(hl)			;48d0	4e 	N 
-	ld b,c			;48d1	41 	A 
-	ld b,d			;48d2	42 	B 
-	ld c,h			;48d3	4c 	L 
-	ld b,l			;48d4	45 	E 
-	jr nz,$+86		;48d5	20 54 	  T 
-	ld b,l			;48d7	45 	E 
-	ld d,e			;48d8	53 	S 
-	ld d,h			;48d9	54 	T 
-	jr nz,$+85		;48da	20 53 	  S 
-	ld d,a			;48dc	57 	W 
-	ld c,c			;48dd	49 	I 
-	ld d,h			;48de	54 	T 
-	ld b,e			;48df	43 	C 
-	ld c,b			;48e0	48 	H 
-	ld b,l			;48e1	45 	E 
-	ld d,e			;48e2	53 	S 
-	rst 38h			;48e3	ff 	. 
-	jr nz,$+72		;48e4	20 46 	  F 
-	ld b,c			;48e6	41 	A 
-	ld c,c			;48e7	49 	I 
-	ld c,h			;48e8	4c 	L 
-	jr nz,$+34		;48e9	20 20 	    
-	jr nz,$+34		;48eb	20 20 	    
-	rst 38h			;48ed	ff 	. 
-	djnz $+2		;48ee	10 00 	. . 
-	dec b			;48f0	05 	. 
-	ld a,(bc)			;48f1	0a 	. 
-	ld c,e			;48f2	4b 	K 
-	ld b,d			;48f3	42 	B 
-	ld b,h			;48f4	44 	D 
-	jr nz,$+69		;48f5	20 43 	  C 
-	ld c,h			;48f7	4c 	L 
-	ld c,a			;48f8	4f 	O 
-	ld b,e			;48f9	43 	C 
-	ld c,e			;48fa	4b 	K 
-	jr nz,$+81		;48fb	20 4f 	  O 
-	ld c,e			;48fd	4b 	K 
-	add hl,de			;48fe	19 	. 
-	add hl,de			;48ff	19 	. 
-	rst 38h			;4900	ff 	. 
-	ld a,(bc)			;4901	0a 	. 
-	ld d,d			;4902	52 	R 
-	ld b,l			;4903	45 	E 
-	ld d,e			;4904	53 	S 
-	jr nz,$+84		;4905	20 52 	  R 
-	ld b,l			;4907	45 	E 
-	ld d,(hl)			;4908	56 	V 
-	jr nz,$+1		;4909	20 ff 	  . 
-	ld l,0ffh		;490b	2e ff 	. . 
-	ld a,(bc)			;490d	0a 	. 
-	rst 38h			;490e	ff 	. 
-	djnz $+5		;490f	10 03 	. . 
-	djnz $+12		;4911	10 0a 	. . 
-	ld d,b			;4913	50 	P 
-	ld c,a			;4914	4f 	O 
-	ld d,d			;4915	52 	R 
-	ld d,h			;4916	54 	T 
-	jr nz,$+68		;4917	20 42 	  B 
-	rst 38h			;4919	ff 	. 
-	djnz $+5		;491a	10 03 	. . 
-	ld c,00ah		;491c	0e 0a 	. . 
-	ld d,b			;491e	50 	P 
-	ld c,a			;491f	4f 	O 
-	ld d,d			;4920	52 	R 
-	ld d,h			;4921	54 	T 
-	jr nz,$+67		;4922	20 41 	  A 
-	rst 38h			;4924	ff 	. 
-	djnz $+32		;4925	10 1e 	. . 
-	rla			;4927	17 	. 
-	ld b,h			;4928	44 	D 
-	ld c,c			;4929	49 	I 
-	ld d,e			;492a	53 	S 
-	ld c,e			;492b	4b 	K 
-	jr nz,$+78		;492c	20 4c 	  L 
-	ld c,a			;492e	4f 	O 
-	ld b,c			;492f	41 	A 
-	ld b,h			;4930	44 	D 
-	rst 38h			;4931	ff 	. 
-	djnz $+2		;4932	10 00 	. . 
-	rlca			;4934	07 	. 
-	ld d,b			;4935	50 	P 
-	ld b,c			;4936	41 	A 
-	ld d,d			;4937	52 	R 
-	ld b,c			;4938	41 	A 
-	ld c,h			;4939	4c 	L 
-	ld c,h			;493a	4c 	L 
-	ld b,l			;493b	45 	E 
-	ld c,h			;493c	4c 	L 
-	jr nz,$+82		;493d	20 50 	  P 
-	ld c,a			;493f	4f 	O 
-	ld d,d			;4940	52 	R 
-	ld d,h			;4941	54 	T 
-	jr nz,$+81		;4942	20 4f 	  O 
-	ld c,e			;4944	4b 	K 
-	add hl,de			;4945	19 	. 
-	add hl,de			;4946	19 	. 
-	rst 38h			;4947	ff 	. 
-	djnz $+12		;4948	10 0a 	. . 
-	rla			;494a	17 	. 
-	ld d,e			;494b	53 	S 
-	ld b,l			;494c	45 	E 
-	ld c,h			;494d	4c 	L 
-	ld b,l			;494e	45 	E 
-	ld b,e			;494f	43 	C 
-	ld d,h			;4950	54 	T 
-	jr nz,$+78		;4951	20 4c 	  L 
-	ld c,a			;4953	4f 	O 
-	ld b,c			;4954	41 	A 
-	ld b,h			;4955	44 	D 
-	jr nz,$+85		;4956	20 53 	  S 
-	ld c,a			;4958	4f 	O 
-	ld d,l			;4959	55 	U 
-	ld d,d			;495a	52 	R 
-	ld b,e			;495b	43 	C 
-	ld b,l			;495c	45 	E 
-	jr nz,$+64		;495d	20 3e 	  > 
-	jr nz,$+34		;495f	20 20 	    
-	inc d			;4961	14 	. 
-	ld b,h			;4962	44 	D 
-	dec d			;4963	15 	. 
-	ld c,c			;4964	49 	I 
-	ld d,e			;4965	53 	S 
-	ld c,e			;4966	4b 	K 
-	jr nz,$+34		;4967	20 20 	    
-	inc d			;4969	14 	. 
-	ld c,b			;496a	48 	H 
-	dec d			;496b	15 	. 
-	ld c,a			;496c	4f 	O 
-	ld d,e			;496d	53 	S 
-	ld d,h			;496e	54 	T 
-	jr nz,$+34		;496f	20 20 	    
-	inc d			;4971	14 	. 
-	ld d,d			;4972	52 	R 
-	dec d			;4973	15 	. 
-	ld c,a			;4974	4f 	O 
-	ld c,l			;4975	4d 	M 
-	rst 38h			;4976	ff 	. 
-	djnz $+5		;4977	10 03 	. . 
-	rla			;4979	17 	. 
-	ld d,e			;497a	53 	S 
-	ld b,l			;497b	45 	E 
-	ld c,h			;497c	4c 	L 
-	ld b,l			;497d	45 	E 
-	ld b,e			;497e	43 	C 
-	ld d,h			;497f	54 	T 
-	jr nz,$+72		;4980	20 46 	  F 
-	ld c,c			;4982	49 	I 
-	ld c,h			;4983	4c 	L 
-	ld b,l			;4984	45 	E 
-	jr nz,$+80		;4985	20 4e 	  N 
-	ld c,a			;4987	4f 	O 
-	ld l,020h		;4988	2e 20 	.   
-	ld e,a			;498a	5f 	_ 
-	jr nz,$+1		;498b	20 ff 	  . 
-	djnz $+5		;498d	10 03 	. . 
-	rla			;498f	17 	. 
-	ld c,h			;4990	4c 	L 
-	ld c,a			;4991	4f 	O 
-	ld b,c			;4992	41 	A 
-	ld b,h			;4993	44 	D 
-	ld c,c			;4994	49 	I 
-	ld c,(hl)			;4995	4e 	N 
-	ld b,a			;4996	47 	G 
-	jr nz,$+72		;4997	20 46 	  F 
-	ld c,c			;4999	49 	I 
-	ld c,h			;499a	4c 	L 
-	ld b,l			;499b	45 	E 
-	jr nz,$+1		;499c	20 ff 	  . 
-	djnz $+5		;499e	10 03 	. . 
-	rla			;49a0	17 	. 
-	ld c,(hl)			;49a1	4e 	N 
-	ld c,a			;49a2	4f 	O 
-	jr nz,$+84		;49a3	20 52 	  R 
-	ld b,l			;49a5	45 	E 
-	ld d,b			;49a6	50 	P 
-	ld c,h			;49a7	4c 	L 
-	ld e,c			;49a8	59 	Y 
-	rst 38h			;49a9	ff 	. 
-	jr nz,$+68		;49aa	20 42 	  B 
-	ld c,h			;49ac	4c 	L 
-	ld c,a			;49ad	4f 	O 
-	ld b,e			;49ae	43 	C 
-	ld c,e			;49af	4b 	K 
-	jr nz,$+1		;49b0	20 ff 	  . 
-	djnz $+5		;49b2	10 03 	. . 
-	rla			;49b4	17 	. 
-	ld c,b			;49b5	48 	H 
-	ld c,a			;49b6	4f 	O 
-	ld d,e			;49b7	53 	S 
-	ld d,h			;49b8	54 	T 
-	jr nz,$+80		;49b9	20 4e 	  N 
-	ld c,a			;49bb	4f 	O 
-	ld d,h			;49bc	54 	T 
-	jr nz,$+69		;49bd	20 43 	  C 
-	ld c,a			;49bf	4f 	O 
-	ld c,(hl)			;49c0	4e 	N 
-	ld c,(hl)			;49c1	4e 	N 
-	ld b,l			;49c2	45 	E 
-	ld b,e			;49c3	43 	C 
-	ld d,h			;49c4	54 	T 
-	ld b,l			;49c5	45 	E 
-	ld b,h			;49c6	44 	D 
-	rst 38h			;49c7	ff 	. 
-	jr nz,$+84		;49c8	20 52 	  R 
-	ld d,l			;49ca	55 	U 
-	ld c,(hl)			;49cb	4e 	N 
-	ld c,(hl)			;49cc	4e 	N 
-	ld c,c			;49cd	49 	I 
-	ld c,(hl)			;49ce	4e 	N 
-	ld b,a			;49cf	47 	G 
-	rst 38h			;49d0	ff 	. 
-	ld a,(bc)			;49d1	0a 	. 
-	ld b,e			;49d2	43 	C 
-	ld c,b			;49d3	48 	H 
-	ld b,c			;49d4	41 	A 
-	ld d,d			;49d5	52 	R 
-	ld b,c			;49d6	41 	A 
-	ld b,e			;49d7	43 	C 
-	ld d,h			;49d8	54 	T 
-	ld b,l			;49d9	45 	E 
-	ld d,d			;49da	52 	R 
-	jr nz,$+84		;49db	20 52 	  R 
-	ld b,c			;49dd	41 	A 
-	ld c,l			;49de	4d 	M 
-	rst 38h			;49df	ff 	. 
-	ld a,(bc)			;49e0	0a 	. 
-	ld b,l			;49e1	45 	E 
-	ld e,b			;49e2	58 	X 
-	ld d,h			;49e3	54 	T 
-	jr nz,$+77		;49e4	20 4b 	  K 
-	ld b,d			;49e6	42 	B 
-	ld b,h			;49e7	44 	D 
-	jr nz,$+78		;49e8	20 4c 	  L 
-	ld c,a			;49ea	4f 	O 
-	ld c,a			;49eb	4f 	O 
-	ld d,b			;49ec	50 	P 
-	ld b,d			;49ed	42 	B 
-	ld b,c			;49ee	41 	A 
-	ld b,e			;49ef	43 	C 
-	ld c,e			;49f0	4b 	K 
-	rst 38h			;49f1	ff 	. 
-	djnz $+2		;49f2	10 00 	. . 
-	rla			;49f4	17 	. 
-	dec bc			;49f5	0b 	. 
-	rst 38h			;49f6	ff 	. 
-	djnz $+32		;49f7	10 1e 	. . 
-	rla			;49f9	17 	. 
-	ld c,b			;49fa	48 	H 
-	ld c,a			;49fb	4f 	O 
-	ld d,e			;49fc	53 	S 
-	ld d,h			;49fd	54 	T 
-	jr nz,$+78		;49fe	20 4c 	  L 
-	ld c,a			;4a00	4f 	O 
-	ld b,c			;4a01	41 	A 
-	ld b,h			;4a02	44 	D 
-	rst 38h			;4a03	ff 	. 
-	ld a,(bc)			;4a04	0a 	. 
-	ld d,e			;4a05	53 	S 
-	ld b,l			;4a06	45 	E 
-	ld d,d			;4a07	52 	R 
-	ld c,c			;4a08	49 	I 
-	ld b,c			;4a09	41 	A 
-	ld c,h			;4a0a	4c 	L 
-	jr nz,$+82		;4a0b	20 50 	  P 
-	ld c,a			;4a0d	4f 	O 
-	ld d,d			;4a0e	52 	R 
-	ld d,h			;4a0f	54 	T 
-	jr nz,$+86		;4a10	20 54 	  T 
-	ld b,l			;4a12	45 	E 
-	ld d,e			;4a13	53 	S 
-	ld d,h			;4a14	54 	T 
-	jr nz,$+85		;4a15	20 53 	  S 
-	ld d,a			;4a17	57 	W 
-	ld c,c			;4a18	49 	I 
-	ld d,h			;4a19	54 	T 
-	ld b,e			;4a1a	43 	C 
-	ld c,b			;4a1b	48 	H 
-	jr nz,$+71		;4a1c	20 45 	  E 
-	ld c,(hl)			;4a1e	4e 	N 
-	ld b,c			;4a1f	41 	A 
-	ld b,d			;4a20	42 	B 
-	ld c,h			;4a21	4c 	L 
-	ld b,l			;4a22	45 	E 
-	ld b,h			;4a23	44 	D 
-	rst 38h			;4a24	ff 	. 
+	inc bc			;4806	03 	.
+        ;; 4807
+        defb 0eh
+        ;; 4808
+        defm "BLINK "
+        defb 0fh, 1ch
+        ;; 4810
+        defm "DIM "
+        defb 1dh, 14h
+        ;; 4816
+        defm "UNDERSCORE. "
+        defb 1eh
+        ;; 4823
+        defm "DINVERSE"
+        defb 1eh
+        ;; 482b
+        defm "E "
+        defb 1eh, 12h
+        ;; 4830
+        defm "[BLANK"
+        defb 1eh, 12h, 5ch, ffh
+        ;; 483a
+        defm "KEYBOARD TEST"
+        defb 0ah, ffh
+        ;; 4849
+        defm "TOUCH PANEL ENABLED"
+        defb 0ah, ffh, 0ah
+        ;; 485f
+        defm "RAM"
+        defb ffh, 0ah
+        ;; 4864
+        defm "GRAPHICS"
+        defb ffh, 0ah
+        ;; 486e
+        defm "ROM"
+        defb ffg, 0ah
+        ;; 4873
+        defm "NVM"
+        defb ffh, 10h, 03h, 0ah, 0ah
+        ;; 487b
+        defm "COMM"
+        defb ffh, 10h, 03h, 0ch, 0ah
+        ;; 4884
+        defm "KEYBOARD"
+        defb ffh, 0ah
+        ;; 488e
+        defm "TIMER"
+        defb ffh, 0ah
+        ;; 4895
+        defm "BATTERY LOW"
+        defb ffh, 0ah
+        ;; 48a2
+        defm "TEST SWITCH ENABLED"
+        defb ffh
+        ;; 48b6
+        defm "TO RUN EXTERNAL LOOPBACK-ENABLE TEST SWITCHES"
+        defb ffh
+        ;; 48e4
+        defm "FAIL    "
+        defb ffh, 10h, 00h, 05h, 0ah
+        ;; 48f2
+        defm "KBD CLOCK OK"
+        defb 19h, 19h, ffh, 0ah
+        ;; 4902
+        defm "RES REV "
+        defb ffh, 2eh, ffh, 10h, 03h, 10h, 0ah
+        ;; 4913
+        defm "PORT B"
+        defb ffh, 10h, 03h, 0eh, 0ah
+        ;; 491e
+        defm "PORT A"
+        defb ffh, 10h, 1eh, 17h
+        ;; 4928
+        defm "DISK LOAD"
+        defb ffh, 10h, 00h, 07h
+        ;; 4935
+        defm "PARALLEL PORT OK"
+        defb 19h, 19h, ffh, 10h, 0ah, 17h
+        ;; 494b
+	defm "SELECT LOAD SOURCE >  "
+        ;; 4961
+        defb 14h, 44h, 15h      ; D
+        defm "ISK  "
+        ;; 4969
+        defb 14h, 48h, 15h      ; H
+        defm "OST  "
+        ;; 4971
+        defb 14h, 52h, 15h      ; R
+        defm "OM"
+        defb ffh 10h, 03h, 17h
+        ;; 497a
+        defm "SELECT FILE NO _ "
+        defb ffh, 10h, 03h, 17h
+        ;; 4990
+        defm "LOADING FILE "
+        defb ffh, 10h, 03h, 17h
+        ;; 49a1
+        defm "NO REPLY"
+        defb ffh
+        ;; 49aa
+        defm " BLOCK "
+        defb ffh, 10h, 03h, 17h
+        ;; 49b5
+        defm "HOST NOT CONNECTED"
+        defb ffh
+        ;; 49c8
+        defm " RUNNING"
+        defb ffh, 0ah
+        ;; 49d2
+        defm "CHARACTER RAM"
+        defb ffh, 0ah
+        ;; 49e1
+        defm "EXT KBD LOOPBACK"
+        defb ffh, 10h, 00h, 17h, 0bh, ffh, 10h, 1eh, 17h
+        ;; 49fa
+        defm "HOST LOAD"
+        defb ffh, 0ah
+        ;; 4a05
+        defm "SERIAL PORT TEST SWITCH ENABLED"
+        defb ffh
+
 	call 00042h		;4a25	cd 42 00 	. B . 
 	ld a,(MDACT)		;4a28	3a fe e0 	: . . 
 	and 007h		;4a2b	e6 07 	. . 

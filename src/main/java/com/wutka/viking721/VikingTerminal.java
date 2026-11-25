@@ -8,7 +8,7 @@ public class VikingTerminal {
         JFrame frame = new JFrame("Viking 721 Terminal");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
-        frame.add(new TerminalPanel());
+        frame.add(new TerminalPanel(true));
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
