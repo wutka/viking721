@@ -1272,7 +1272,7 @@ TMTRAP:				; TIMER INTERRUPT TRAP
 	push de			;0720	d5 	. 
 	push hl			;0721	e5 	. 
 	ld a,033h		;0722	3e 33 	> 3 
-	out (PPIC+PPIC_CONTROL),a	;0724	d3 03 	. . 
+	out (Z80CTC+3),a	;0724	d3 03 	. . 
 	ei			;0726	fb 	. 
 	call 00733h		;0727	cd 33 07 	. 3 . 
 	pop hl			;072a	e1 	. 
@@ -1282,7 +1282,7 @@ TMTRAP:				; TIMER INTERRUPT TRAP
 	ret			;072e	c9 	.
 TMTTRPU:			; TIMER INTERRUPT TRAP-USER
 	ld a,033h		;072f	3e 33 	> 3 
-	out (PPIC+PPIC_CONTROL),a	;0731	d3 03 	. . 
+	out (Z80CTC+3),a	;0731	d3 03 	. . 
 	xor a			;0733	af 	. 
 	ld (T3RUN),a		;0734	32 f3 e0 	2 . . 
 	ld a,(UD2ACT)		;0737	3a 9d e0 	: . . 
@@ -10428,8 +10428,8 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	ret			;42ee	c9 	. 
 	push af			;42ef	f5 	. 
 	ld a,033h		;42f0	3e 33 	> 3 
-	out (PPIC+PPIC_CONTROL),a		;42f2	d3 03 	. . 
-	out (PPIC+PPIC_PORTA),a	;42f4	d3 00 	. . 
+	out (Z80CRTC+3),a	;42f2	d3 03 	. . 
+	out (Z80CRTC),a		;42f4	d3 00 	. . 
 	ld a,055h		;42f6	3e 55 	> U 
 	ld (0cfe5h),a		;42f8	32 e5 cf 	2 . . 
 	pop af			;42fb	f1 	. 
@@ -10575,16 +10575,16 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	call 0001eh		;440b	cd 1e 00 	. . . 
 	ei			;440e	fb 	. 
 	xor a			;440f	af 	. 
-	out (PPIC+PPIC_PORTA),a		;4410	d3 00 	. . 
+	out (Z80CTC),a		;4410	d3 00 	. . 
 	ld a,033h		;4412	3e 33 	> 3 
-	out (PPIC+PPIC_PORTA),a		;4414	d3 00 	. . 
+	out (Z80CTC),a		;4414	d3 00 	. . 
 	ld a,0f7h		;4416	3e f7 	> . 
-	out (PPIC+PPIC_PORTA),a		;4418	d3 00 	. . 
+	out (Z80CTC),a		;4418	d3 00 	. . 
 	ld a,0bbh		;441a	3e bb 	> . 
-	out (PPIC+PPIC_PORTA),a		;441c	d3 00 	. . 
+	out (Z80CTC),a		;441c	d3 00 	. . 
 	call 042dch		;441e	cd dc 42 	. . B 
 	ld a,033h		;4421	3e 33 	> 3 
-	out (PPIC+PPIC_PORTA),a		;4423	d3 00 	. . 
+	out (Z80CTC),a		;4423	d3 00 	. . 
 	ret			;4425	c9 	. 
 	jr nz,4469h		;4426	20 41 	  A 
 	ld h,c			;4428	61 	a 
