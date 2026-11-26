@@ -289,6 +289,7 @@ public class Z80Core implements ICPUData {
             int vec = vec_lower | (reg_I << 8);
             ram.writeWord(reg_SP, reg_PC);
             reg_PC = ram.readWord(vec);
+            reg_SP -= 2;
         }
         halt = false;
         instruction = ram.readByte(reg_PC);
