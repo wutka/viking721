@@ -569,11 +569,11 @@ INIT02:
 	ld (BFINAD),hl		;0246	22 85 e0 	" . . 
 	ld (BDOTAD),hl		;0249	22 87 e0 	" . . 
 	xor a			;024c	af 	. 
-	ld (BLKSND),a		;024d	32 ac e0 	2 . . 
-	ld (TXCNT),a		;0250	32 8e e0 	2 . . 
-	ld hl,0df00h		;0253	21 00 df 	! . . 
-	ld (TXINAD),hl		;0256	22 8f e0 	" . . 
-	ld (TXOTAD),hl		;0259	22 91 e0 	" . . 
+	ld (BLKSND),a		;024d Clear Block Send Active
+	ld (TXCNT),a		;0250 Clear tx buffer count
+	ld hl,0df00h		;0253
+	ld (TXINAD),hl		;0256 Reset TX circular buffer
+	ld (TXOTAD),hl		;0259
 	ret			;025c	c9 	. 
 
 ; mirror NV ram to e060h
@@ -1117,78 +1117,78 @@ CMTRAP:				; COMM INTERRUPT TRAP
 	ei			;061a	fb 	. 
 	ret			;061b	c9 	.
 CMTRPU:				; COMM INTERRUPT TRAP-USER
-	push af			;061c	f5 	. 
-	push bc			;061d	c5 	. 
-	push de			;061e	d5 	. 
-	push hl			;061f	e5 	. 
-	ld a,(CDATAR)		;0620	3a 81 e0 	: . . 
-	add a,004h		;0623	c6 04 	. . 
-	ld c,a			;0625	4f 	O 
-	in h,(c)		;0626	ed 60 	. ` 
-	inc c			;0628	0c 	. 
-	in d,(c)		;0629	ed 50 	. P 
-	inc c			;062b	0c 	. 
-	in e,(c)		;062c	ed 58 	. X 
-	ld a,c			;062e	79 	y 
-	and 0f0h		;062f	e6 f0 	. . 
-	ld c,a			;0631	4f 	O 
-	in b,(c)		;0632	ed 40 	. @ 
-	ld a,h			;0634	7c 	| 
-	and 001h		;0635	e6 01 	. . 
-	jr z,0697h		;0637	28 5e 	( ^ 
-	ld a,(MBYTE4)		;0639	3a 43 e0 	: C . 
-	and 008h		;063c	e6 08 	. . 
-	jr nz,0658h		;063e	20 18 	  . 
-	ld a,e			;0640	7b 	{ 
-	and 020h		;0641	e6 20 	.   
-	jr z,0697h		;0643	28 52 	( R 
-	ld a,e			;0645	7b 	{ 
-	and 080h		;0646	e6 80 	. . 
-	jr nz,0658h		;0648	20 0e 	  . 
-	ld a,(MBYTE4)		;064a	3a 43 e0 	: C . 
-	and 002h		;064d	e6 02 	. . 
-	jr z,0658h		;064f	28 07 	( . 
-	ld a,(OBYTE4)		;0651	3a 49 e0 	: I . 
-	and 001h		;0654	e6 01 	. . 
-	jr z,0697h		;0656	28 3f 	( ? 
-	ld a,d			;0658	7a 	z 
-	and 010h		;0659	e6 10 	. . 
-	jr z,0668h		;065b	28 0b 	( . 
-	call 01519h		;065d	cd 19 15 	. . . 
-	call 0045ch		;0660	cd 5c 04 	. \ . 
-	call 0024ch		;0663	cd 4c 02 	. L . 
-	jr 066dh			;0666	18 05 	. . 
-	ld a,d			;0668	7a 	z 
-	and 00eh		;0669	e6 0e 	. . 
-	jr z,066fh		;066b	28 02 	( . 
-	ld b,0ffh		;066d	06 ff 	. . 
-	ld hl,(BFCNT)		;066f	2a 83 e0 	* . . 
-	inc hl			;0672	23 	# 
-	ld a,h			;0673	7c 	| 
-	cp 003h			;0674	fe 03 	. . 
-	jr nz,0684h		;0676	20 0c 	  . 
-	push hl			;0678	e5 	. 
-	push bc			;0679	c5 	. 
-	call 01deah		;067a	cd ea 1d 	. . . 
-	pop bc			;067d	c1 	. 
-	pop hl			;067e	e1 	. 
-	ld a,l			;067f	7d 	} 
-	cp 0dfh			;0680	fe df 	. . 
-	jr z,0697h		;0682	28 13 	( . 
-	ld (BFCNT),hl		;0684	22 83 e0 	" . . 
-	ld hl,(BFINAD)		;0687	2a 85 e0 	* . . 
-	ld (hl),b		;068a	70 	p 
-	inc hl			;068b	23 	# 
-	ld a,h			;068c	7c 	| 
-	cp 0dfh			;068d	fe df 	. . 
-	jr nz,0694h		;068f	20 03 	  . 
-	ld hl,0db20h		;0691	21 20 db 	!   . 
-	ld (BFINAD),hl		;0694	22 85 e0 	" . . 
-	pop hl			;0697	e1 	. 
-	pop de			;0698	d1 	. 
-	pop bc			;0699	c1 	. 
-	pop af			;069a	f1 	. 
-	ret			;069b	c9 	. 
+	push af			;061c Save registers
+	push bc			;061d
+	push de			;061e
+	push hl			;061f
+	ld a,(CDATAR)		;0620 Get address of UART
+	add a,004h		;0623 A now points to MCR
+	ld c,a			;0625 C now points to MCR
+	in h,(c)		;0626 Load MCR into H
+	inc c			;0628 C now points to LSR
+	in d,(c)		;0629 Load LSR into D
+	inc c			;062b C now points to MSR
+	in e,(c)		;062c Load MSR into E
+	ld a,c			;062e 
+	and 0f0h		;062f
+	ld c,a			;0631 C now points to base of UART
+	in b,(c)		;0632 B has contents of rx register
+	ld a,h			;0634 
+	and 001h		;0635 Check DTR flag in MCR
+	jr z,0697h		;0637 If not set, go to return
+	ld a,(MBYTE4)		;0639 Load Mode byte 4
+	and 008h		;063c Check Data only bit
+	jr nz,0658h		;063e If set, skip DSR change check
+	ld a,e			;0640 Load MSR into A
+	and 020h		;0641 Check DSR changed bit
+	jr z,0697h		;0643 If it isn't set, return
+	ld a,e			;0645 Load MSR into A
+	and 080h		;0646 Check carrier detect
+	jr nz,0658h		;0648 If carrier detected, skip RTS change check
+	ld a,(MBYTE4)		;064a Load Mode byte 4
+	and 002h		;064d Check RTS Switched bit
+	jr z,0658h		;064f If not set, skip full duplex check
+	ld a,(OBYTE4)		;0651 Fetch operator mode byte4
+	and 001h		;0654 Check full duplex bit
+	jr z,0697h		;0656 If not set, return
+	ld a,d			;0658 Load LSR into A
+	and 010h		;0659 Check break flag
+	jr z,0668h		;065b If not set, skip
+	call 01519h		;065d Do alarm
+	call 0045ch		;0660
+	call 0024ch		;0663 Reset tx biffer
+	jr 066dh		;0666 Skip error check
+	ld a,d			;0668 Load LSR into A
+	and 00eh		;0669 Check the error flags
+	jr z,066fh		;066b If any set, don't save char
+	ld b,0ffh		;066d
+	ld hl,(BFCNT)		;066f Load # of chars in COMM buffer
+	inc hl			;0672 Inc count
+	ld a,h			;0673 Get high byte of count
+	cp 003h			;0674 See if it is 3
+	jr nz,0684h		;0676 If not, go to save char
+	push hl			;0678 Save registers
+	push bc			;0679
+	call 01deah		;067a Send X-OFF if not sent 
+	pop bc			;067d
+	pop hl			;067e
+	ld a,l			;067f Check the low byte of the count
+	cp 0dfh			;0680 See if it is df
+	jr z,0697h		;0682 If so, just return
+	ld (BFCNT),hl		;0684 Otherwise, store the updated count
+	ld hl,(BFINAD)		;0687 Get next address in COMM buffer
+	ld (hl),b		;068a Store byte in COMM buffer
+	inc hl			;068b Increment COMM buffer pointer
+	ld a,h			;068c A has high byte of COMM buffer
+	cp 0dfh			;068d See if it has hit end
+	jr nz,0694h		;068f If not, go to save it
+	ld hl,0db20h		;0691 Wrap around to beginning
+	ld (BFINAD),hl		;0694 Save COMM buffer pointer
+	pop hl			;0697 Restore registers
+	pop de			;0698
+	pop bc			;0699
+	pop af			;069a
+	ret			;069b
 	call 006a1h		;069c	cd a1 06 	. . . 
 	ei			;069f	fb 	. 
 	ret			;06a0	c9 	. 
@@ -10452,7 +10452,7 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	xor a			;431f	af 	. 
 	out (024h),a		;4320	d3 24 	. $ 
 	ld hl,04fffh		;4322	21 ff 4f 	! . O 
-	call 04725h		;4325	cd 25 47 	. % G 
+	call DECHL		;4325	cd 25 47 	. % G 
 	jr nz,4325h		;4328	20 fb 	  . 
 	ret			;432a	c9 	. 
 	di			;432b	f3 	. 
@@ -10687,7 +10687,7 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	call 046ebh		;4505	cd eb 46 	. . F 
 	jr nz,4522h		;4508	20 18 	  . 
 	pop hl			;450a	e1 	. 
-	call 04725h		;450b	cd 25 47 	. % G 
+	call DECHL		;450b	cd 25 47 	. % G 
 	jr nz,44fch		;450e	20 ec 	  . 
 	ld a,(0cff3h)		;4510	3a f3 cf 	: . . 
 	out (050h),a		;4513	d3 50 	. P 
@@ -10784,7 +10784,7 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	ld hl,049c8h		;45f0	21 c8 49 	! . I 
 	jp 00063h		;45f3	c3 63 00 	. c . 
 	ld hl,0ffffh		;45f6	21 ff ff 	! . . 
-	call 04725h		;45f9	cd 25 47 	. % G 
+	call DECHL		;45f9	cd 25 47 	. % G 
 	ret z			;45fc	c8 	. 
 	ld a,(KBCNT)		;45fd	3a 89 e0 	: . . 
 	bit 1,a			;4600	cb 4f 	. O 
@@ -10821,30 +10821,31 @@ VFYCOM:				; Verify COMM
 	ld a,005h		;4635
 	add a,b			;4637 A now points to LSR
 	ld c,a			;4638 C now points to LSR
-	ld hl,07fffh		;4639
-	call 04725h		;463c
-	jr z,469bh		;463f	28 5a 	( Z 
-	in a,(c)		;4641	ed 78 	. x 
-	and 060h		;4643	e6 60 	. ` 
-	cp 060h			;4645	fe 60 	. ` 
-	jr nz,463ch		;4647	20 f3 	  . 
-	ld a,006h		;4649	3e 06 	> . 
-	add a,b			;464b	80 	. 
-	ld c,a			;464c	4f 	O 
-	in a,(c)		;464d	ed 78 	. x 
-	and 0f0h		;464f	e6 f0 	. . 
-	ld l,a			;4651	6f 	o 
-	ld a,(0cff3h)		;4652	3a f3 cf 	: . . 
-	cp l			;4655	bd 	. 
-	jr z,465dh		;4656	28 05 	( . 
+	ld hl,07fffh		;4639 set loop counter (really 7f00)
+	call DECHL		;463c decrement counter and set z flag
+	jr z,469bh		;463f jump to 469b if end of loop
+	in a,(c)		;4641 load lsr
+	and 060h		;4643 check for rx and tx regs empty
+	cp 060h			;4645
+	jr nz,463ch		;4647 if both are not set, try again
+	ld a,006h		;4649
+	add a,b			;464b A now points to MSR
+	ld c,a			;464c C now points to MSR
+	in a,(c)		;464d read MSR
+	and 0f0h		;464f mask lower 4 bits of msr
+	ld l,a			;4651
+	ld a,(0cff3h)		;4652 load check type into A
+	                        ;it is set to 0f at 4282h 
+	cp l			;4655 
+	jr z,465dh		;4656 
 	ld a,b			;4658	78 	x 
 	cp 020h			;4659	fe 20 	.   
 	jr nz,469bh		;465b	20 3e 	  > 
 	ld c,b			;465d	48 	H 
 	out (c),d		;465e	ed 51 	. Q 
-	ld hl,07fffh		;4660	21 ff 7f 	! .  
-	call 04725h		;4663	cd 25 47 	. % G 
-	jr z,469bh		;4666	28 33 	( 3 
+	ld hl,07fffh		;4660 set loop counter (really 7f00)
+	call DECHL		;4663 decrement counter and set z flag
+	jr z,469bh		;4666 if the timer expired, quit
 	ld a,(0cfe5h)		;4668	3a e5 cf 	: . . 
 	xor 0aah		;466b	ee aa 	. . 
 	jr nz,4663h		;466d	20 f4 	  . 
@@ -10873,13 +10874,14 @@ VFYCOM:				; Verify COMM
 	inc d			;4694	14 	. 
 	bit 7,d			;4695	cb 7a 	. z 
 	jr nz,46a1h		;4697	20 08 	  . 
-	jr 4635h		;4699	18 9a 	. . 
-	ld c,b			;469b	48 	H 
-	in a,(c)		;469c	ed 78 	. x 
-	ei			;469e	fb 	. 
-	ld a,001h		;469f	3e 01 	> . 
-	or a			;46a1	b7 	. 
-	ret			;46a2	c9 	. 
+	jr 4635h		;4699	18 9a 	. .
+	;; COMM TEST FAILED
+	ld c,b			;469b	C POINTS TO BASE ADDRESS OF UART
+	in a,(c)		;469c	READ RX REGISTER (clear it?)
+	ei			;469e	ENABLE INTERRUPTS
+	ld a,001h		;469f	SET FAILED FLAG TO 1
+	or a			;46a1	SET CONDITION CODE
+	ret			;46a2	RETURN TO 428D, PRINT COMM FAIL
 	push af			;46a3	f5 	. 
 	ld a,0aah		;46a4	3e aa 	> . 
 	ld (0cfe5h),a		;46a6	32 e5 cf 	2 . . 
@@ -10946,11 +10948,12 @@ VFYCOM:				; Verify COMM
 	pop de			;471f	d1 	. 
 	ld a,e			;4720	7b 	{ 
 	ld b,a			;4721	47 	G 
-	jp 00039h		;4722	c3 39 00 	. 9 . 
-	dec hl			;4725	2b 	+ 
-	ld a,h			;4726	7c 	| 
-	or a			;4727	b7 	. 
-	ret			;4728	c9 	. 
+	jp 00039h		;4722	c3 39 00 	. 9 .
+DECHL:				; Decrements hl and sets z at end
+	dec hl			;4725	decrement counter
+	ld a,h			;4726	look at upper byte
+	or a			;4727	set z if upper byte is 0
+	ret			;4728
 	ld d,050h		;4729	16 50 	. P 
 	ld b,0bdh		;472b	06 bd 	. . 
 	push de			;472d	d5 	. 
@@ -11005,7 +11008,7 @@ VFYCOM:				; Verify COMM
 	out (084h),a		;4799	d3 84 	. . 
 	out (094h),a		;479b	d3 94 	. . 
 	ld hl,07fffh		;479d	21 ff 7f 	! .  
-	call 04725h		;47a0	cd 25 47 	. % G 
+	call DECHL		;47a0	cd 25 47 	. % G 
 	jr nz,47a0h		;47a3	20 fb 	  . 
 	ld (0cfe5h),a		;47a5	32 e5 cf 	2 . . 
 	in a,(045h)		;47a8	db 45 	. E 
