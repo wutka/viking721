@@ -10800,27 +10800,29 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	out (013h),a		;4615	d3 13 	. . 
 	ld a,00bh		;4617	3e 0b 	> . 
 	out (015h),a		;4619	d3 15 	. . 
-	jp 0451ch		;461b	c3 1c 45 	. . E 
-	ld b,c			;461e	41 	A 
-	ld a,006h		;461f	3e 06 	> . 
-	add a,c			;4621	81 	. 
-	ld c,a			;4622	4f 	O 
-	in a,(c)		;4623	ed 78 	. x 
-	ld c,b			;4625	48 	H 
-	ld a,001h		;4626	3e 01 	> . 
-	add a,b			;4628	80 	. 
-	ld c,a			;4629	4f 	O 
-	ld a,001h		;462a	3e 01 	> . 
-	out (c),a		;462c	ed 79 	. y 
-	ld d,000h		;462e	16 00 	. . 
-	ld c,b			;4630	48 	H 
-	in a,(c)		;4631	ed 78 	. x 
-	in a,(c)		;4633	ed 78 	. x 
-	ld a,005h		;4635	3e 05 	> . 
-	add a,b			;4637	80 	. 
-	ld c,a			;4638	4f 	O 
-	ld hl,07fffh		;4639	21 ff 7f 	! .  
-	call 04725h		;463c	cd 25 47 	. % G 
+	jp 0451ch		;461b	c3 1c 45 	. . E
+VFYCOM:				; Verify COMM
+	;; C contains the base address of the comm UART
+	ld b,c			;461e B points to base address of UART
+	ld a,006h		;461f
+	add a,c			;4621 A now points to MSR
+	ld c,a			;4622 C now points to MSR
+	in a,(c)		;4623 Load MSR into a
+	ld c,b			;4625 C points to base addr of UART
+	ld a,001h		;4626
+	add a,b			;4628 A now points to IEnable Reg
+	ld c,a			;4629 C now points to IEnable Reg
+	ld a,001h		;462a A has data available int set
+	out (c),a		;462c Set data available interrupt
+	ld d,000h		;462e
+	ld c,b			;4630 C points to base address of UART
+	in a,(c)		;4631 Read data register
+	in a,(c)		;4633 Read data register again
+	ld a,005h		;4635
+	add a,b			;4637 A now points to LSR
+	ld c,a			;4638 C now points to LSR
+	ld hl,07fffh		;4639
+	call 04725h		;463c
 	jr z,$+92		;463f	28 5a 	( Z 
 	in a,(c)		;4641	ed 78 	. x 
 	and 060h		;4643	e6 60 	. ` 
