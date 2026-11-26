@@ -8,6 +8,7 @@ public class Uart8250 {
     int rxRegister;
     int txRegister;
     int intEnRegister;
+    int intIdRegister;
     int lineControlRegister;
     int modemControlRegister;
     int lineStatusRegister;
@@ -27,10 +28,11 @@ public class Uart8250 {
         this.rxRegister = 0;
         this.txRegister = 0;
         this.intEnRegister = 0;
+        this.intIdRegister = 6;
         this.lineControlRegister = 0;
         this.modemControlRegister = 0;
         this.lineStatusRegister = 0x60; // tx empty, rx empty
-        this.modemStatusRegister = 0;
+        this.modemStatusRegister = 0xc0;
         this.divisorLSB = 0;
         this.divisorMSB = 0;
         this.sentTxEmpty = false;
@@ -48,7 +50,7 @@ public class Uart8250 {
         if (empty) {
             lineStatusRegister = lineStatusRegister | 0x20;
         } else {
-            lineStatusRegister = lineStatusRegister | 0xdf;
+            lineStatusRegister = lineStatusRegister & 0xdf;
         }
     }
 
@@ -59,8 +61,10 @@ public class Uart8250 {
     protected void setRxEmpty(boolean empty) {
         if (empty) {
             lineStatusRegister = lineStatusRegister | 0x40;
+            lineStatusRegister = lineStatusRegister & 0xfe;
         } else {
-            lineStatusRegister = lineStatusRegister | 0xbf;
+            lineStatusRegister = lineStatusRegister & 0xbf;
+            lineStatusRegister = lineStatusRegister | 1;
         }
     }
 
@@ -81,7 +85,7 @@ public class Uart8250 {
             if (!latchAccess()) {
                 if (txEmpty()) {
                     txRegister = value & 0xff;
-                    lineStatusRegister = lineStatusRegister & 0xbf;
+                    setTxEmpty(false);
                     if (loopback()) {
                         if (rxEmpty()) {
                             lineStatusRegister = lineStatusRegister & 0xdf;
@@ -122,7 +126,7 @@ public class Uart8250 {
     }
 
     protected void sendTxEmpty() {
-        bus.setInterruptLine(irq);
+//        bus.setInterruptLine(irq);
         sentTxEmpty = true;
     }
 
@@ -142,6 +146,8 @@ public class Uart8250 {
             }
         } else if (regNum == 1) {
             return intEnRegister;
+        } else if (regNum == 2) {
+            return intIdRegister;
         } else if (regNum == 4) {
             return modemStatusRegister;
         } else if (regNum == 5) {

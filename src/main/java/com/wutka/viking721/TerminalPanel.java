@@ -109,7 +109,7 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
                 this.debugger = new Debugger(z80, this, banks, currBlockBanks, this);
             }
 
-            commUart = new Uart8250("comm", this, 1);
+            commUart = new Uart8250("comm", this, 0);
 
             (new Thread(this)).start();
 
@@ -248,8 +248,8 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
                 data = data >> 2;
             }
         } else if (address >= 0x40 && address <= 0x47) {
-            System.out.printf("Writing %02x to UART reg %1d at pc = %04x\n",
-                    data, address - 0x40, z80.getProgramCounter());
+//            System.out.printf("Writing %02x to UART reg %1d at pc = %04x\n",
+//                    data, address - 0x40, z80.getProgramCounter());
             commUart.writeRegister(address - 0x40, data);
         } else {
             portData[address] = (byte) data;
@@ -410,9 +410,13 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
         for (int i=0; i < 8; i++) {
             if ((pendingInterrupts & (1 << i)) != 0) {
                 pendingInterrupts -= (1 << i);
+                if (pendingInterrupts == 0) {
+                    z80.setIRQ(false);
+                }
                 return i * 2;
             }
         }
+        z80.setIRQ(false);
         return 0;
     }
 

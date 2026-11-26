@@ -3860,7 +3860,7 @@ ADDB15:				; ADD BIAS OF ENABLES
 	ld b,013h		;1df1	06 13 	. . 
 	jr 1dfdh			;1df3	18 08 	. . 
 	ld a,(SXOFF)		;1df5	3a eb e0 	: . . 
-	rra			;1df8	1f 	. 
+	rra			;1df8	1f 	.
 	ret nc			;1df9	d0 	. 
 	xor a			;1dfa	af 	. 
 	ld b,011h		;1dfb	06 11 	. . 
@@ -10836,8 +10836,8 @@ VFYCOM:				; Verify COMM
 	ld l,a			;4651
 	ld a,(0cff3h)		;4652 load check type into A
 	                        ;it is set to 0f at 4282h 
-	cp l			;4655 
-	jr z,465dh		;4656 
+	cp l			;4655 Do the flags match the MSR
+	jr z,465dh		;4656 If so, 
 	ld a,b			;4658	78 	x 
 	cp 020h			;4659	fe 20 	.   
 	jr nz,469bh		;465b	20 3e 	  > 
@@ -10846,27 +10846,27 @@ VFYCOM:				; Verify COMM
 	ld hl,07fffh		;4660 set loop counter (really 7f00)
 	call DECHL		;4663 decrement counter and set z flag
 	jr z,469bh		;4666 if the timer expired, quit
-	ld a,(0cfe5h)		;4668	3a e5 cf 	: . . 
-	xor 0aah		;466b	ee aa 	. . 
-	jr nz,4663h		;466d	20 f4 	  . 
-	ld (0cfe5h),a		;466f	32 e5 cf 	2 . . 
-	ld a,002h		;4672	3e 02 	> . 
-	add a,b			;4674	80 	. 
-	ld c,a			;4675	4f 	O 
-	in a,(c)		;4676	ed 78 	. x 
-	and 006h		;4678	e6 06 	. . 
-	jr z,469bh		;467a	28 1f 	( . 
+	ld a,(0cfe5h)		;4668 check temp loc
+	xor 0aah		;466b was aa written there?
+	jr nz,4663h		;466d if not, keep checking
+	ld (0cfe5h),a		;466f store 0 in the temp loc
+	ld a,002h		;4672
+	add a,b			;4674 A now points to int id reg
+	ld c,a			;4675 C now points to int id reg
+	in a,(c)		;4676 read int id reg
+	and 006h		;4678 make sure it is rcv ln status int
+	jr z,469bh		;467a if it isn't, fail
 	ld a,005h		;467c	3e 05 	> . 
-	add a,b			;467e	80 	. 
-	ld c,a			;467f	4f 	O 
-	in a,(c)		;4680	ed 78 	. x 
-	bit 0,a			;4682	cb 47 	. G 
-	jr z,469bh		;4684	28 15 	( . 
-	and 01eh		;4686	e6 1e 	. . 
-	and a			;4688	a7 	. 
-	jr nz,469bh		;4689	20 10 	  . 
-	ld c,b			;468b	48 	H 
-	in a,(c)		;468c	ed 78 	. x 
+	add a,b			;467e A points to LSR
+	ld c,a			;467f C points to LSR
+	in a,(c)		;4680 A contains LSR
+	bit 0,a			;4682 Check to see if Data Ready is set
+	jr z,469bh		;4684 If not, fail
+	and 01eh		;4686 Check for errors or break
+	and a			;4688
+	jr nz,469bh		;4689 If any exist, fail
+	ld c,b			;468b C points to UART base
+	in a,(c)		;468c Read rx register
 	and 07fh		;468e	e6 7f 	.  
 	xor d			;4690	aa 	. 
 	ei			;4691	fb 	. 
@@ -10882,9 +10882,9 @@ VFYCOM:				; Verify COMM
 	ld a,001h		;469f	SET FAILED FLAG TO 1
 	or a			;46a1	SET CONDITION CODE
 	ret			;46a2	RETURN TO 428D, PRINT COMM FAIL
-	push af			;46a3	f5 	. 
-	ld a,0aah		;46a4	3e aa 	> . 
-	ld (0cfe5h),a		;46a6	32 e5 cf 	2 . . 
+	push af			;46a3	COMM ISR FOR VERIFICATION
+	ld a,0aah		;46a4	
+	ld (0cfe5h),a		;46a6	STORE A IN TEMP LOC
 	pop af			;46a9	f1 	. 
 	reti			;46aa	ed 4d 	. M 
 	ld bc,01313h		;46ac	01 13 13 	. . . 

@@ -72,7 +72,7 @@ public class Debugger {
         }
         while (true) {
             Decoder.Instr inst = decoder.get(z80.getProgramCounter());
-            System.out.printf("PC:%04x OP: %02x  Flags: %02x  A: %02x  B: %02x  C: %02x  D: %02x  E: %02x  H: %02x  L: %02x  IX: %04x  IY: %04x  SP: %04x  SF: %02x\n",
+            System.out.printf("PC:%04x OP: %02x  Flags: %02x  A: %02x  B: %02x  C: %02x  D: %02x  E: %02x  H: %02x  L: %02x  IX: %04x  IY: %04x  SP: %04x  SF: %02x  I: %02x\n",
                     z80.getRegisterValue(CPUConstants.RegisterNames.PC),
                     mem.readByte(z80.getRegisterValue(CPUConstants.RegisterNames.PC)),
                     z80.getRegisterValue(CPUConstants.RegisterNames.F),
@@ -86,7 +86,8 @@ public class Debugger {
                     z80.getRegisterValue(CPUConstants.RegisterNames.IX),
                     z80.getRegisterValue(CPUConstants.RegisterNames.IY),
                     z80.getRegisterValue(CPUConstants.RegisterNames.SP),
-                    z80.getRegisterValue(CPUConstants.RegisterNames.F_ALT) & 0xff);
+                    z80.getRegisterValue(CPUConstants.RegisterNames.F_ALT) & 0xff,
+                    z80.getRegisterValue(CPUConstants.RegisterNames.I));
             System.out.print(inst.str);
             System.out.print("> ");
             System.out.flush();
