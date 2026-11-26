@@ -118,6 +118,9 @@ public class Uart8250 {
             if (txIntEnabled() && txEmpty() && !sentTxEmpty) {
                 sendTxEmpty();
             }
+            if (rxIntEnabled() && !rxEmpty() && !sentRxAvailable) {
+                sendRxAvailable();
+            }
         } else if (regNum == 3) {
             lineControlRegister = value;
         } else if (regNum == 4){

@@ -41,12 +41,12 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
     Uart8250 kbdUart;
     Timer[] timers;
     boolean connected;
+    boolean ready;
 
     BlockingQueue<Integer> txQueue = new ArrayBlockingQueue<>(256);
     BlockingQueue<Integer> rxQueue = new ArrayBlockingQueue<>(256);
     BlockingQueue<Integer> kbQueue =  new ArrayBlockingQueue<>(256);
 
-    boolean initialized;
     boolean debug;
     Debugger debugger;
 
@@ -113,13 +113,17 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
             (new Thread(this)).start();
 
             writeToVideoRam = false;
-            connect("localhost", 23);
+            ready = false;
+//            connect("localhost", 23);
 
         } catch (Exception exc) {
             exc.printStackTrace();
         }
     }
 
+    public KeyListener getKeyListener() {
+        return new KeyHandler();
+    }
     public Memory createBankFromFile(String filename, int bankSize, boolean readOnly) {
         try {
             byte[] data = Files.readAllBytes(Path.of(filename));
@@ -223,7 +227,7 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
             int result = commUart.readRegister(address - 0x40);
             return result & 0xff;
         } else if (address >= 0x20 && address <= 0x27) {
-            int result = kbdUart.readRegister(address - 0x40);
+            int result = kbdUart.readRegister(address - 0x20);
             return result & 0xff;
         }
         return portData[address] & 0xff;
@@ -247,7 +251,7 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
         } else if (address >= 0x20 && address <= 0x27) {
             System.out.printf("Writing %02x to kbdUART reg %1d at pc = %04x\n",
                     data, address - 0x20, z80.getProgramCounter());
-            commUart.writeRegister(address - 0x20, data);
+            kbdUart.writeRegister(address - 0x20, data);
         } else if (address < 0x04) {
             System.out.printf("Writing %02x to timer reg %1d at pc = %04x\n",
                     data, address, z80.getProgramCounter());
@@ -289,7 +293,6 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
  */
         block.putData(address & 0x3fff, data);
         if ((address >= 0xe110) && (address <= 0xffff)) {
-//           System.out.printf("Write %02x to video ram at %04x\n", value, address & 0xffff);
             writeToVideoRam = true;
         }
     }
@@ -313,9 +316,17 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
                 } else {
                     z80.executeOneInstruction();
                 }
-                commUart.checkTxQueue();
-                commUart.checkRxQueue();
-                kbdUart.checkRxQueue();
+                if (ready) {
+                    commUart.checkTxQueue();
+                    commUart.checkRxQueue();
+                    kbdUart.checkRxQueue();
+                } else {
+                    if (z80.getProgramCounter() == 0x2925) {
+                        ready = true;
+                        connect("localhost", 23);
+                    }
+//                    System.out.printf("PC = %04x\n", z80.getProgramCounter());
+                }
 
                 if (writeToVideoRam) {
                     this.validate();
@@ -376,6 +387,7 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
     class KeyHandler implements KeyListener {
         @Override
         public void keyTyped(KeyEvent keyEvent) {
+            System.out.printf("Key typed %08x\n", (int) keyEvent.getKeyChar());
             if ((keyEvent.getKeyChar() == 0x0a) || (keyEvent.getKeyChar() == 0x0d)) {
                 kbQueue.offer(0x66);
             } else {
