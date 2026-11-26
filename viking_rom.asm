@@ -532,9 +532,9 @@ skip_copy:
 INIT00:	
 	xor a			;01f7	af 	. 
 	ld (T3RUN),a		;01f8	32 f3 e0 	2 . . 
-	out (PPIC+PPIC_CONTROL),a	;01fb	d3 03 	. . 
+	out (Z80CTC+3),a	;01fb Clear timer interrupt vectors
 	ld a,033h		;01fd	3e 33 	> 3 
-	out (PPIC+PPIC_CONTROL),a	;01ff	d3 03 	. . 
+	out (Z80CTC+3),a	;01ff Reset timer 3
 	ld a,0bbh		;0201	3e bb 	> . 
 	ld (T3TCV),a		;0203	32 f4 e0 	2 . . 
 	call 01636h		;0206	cd 36 16 	. 6 . 
@@ -794,21 +794,21 @@ CINIT:				;COMM INITIALIZATION
 	ld b,a			;03bd	47 	G 
 	call 0043dh		;03be	cd 3d 04 	. = . 
 	ld a,057h		;03c1	3e 57 	> W 
-	out (001h),a		;03c3	d3 01 	. . 
-	ld a,(RBAUD)		;03c5	3a 59 e0 	: Y . 
-	and 00fh		;03c8	e6 0f 	. . 
-	rlca			;03ca	07 	. 
-	ld hl,00361h		;03cb	21 61 03 	! a . 
-	ld e,a			;03ce	5f 	_ 
-	ld d,000h		;03cf	16 00 	. . 
-	add hl,de		;03d1	19 	. 
-	ld a,(hl)		;03d2	7e 	~ 
-	out (001h),a		;03d3	d3 01 	. . 
-	ld a,057h		;03d5	3e 57 	> W 
-	out (002h),a		;03d7	d3 02 	. . 
-	inc hl			;03d9	23 	# 
-	ld a,(hl)		;03da	7e 	~ 
-	out (002h),a		;03db	d3 02 	. . 
+	out (001h),a		;03c3	Timer 1 reset, counter mode, tc follows
+	ld a,(RBAUD)		;03c5	Load baud rate
+	and 00fh		;03c8	Get lower 4 bits of baud
+	rlca			;03ca	Shift baud left
+	ld hl,00361h		;03cb	Get base address of baud rate table
+	ld e,a			;03ce	
+	ld d,000h		;03cf	
+	add hl,de		;03d1	
+	ld a,(hl)		;03d2	Get timer constant for baud rate
+	out (001h),a		;03d3	Write timer constant to timer 1
+	ld a,057h		;03d5	
+	out (002h),a		;03d7	Timer 2 reset, counter mode, tc follows
+	inc hl			;03d9	Get next entry in baud table
+	ld a,(hl)		;03da	Load time constant
+	out (002h),a		;03db	Store it in timer 2
 	ld b,002h		;03dd	06 02 	. . 
 	ld a,(MBYTE3)		;03df	3a 42 e0 	: B . 
 	bit 0,a			;03e2	cb 47 	. G 
@@ -1261,10 +1261,10 @@ ST_TM:				; START DELAY TIMER
 	ret nz			;070f	c0 	. 
 	inc a			;0710	3c 	< 
 	ld (T3RUN),a		;0711	32 f3 e0 	2 . . 
-	ld a,0b7h		;0714	3e b7 	> . 
-	out (PPIC+PPIC_CONTROL),a	;0716	d3 03 	. . 
-	ld a,(T3TCV)		;0718	3a f4 e0 	: . . 
-	out (PPIC+PPIC_CONTROL),a	;071b	d3 03 	. . 
+	ld a,0b7h		;0714	Timer 3 int enabled, reset, tc follows
+	out (Z80CTC+3),a	;0716	Set timer 3
+	ld a,(T3TCV)		;0718	Get timer 3 constant
+	out (Z80CTC+3),a	;071b	Write timer 3 constant
 	ret			;071d	c9 	.
 TMTRAP:				; TIMER INTERRUPT TRAP
 	push af			;071e	f5 	. 
@@ -10413,8 +10413,8 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	ei			;42ce	fb 	. 
 	call 00090h		;42cf	cd 90 00 	. . . 
 	call 042dch		;42d2	cd dc 42 	. . B 
-	ld hl,0488dh		;42d5	21 8d 48 	! . H 
-	call nz,04702h		;42d8	c4 02 47 	. . G 
+	ld hl,0488dh		;42d5 fetch addr of "TIMER"
+	call nz,04702h		;42d8 if timer failed, print err
 	ret			;42db	c9 	. 
 	ld de,0ffffh		;42dc	11 ff ff 	. . . 
 	xor a			;42df	af 	. 
