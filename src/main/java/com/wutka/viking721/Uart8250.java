@@ -57,9 +57,11 @@ public class Uart8250 {
 
     protected void setTxEmpty(boolean empty) {
         if (empty) {
+//            System.out.printf("Set %s UART txEmpty\n", name);
             lineStatusRegister = lineStatusRegister | 0x20;
             sendTxEmpty();
         } else {
+//            System.out.printf("Cleared %s UART txEmpty\n", name);
             sentTxEmpty = false;
             lineStatusRegister = lineStatusRegister & 0xdf;
         }
@@ -71,10 +73,12 @@ public class Uart8250 {
 
     protected void setRxEmpty(boolean empty) {
         if (empty) {
+//            System.out.printf("Set %s UART rxEmpty\n", name);
             lineStatusRegister = lineStatusRegister | 0x40;
             lineStatusRegister = lineStatusRegister & 0xfe;
             sentRxAvailable = false;
         } else {
+//            System.out.printf("Cleared %s UART rxEmpty\n", name);
             lineStatusRegister = lineStatusRegister & 0xbf;
             lineStatusRegister = lineStatusRegister | 1;
             sendRxAvailable();
@@ -95,7 +99,7 @@ public class Uart8250 {
 
     public void writeRegister(int regNum, int value) {
         if (regNum == 0) {
-            if (!latchAccess()) {
+            if (!latchAccess() && (txQueue != null || loopback())) {
                 if (txEmpty()) {
                     txRegister = value & 0xff;
                     setTxEmpty(false);
@@ -108,7 +112,6 @@ public class Uart8250 {
                             rxRegister = txRegister;
                         }
                     } else {
-                        System.out.printf("Uart %s tx holding byte %02x\n", name, value);
                     }
                 }
             } else {

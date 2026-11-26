@@ -245,12 +245,12 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
                 data = data >> 2;
             }
         } else if (address >= 0x40 && address <= 0x47) {
-            System.out.printf("Writing %02x to commUART reg %1d at pc = %04x\n",
-                    data, address - 0x40, z80.getProgramCounter());
+//            System.out.printf("Writing %02x to commUART reg %1d at pc = %04x\n",
+//                    data, address - 0x40, z80.getProgramCounter());
             commUart.writeRegister(address - 0x40, data);
         } else if (address >= 0x20 && address <= 0x27) {
-            System.out.printf("Writing %02x to kbdUART reg %1d at pc = %04x\n",
-                    data, address - 0x20, z80.getProgramCounter());
+//            System.out.printf("Writing %02x to kbdUART reg %1d at pc = %04x\n",
+//                    data, address - 0x20, z80.getProgramCounter());
             kbdUart.writeRegister(address - 0x20, data);
         } else if (address < 0x04) {
             System.out.printf("Writing %02x to timer reg %1d at pc = %04x\n",
@@ -316,14 +316,18 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
                 } else {
                     z80.executeOneInstruction();
                 }
+                long ticksNow = z80.getTStates();
+                for (int i=0; i < 4; i++) {
+                    timers[i].tick(ticksNow-lastTicks);
+                }
                 if (ready) {
                     commUart.checkTxQueue();
                     commUart.checkRxQueue();
                     kbdUart.checkRxQueue();
                 } else {
                     if (z80.getProgramCounter() == 0x2925) {
-                        ready = true;
-                        connect("localhost", 23);
+//                        ready = true;
+//                        connect("localhost", 23);
                     }
 //                    System.out.printf("PC = %04x\n", z80.getProgramCounter());
                 }
