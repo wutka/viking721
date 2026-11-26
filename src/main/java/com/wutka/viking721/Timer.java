@@ -8,7 +8,7 @@ public class Timer {
     boolean interruptEnabled;
     boolean counting;
     long expiryTime;
-    byte timeConstant;
+    int timeConstant;
     int prescale;
     int irq;
 
@@ -19,9 +19,12 @@ public class Timer {
 
     public void writeRegister(int data) {
         if (setTimeConstant) {
-            timeConstant = (byte) (data & 0xff);
+            timeConstant = data & 0xff;
+            if (timeConstant == 0) {
+                timeConstant = 256;
+            }
             setTimeConstant = false;
-        } else {
+        } else if ((data & 1) == 1) { //Control word
             interruptEnabled = (data & 0x80) == 0x80;
             setTimeConstant = (data & 4) == 4;
             if ((data & 0x20) == 0x20) {
@@ -29,8 +32,9 @@ public class Timer {
             } else {
                 prescale = 16;
             }
-            if ((data & 1) == 1) {
+            if ((data & 2) == 2) {
                 counting = false;
+                interruptEnabled = false;
             } else if (!counting) {
                 if ((data & 0x40) == 0x40) {
                     expiryTime = timeConstant;

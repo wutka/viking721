@@ -2,6 +2,7 @@ package com.wutka.viking721;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
 
 public class Uart8250 {
     String name;
@@ -16,12 +17,17 @@ public class Uart8250 {
     int divisorLSB;
     int divisorMSB;
     boolean sentTxEmpty;
+    boolean sentRxAvailable;
     int lastMSR;
 
     InterruptBus bus;
     int irq;
 
-    public Uart8250(String name, InterruptBus bus, int irq) {
+    BlockingQueue<Integer> txQueue;
+    BlockingQueue<Integer> rxQueue;
+
+    public Uart8250(String name, InterruptBus bus, int irq, BlockingQueue<Integer> rxQueue,
+                    BlockingQueue<Integer> txQueue) {
         this.name = name;
         this.bus = bus;
         this.irq = irq;
@@ -36,6 +42,9 @@ public class Uart8250 {
         this.divisorLSB = 0;
         this.divisorMSB = 0;
         this.sentTxEmpty = false;
+        this.sentRxAvailable = false;
+        this.txQueue = txQueue;
+        this.rxQueue = rxQueue;
     }
 
     protected boolean latchAccess() {
@@ -49,7 +58,9 @@ public class Uart8250 {
     protected void setTxEmpty(boolean empty) {
         if (empty) {
             lineStatusRegister = lineStatusRegister | 0x20;
+            sendTxEmpty();
         } else {
+            sentTxEmpty = false;
             lineStatusRegister = lineStatusRegister & 0xdf;
         }
     }
@@ -62,9 +73,11 @@ public class Uart8250 {
         if (empty) {
             lineStatusRegister = lineStatusRegister | 0x40;
             lineStatusRegister = lineStatusRegister & 0xfe;
+            sentRxAvailable = false;
         } else {
             lineStatusRegister = lineStatusRegister & 0xbf;
             lineStatusRegister = lineStatusRegister | 1;
+            sendRxAvailable();
         }
     }
 
@@ -93,9 +106,6 @@ public class Uart8250 {
                             setTxEmpty(true);
                             setRxEmpty(false);
                             rxRegister = txRegister;
-                            if ((intEnRegister & 1) == 1) {
-                                bus.setInterruptLine(irq);
-                            }
                         }
                     } else {
                         System.out.printf("Uart %s tx holding byte %02x\n", name, value);
@@ -126,10 +136,18 @@ public class Uart8250 {
     }
 
     protected void sendTxEmpty() {
-//        bus.setInterruptLine(irq);
-        sentTxEmpty = true;
+        if (txIntEnabled()) {
+            bus.setInterruptLine(irq);
+            sentTxEmpty = true;
+        }
     }
 
+    protected void sendRxAvailable() {
+        if (rxIntEnabled()) {
+            bus.setInterruptLine(irq);
+            sentRxAvailable = true;
+        }
+    }
     public int readRegister(int regNum) {
         if (regNum == 0) {
             if (!latchAccess()) {
@@ -157,5 +175,22 @@ public class Uart8250 {
             return modemStatusRegister;
         }
         return 0;
+    }
+
+    void checkTxQueue() {
+        if (!txEmpty() && txQueue.remainingCapacity() > 0) {
+            txQueue.offer(txRegister);
+            setTxEmpty(true);
+        }
+    }
+
+    void checkRxQueue() {
+        if (rxEmpty()) {
+            Integer d = rxQueue.poll();
+            if (d != null) {
+                rxRegister = d;
+                setRxEmpty(false);
+            }
+        }
     }
 }

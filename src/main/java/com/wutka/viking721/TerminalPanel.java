@@ -17,6 +17,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDevice, InterruptBus {
     Memory[] banks;
@@ -35,14 +37,14 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
     int pendingInterrupts;
     InputStream connIn;
     OutputStream connOut;
-    VikingQueue keyboardQueue;
-    VikingQueue sendQueue;
-    VikingQueue receiveQueue;
     Uart8250 commUart;
+    Uart8250 kbdUart;
+    Timer[] timers;
+    boolean connected;
 
-    Deque<Byte> keyboardData;
-    Deque<Byte> sendData;
-    Deque<Byte> receiveData;
+    BlockingQueue<Integer> txQueue = new ArrayBlockingQueue<>(256);
+    BlockingQueue<Integer> rxQueue = new ArrayBlockingQueue<>(256);
+    BlockingQueue<Integer> kbQueue =  new ArrayBlockingQueue<>(256);
 
     boolean initialized;
     boolean debug;
@@ -93,28 +95,25 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
 
             pendingInterrupts = 0;
 
-            keyboardQueue = new VikingQueue(0xe089, 0xe08a, 0xe08c,
-                   0xdb10, 16);
-            sendQueue = new VikingQueue(0xe08e, 0xe08f, 0xe091,
-                          0xdf00, 192);
-            receiveQueue = new VikingQueue(0xe083, 0xe085, 0xe087,
-                    0xdb20, 992);
-
-            keyboardData = new ArrayDeque<>();
-            receiveData = new ArrayDeque<>();
-            sendData = new ArrayDeque<>();
-
             z80 = new Z80Core(this, this);
             if (debug) {
                 this.debugger = new Debugger(z80, this, banks, currBlockBanks, this);
             }
 
-            commUart = new Uart8250("comm", this, 0);
+            commUart = new Uart8250("comm", this, 0, rxQueue, txQueue);
+            kbdUart = new Uart8250("kbd", this, 5, kbQueue, null);
+
+            timers = new Timer[] {
+                    new Timer(this, 6),
+                            new Timer(this, 6),
+                            new Timer(this, 6),
+                            new Timer(this, 6)
+            };
 
             (new Thread(this)).start();
 
             writeToVideoRam = false;
-
+            connect("localhost", 23);
 
         } catch (Exception exc) {
             exc.printStackTrace();
@@ -160,17 +159,12 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
 
             int outY = 1;
             for (int row = 0; row < 30; row++) {
-//                System.out.printf("Y %02d Row %02d: ", outY, row);
                 int videoOffset = (readByte(VIDEO_RAM + row * 2)&0xff) | ((readByte(VIDEO_RAM + row * 2 + 1)&0xff) << 8);
 
                 for (int scanlineRow = 0; scanlineRow < 15; scanlineRow++) {
                     int x = 1;
                     for (int col = 0; col < 80; col++) {
                         int chr = readByte(VIDEO_RAM + ((col * 2 + videoOffset) & 0x1fff)) & 0xff;
-//                        if (scanlineRow == 0) {
-//                            System.out.printf("%c", chr);
-//                        }
-//                    System.out.printf("Video char: %02x at %04x\n", chr, VIDEO_RAM + ((col * 2 + videoOffset) & 0x1fff));
                         int attr = readByte(VIDEO_RAM + ((col * 2 + 1 + videoOffset) & 0x1fff)) & 0xff;
                         int bits = charmap[chr | (scanlineRow << 8)];
                         boolean draw = true;
@@ -209,10 +203,6 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
                         }
                         x+=8;
                     }
-//                    if (scanlineRow == 0) {
-//                        System.out.println();
-//                    }
-
                     outY++;
                 }
 
@@ -232,6 +222,9 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
         if (address >= 0x40 && address <= 0x47) {
             int result = commUart.readRegister(address - 0x40);
             return result & 0xff;
+        } else if (address >= 0x20 && address <= 0x27) {
+            int result = kbdUart.readRegister(address - 0x40);
+            return result & 0xff;
         }
         return portData[address] & 0xff;
     }
@@ -248,9 +241,17 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
                 data = data >> 2;
             }
         } else if (address >= 0x40 && address <= 0x47) {
-//            System.out.printf("Writing %02x to UART reg %1d at pc = %04x\n",
-//                    data, address - 0x40, z80.getProgramCounter());
+            System.out.printf("Writing %02x to commUART reg %1d at pc = %04x\n",
+                    data, address - 0x40, z80.getProgramCounter());
             commUart.writeRegister(address - 0x40, data);
+        } else if (address >= 0x20 && address <= 0x27) {
+            System.out.printf("Writing %02x to kbdUART reg %1d at pc = %04x\n",
+                    data, address - 0x20, z80.getProgramCounter());
+            commUart.writeRegister(address - 0x20, data);
+        } else if (address < 0x04) {
+            System.out.printf("Writing %02x to timer reg %1d at pc = %04x\n",
+                    data, address, z80.getProgramCounter());
+            timers[address].writeRegister(data);
         } else {
             portData[address] = (byte) data;
         }
@@ -307,93 +308,15 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
             long lastTicks = z80.getTStates();
 
             for (;;) {
-                /*
-                if (initialized) {
-                    System.out.printf("PC:%04x OP: %02x  Flags: %02x  A: %02x  B: %02x  C: %02x  D: %02x  E: %02x  H: %02x  L: %02x  IX: %04x  IY: %04x  SP: %04x  SF: %02x\n",
-                            z80.getRegisterValue(CPUConstants.RegisterNames.PC),
-                            readByte(z80.getRegisterValue(CPUConstants.RegisterNames.PC)),
-                            z80.getRegisterValue(CPUConstants.RegisterNames.F),
-                            z80.getRegisterValue(CPUConstants.RegisterNames.A),
-                            (z80.getRegisterValue(CPUConstants.RegisterNames.BC) >> 8) & 0xff,
-                            z80.getRegisterValue(CPUConstants.RegisterNames.BC) & 0xff,
-                            (z80.getRegisterValue(CPUConstants.RegisterNames.DE) >> 8) & 0xff,
-                            z80.getRegisterValue(CPUConstants.RegisterNames.DE) & 0xff,
-                            (z80.getRegisterValue(CPUConstants.RegisterNames.HL) >> 8) & 0xff,
-                            z80.getRegisterValue(CPUConstants.RegisterNames.HL) & 0xff,
-                            z80.getRegisterValue(CPUConstants.RegisterNames.IX),
-                            z80.getRegisterValue(CPUConstants.RegisterNames.IY),
-                            z80.getRegisterValue(CPUConstants.RegisterNames.SP),
-                            z80.getRegisterValue(CPUConstants.RegisterNames.F_ALT) & 0xff
-                    );
-                }
-                 */
-
-                /*
-                if (pendingInterrupts != 0) {
-                    z80.setIRQ(true);
-                } else {
-                    z80.setIRQ(false);
-                }
-                 */
-
-                synchronized (keyboardData) {
-                    while (keyboardQueueSafe() && !keyboardData.isEmpty() && keyboardQueue.canAccept()) {
-                        byte b = keyboardData.remove();
-                        keyboardQueue.put(b);
-                    }
-                }
-
-                boolean newCommData = false;
-                synchronized (receiveData) {
-                    while (receiveQueueSafe() && !receiveData.isEmpty() && receiveQueue.canAccept()) {
-                        byte b = receiveData.remove();
-                        receiveQueue.put(b);
-                        newCommData = true;
-                    }
-                }
-
-                synchronized (sendData) {
-                    while (sendQueueSafe() && sendQueue.hasData()) {
-                        byte b = sendQueue.get();
-                        sendData.add(b);
-                    }
-                }
-
-                newCommData = false;
-
-                boolean showPC = false;
-                int pc = z80.getProgramCounter() & 0xffff;
-
                 if (this.debug) {
                     this.debugger.step();
                 } else {
                     z80.executeOneInstruction();
                 }
+                commUart.checkTxQueue();
+                commUart.checkRxQueue();
+                kbdUart.checkRxQueue();
 
-                pc = z80.getProgramCounter() & 0xffff;
-                if (showPC) {
-                    System.out.printf("PC is now %04x\n", pc);
-                }
-
-//                if ((pc >= 0x2925) && (pc <= 0x2946)) {
-                if (initialized) {
-                    System.out.printf("PC:%04x OP: %02x  Flags: %02x  A: %02x  B: %02x  C: %02x  D: %02x  E: %02x  H: %02x  L: %02x  IX: %04x  IY: %04x  SP: %04x  SF: %02x\n",
-                            z80.getRegisterValue(CPUConstants.RegisterNames.PC),
-                            readByte(z80.getRegisterValue(CPUConstants.RegisterNames.PC)),
-                            z80.getRegisterValue(CPUConstants.RegisterNames.F),
-                            z80.getRegisterValue(CPUConstants.RegisterNames.A),
-                            (z80.getRegisterValue(CPUConstants.RegisterNames.BC) >> 8) & 0xff,
-                            z80.getRegisterValue(CPUConstants.RegisterNames.BC) & 0xff,
-                            (z80.getRegisterValue(CPUConstants.RegisterNames.DE) >> 8) & 0xff,
-                            z80.getRegisterValue(CPUConstants.RegisterNames.DE) & 0xff,
-                            (z80.getRegisterValue(CPUConstants.RegisterNames.HL) >> 8) & 0xff,
-                            z80.getRegisterValue(CPUConstants.RegisterNames.HL) & 0xff,
-                            z80.getRegisterValue(CPUConstants.RegisterNames.IX),
-                            z80.getRegisterValue(CPUConstants.RegisterNames.IY),
-                            z80.getRegisterValue(CPUConstants.RegisterNames.SP),
-                            z80.getRegisterValue(CPUConstants.RegisterNames.F_ALT) & 0xff
-                    );
-                }
                 if (writeToVideoRam) {
                     this.validate();
                     this.repaint();
@@ -436,51 +359,27 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
         }
     }
 
-    public boolean keyboardQueueSafe() {
-        if (!initialized) return false;
-        int pc = z80.getProgramCounter() & 0xffff;
-        return !(((pc >= 0x6cc) && (pc <= 0x6e9)) ||
-                 ((pc >= 0x292c) && (pc <= 0x2945)) ||
-                (pc == 0x2dca) ||
-                (pc == 0x44fd) ||
-                (pc == 0x45fd) ||
-                (pc == 0x4f73));
+    public void connect(String host, int port) {
+        try {
+            Socket sock = new Socket(host, port);
+            connIn = sock.getInputStream();
+            connOut = sock.getOutputStream();
+            CommReceiver receiver = new CommReceiver();
+            new Thread(receiver).start();
+            CommSender sender = new CommSender();
+            new Thread(sender).start();
 
+        } catch (Exception exc) {
+            exc.printStackTrace();
+        }
     }
-
-    public boolean receiveQueueSafe() {
-        if (!initialized) return false;
-        int pc = z80.getProgramCounter() & 0xffff;
-        return !((pc == 0x66f) ||
-                ((pc >= 0x684) && (pc <= 0x694)) ||
-                ((pc >= 0x1ef8) && (pc <= 0x1f0d)) ||
-                (pc == 0x2db9) ||
-                (pc == 0x4eff));
-
-    }
-
-    public boolean sendQueueSafe() {
-        if (!initialized) return false;
-        int pc = z80.getProgramCounter() & 0xffff;
-        return ! ((pc == 0x170c) ||
-                (pc == 0x2925) ||
-                (pc == 0x2dd1) ||
-                (pc == 0x3087) ||
-                ((pc >= 0x30f8) && (pc <= 0x3111)) ||
-                ((pc >= 0x315f) && (pc <= 0x3173)) ||
-                (pc == 0x318d) ||
-                (pc == 0x4f29));
-    }
-
     class KeyHandler implements KeyListener {
         @Override
         public void keyTyped(KeyEvent keyEvent) {
-            synchronized (keyboardData) {
-                if ((keyEvent.getKeyChar() == 0x0a) || (keyEvent.getKeyChar() == 0x0d)) {
-                    keyboardData.add((byte)0x66);
-                } else {
-                    keyboardData.add((byte) keyEvent.getKeyChar());
-                }
+            if ((keyEvent.getKeyChar() == 0x0a) || (keyEvent.getKeyChar() == 0x0d)) {
+                kbQueue.offer(0x66);
+            } else {
+                kbQueue.offer((int) keyEvent.getKeyChar());
             }
         }
 
@@ -501,12 +400,11 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
                 for (;;) {
                     int n = connIn.read(buff);
                     if (n <= 0) {
-                        System.out.printf("Connection closed");
+                        System.out.println("Connection closed");
+                        connected = false;
                         return;
                     }
-                    synchronized (receiveData) {
-                        receiveData.add(buff[0]);
-                    }
+                    rxQueue.put((int)buff[0]);
                 }
             } catch (Exception exc) {
                 exc.printStackTrace();
@@ -521,90 +419,12 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
 
                 for (;;) {
                     boolean send = false;
-                    synchronized (sendData) {
-                        if (!sendData.isEmpty()) {
-                            buff[0] = sendData.remove();
-                            send = true;
-                        }
-                    }
-
-                    if (send) {
-                        System.out.printf("Sending %02x\n", buff[0]);
-                        connOut.write(buff);
-                    } else {
-                        Thread.sleep(100);
-                    }
+                    buff[0] = txQueue.take().byteValue();
+                    connOut.write(buff);
                 }
             } catch (Exception exc) {
                 exc.printStackTrace();
             }
-        }
-    }
-
-    class VikingQueue {
-        int queueCountAddr;
-        int queueSlotAddr;
-        int queueTakeAddr;
-        int queueAddr;
-        int queueSize;
-
-        VikingQueue(int queueCountAddr, int queueSlotAddr, int queueTakeAddr, int queueAddr, int queueSize) {
-            this.queueCountAddr = queueCountAddr;
-            this.queueSlotAddr = queueSlotAddr;
-            this.queueTakeAddr = queueTakeAddr;
-            this.queueAddr = queueAddr;
-            this.queueSize = queueSize;
-        }
-
-        public int readNumVals() {
-            int numVals = 0;
-            if (queueSize > 256) {
-                numVals = readWord(queueCountAddr) & 0xffff;
-            } else {
-                numVals = readByte(queueCountAddr) & 0xff;
-            }
-            return numVals;
-        }
-
-        public void writeNumVals(int numVals) {
-            if (queueSize > 256) {
-                writeWord(queueCountAddr, numVals & 0xffff);
-            } else {
-                writeByte(queueCountAddr, numVals & 0xff);
-            }
-        }
-
-        public boolean hasData() {
-            return readNumVals() > 0;
-        }
-
-        public boolean canAccept() {
-            return readNumVals() < queueSize;
-        }
-
-        public byte get() {
-            if (!hasData()) return 0;
-            int buffAddr = readWord(queueTakeAddr);
-            int b = readByte(buffAddr) & 0xff;
-            buffAddr++;
-            if (buffAddr >= queueAddr + queueSize) {
-                buffAddr = queueAddr;
-            }
-            writeWord(queueTakeAddr, buffAddr);
-            writeNumVals(readNumVals()-1);
-            return (byte) (b & 0xff);
-        }
-
-        public void put(byte val) {
-            if (!canAccept()) return;
-            int buffAddr = readWord(queueSlotAddr);
-            writeByte(buffAddr, val);
-            buffAddr++;
-            if (buffAddr >= queueAddr + queueSize) {
-                buffAddr = queueAddr;
-            }
-            writeWord(queueSlotAddr, buffAddr);
-            writeNumVals(readNumVals()+1);
         }
     }
 }
