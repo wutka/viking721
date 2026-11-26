@@ -5,40 +5,93 @@ import java.util.Queue;
 
 public class Uart8250 {
     String name;
-    boolean loopbackMode;
-    boolean latchAccess;
-    boolean txIntEnabled;
-    boolean rxIntEnabled;
-    boolean txEmpty;
-    int txHolding;
-    boolean rxEmpty;
-    int rxHolding;
+    int rxRegister;
+    int txRegister;
+    int intEnRegister;
+    int lineControlRegister;
+    int modemControlRegister;
+    int lineStatusRegister;
+    int modemStatusRegister;
+    int divisorLSB;
+    int divisorMSB;
+    boolean sentTxEmpty;
+    int lastMSR;
+
     InterruptBus bus;
     int irq;
 
     public Uart8250(String name, InterruptBus bus, int irq) {
         this.name = name;
-        loopbackMode = false;
         this.bus = bus;
         this.irq = irq;
-        txEmpty = true;
-        rxEmpty = false;
+        this.rxRegister = 0;
+        this.txRegister = 0;
+        this.intEnRegister = 0;
+        this.lineControlRegister = 0;
+        this.modemControlRegister = 0;
+        this.lineStatusRegister = 0x60; // tx empty, rx empty
+        this.modemStatusRegister = 0;
+        this.divisorLSB = 0;
+        this.divisorMSB = 0;
+        this.sentTxEmpty = false;
+    }
+
+    protected boolean latchAccess() {
+        return (lineControlRegister & 0x80) == 0x80;
+    }
+
+    protected boolean txEmpty() {
+        return (lineStatusRegister & 0x20) == 0x20;
+    }
+
+    protected void setTxEmpty(boolean empty) {
+        if (empty) {
+            lineStatusRegister = lineStatusRegister | 0x20;
+        } else {
+            lineStatusRegister = lineStatusRegister | 0xdf;
+        }
+    }
+
+    protected boolean rxEmpty() {
+        return (lineStatusRegister & 0x40) == 0x40;
+    }
+
+    protected void setRxEmpty(boolean empty) {
+        if (empty) {
+            lineStatusRegister = lineStatusRegister | 0x40;
+        } else {
+            lineStatusRegister = lineStatusRegister | 0xbf;
+        }
+    }
+
+    protected boolean loopback() {
+        return (modemControlRegister & 0x10) == 0x10;
+    }
+
+    protected boolean txIntEnabled() {
+        return (intEnRegister & 2) == 2;
+    }
+
+    protected boolean rxIntEnabled() {
+        return (intEnRegister & 1) == 1;
     }
 
     public void writeRegister(int regNum, int value) {
-        System.out.printf("Uart %s write %02x to register %02x\n", name, value, regNum);
         if (regNum == 0) {
-            if (!latchAccess) {
-                if (txEmpty) {
-                    txHolding = value & 0xff;
-                    txEmpty = false;
-                    if (loopbackMode) {
-                        if (rxEmpty) {
-                            rxEmpty = false;
-                            rxHolding = txHolding;
-                        }
-                        if (rxIntEnabled) {
-                            bus.setInterruptLine(irq);
+            if (!latchAccess()) {
+                if (txEmpty()) {
+                    txRegister = value & 0xff;
+                    lineStatusRegister = lineStatusRegister & 0xbf;
+                    if (loopback()) {
+                        if (rxEmpty()) {
+                            lineStatusRegister = lineStatusRegister & 0xdf;
+                            // Set tx empty again
+                            setTxEmpty(true);
+                            setRxEmpty(false);
+                            rxRegister = txRegister;
+                            if ((intEnRegister & 1) == 1) {
+                                bus.setInterruptLine(irq);
+                            }
                         }
                     } else {
                         System.out.printf("Uart %s tx holding byte %02x\n", name, value);
@@ -47,75 +100,55 @@ public class Uart8250 {
             } else {
             }
         } else if (regNum == 1) {
-            if (latchAccess) {
-//                latchHigh = (byte) (value & 0xff);
-            } else {
-                rxIntEnabled = (value & 1) == 1;
-                txIntEnabled = (value & 2) == 2;
-/*                if (rxIntEnabled && !inputQueue.isEmpty()) {
-                    bus.setInterruptLine(irq);
-                }
-                if (txIntEnabled && outputQueue.isEmpty()) {
-                    bus.setInterruptLine(irq);
-                }*/
+            intEnRegister = value;
+            if (txIntEnabled() && txEmpty() && !sentTxEmpty) {
+                sendTxEmpty();
             }
         } else if (regNum == 3) {
-            latchAccess = (value & 0x80) == 0x80;
+            lineControlRegister = value;
         } else if (regNum == 4){
-            loopbackMode = (value & 0x10) == 0x10;
-            System.out.println("Uart "+name+" Loopback mode is "+loopbackMode);
-            if (loopbackMode && ((value & 1) == 1)) {
-                if (!txEmpty && rxEmpty) {
-                    rxHolding = txHolding;
-                    if (rxIntEnabled) {
-                        bus.setInterruptLine(irq);
-                    }
+            modemControlRegister = value;
+            if (loopback()) {
+                modemStatusRegister = modemStatusRegister |
+                        ((modemControlRegister & 2) << 3) |
+                        ((modemControlRegister & 1) << 5);
+                if (((modemStatusRegister & 0x60) ^
+                        (lastMSR & 0x60)) != 0) {
+                    modemStatusRegister |=
+                            ((modemStatusRegister & 0x60) >> 4);
                 }
             }
         }
     }
 
+    protected void sendTxEmpty() {
+        bus.setInterruptLine(irq);
+        sentTxEmpty = true;
+    }
+
     public int readRegister(int regNum) {
         if (regNum == 0) {
-            if (!latchAccess) {
-                if (rxEmpty) {
+            if (!latchAccess()) {
+                if (rxEmpty()) {
                     return 0;
                 } else {
-                    int rxVal = rxHolding;
-                    rxHolding = 0;
-                    rxEmpty = true;
-                    System.out.printf("Uart %s Receive byte %02x\n", name, rxVal);
+                    int rxVal = rxRegister;
+                    rxRegister = 0;
+                    setRxEmpty(true);
                     return rxVal;
                 }
             } else {
                 return 0;
             }
         } else if (regNum == 1) {
-            if (latchAccess) {
-            }
+            return intEnRegister;
         } else if (regNum == 4) {
-            byte status = 0;
-            if (loopbackMode) {
-                status |= 0x10;
-            }
-            return status;
+            return modemStatusRegister;
         } else if (regNum == 5) {
-            byte status = 0;
-            /*
-            if (outputQueue.isEmpty()) {
-//                status |= 0x20;
-            }
-//            status |= 0x40;
-            if (!inputQueue.isEmpty()) {
-                status |= 1;
-            }
-             */
-            return status & 0xff;
+            return lineStatusRegister;
         } else if (regNum == 6) {
-            int status = 0x88;
-            bus.clearInterruptLine(irq);
-
-            return status & 0xff;
+            lastMSR = modemStatusRegister;
+            return modemStatusRegister;
         }
         return 0;
     }

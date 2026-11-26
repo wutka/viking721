@@ -230,7 +230,8 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
     public int IORead(int address) {
         address = address & 0xff;
         if (address >= 0x40 && address <= 0x47) {
-            return commUart.readRegister(address - 0x40);
+            int result = commUart.readRegister(address - 0x40);
+            return result & 0xff;
         }
         return portData[address] & 0xff;
     }
