@@ -486,12 +486,12 @@ initnv1:
 	ld (08000h),a		;0197	32 00 80
 	ld a,(08000h)		;019a	3a 00 80
 	cp 099h			;019d	fe 99  did we get 99 back?
-	jr nz,$+24		;019f	if not, there is no RAM here
+	jr nz,01b7h		;019f	if not, there is no RAM here
 	ld a,066h		;01a1	try writing 66h there
 	ld (08000h),a		;01a3	32 00 80 	2 . . 
 	ld a,(08000h)		;01a6	3a 00 80 	: . . 
 	cp 066h			;01a9	fe 66 	did we get 66h back?
-	jr nz,$+12		;01ab	20 0a if not, no RAM here
+	jr nz,01b7h		;01ab	20 0a if not, no RAM here
     ; set some NVRAM flags to indicate that the
     ; graphic ram page is available
 	ld a,002h		;01ad	3e 02 
@@ -637,7 +637,7 @@ clear_buffers:
 	ld bc,0493ah		;02b4	01 3a 49 	. : I 
 	ret po			;02b7	e0 	. 
 	and 002h		;02b8	e6 02 	. . 
-	jr nz,$+30		;02ba	20 1c 	  .
+	jr nz,02d8h		;02ba	20 1c 	  .
 CRT80:				; SET CRT TO 80 CHR/LINE
 	ld a,006h		;02bc	3e 06 	> . 
 	out (033h),a		;02be	d3 33 	. 3 
@@ -647,10 +647,10 @@ CRT80:				; SET CRT TO 80 CHR/LINE
 	ld hl,00299h		;02c7	21 99 02 	! . . 
 	ld a,(OBYTE4)		;02ca	3a 49 e0 	: I . 
 	and 004h		;02cd	e6 04 	. . 
-	jr z,$+35		;02cf	28 21 	( ! 
+	jr z,02f2h		;02cf	28 21 	( ! 
 	ld b,01dh		;02d1	06 1d 	. . 
 	ld hl,002a0h		;02d3	21 a0 02 	! . . 
-	jr $+28			;02d6	18 1a 	. .
+	jr 02f2h			;02d6	18 1a 	. .
 CRT132:				; SET CRT TO 132 CHR/LINE
 	ld a,007h		;02d8	3e 07 	> . 
 	out (033h),a		;02da	d3 33 	. 3 
@@ -660,7 +660,7 @@ CRT132:				; SET CRT TO 132 CHR/LINE
 	ld hl,002a7h		;02e3	21 a7 02 	! . . 
 	ld a,(OBYTE4)		;02e6	3a 49 e0 	: I . 
 	and 004h		;02e9	e6 04 	. . 
-	jr z,$+7		;02eb	28 05 	( . 
+	jr z,02f2h		;02eb	28 05 	( . 
 	ld b,01dh		;02ed	06 1d 	. . 
 	ld hl,002aeh		;02ef	21 ae 02 	! . . 
 	ld a,b			;02f2	78 	x 
@@ -674,13 +674,13 @@ CRTOUT:				; OUTPUT VALUES TO 5037 CRT CONTROLLER
 	inc c			;02ff	0c 	. 
 	ld a,(XDELTA)		;0300	3a 67 e0 	: g . 
 	bit 2,a			;0303	cb 57 	. W 
-	jr z,$+10		;0305	28 08 	( . 
+	jr z,030fh		;0305	28 08 	( . 
 	and 003h		;0307	e6 03 	. . 
 	rlca			;0309	07 	. 
 	rlca			;030a	07 	. 
 	rlca			;030b	07 	. 
 	add a,(hl)		;030c	86 	. 
-	jr $+7			;030d	18 05 	. . 
+	jr 0314h			;030d	18 05 	. . 
 	and 003h		;030f	e6 03 	. . 
 	ld d,a			;0311	57 	W 
 	ld a,(hl)		;0312	7e 	~ 
@@ -696,10 +696,10 @@ CRTOUT:				; OUTPUT VALUES TO 5037 CRT CONTROLLER
 	inc c			;0320	0c 	. 
 	ld a,(YDELTA)		;0321	3a 68 e0 	: h . 
 	bit 3,a			;0324	cb 5f 	. _ 
-	jr z,$+7		;0326	28 05 	( . 
+	jr z,032dh		;0326	28 05 	( . 
 	and 007h		;0328	e6 07 	. . 
 	add a,(hl)		;032a	86 	. 
-	jr $+7			;032b	18 05 	. . 
+	jr 0332h			;032b	18 05 	. . 
 	and 007h		;032d	e6 07 	. . 
 	ld d,a			;032f	57 	W 
 	ld a,(hl)		;0330	7e 	~ 
@@ -726,8 +726,8 @@ CRTOUT:				; OUTPUT VALUES TO 5037 CRT CONTROLLER
 	nop			;034e	00 	. 
 	ld b,b			;034f	40 	@ 
 	nop			;0350	00 	. 
-	jr nc,$+2		;0351	30 00 	0 . 
-	jr $+2			;0353	18 00 	. . 
+	jr nc,0353h		;0351	30 00 	0 . 
+	jr 0355h			;0353	18 00 	. . 
 	inc c			;0355	0c 	. 
 	nop			;0356	00 	. 
 	ld b,000h		;0357	06 00 	. . 
@@ -748,9 +748,9 @@ CRTOUT:				; OUTPUT VALUES TO 5037 CRT CONTROLLER
 	ld (bc),a		;036b	02 	. 
 	ld h,b			;036c	60 	` 
 	ld (bc),a		;036d	02 	. 
-	jr nc,$+4		;036e	30 02 	0 . 
-	jr nz,$+4		;0370	20 02 	  . 
-	jr $+4			;0372	18 02 	. . 
+	jr nc,0372h		;036e	30 02 	0 . 
+	jr nz,0374h		;0370	20 02 	  . 
+	jr 0376h			;0372	18 02 	. . 
 	inc c			;0374	0c 	. 
 	ld (bc),a		;0375	02 	. 
 	ld b,002h		;0376	06 02 	. . 
@@ -771,10 +771,10 @@ CINIT:				;COMM INITIALIZATION
 	ld l,0c0h		;038a	2e c0 	. . 
 	ld a,(MBYTE2)		;038c	3a 41 e0 	: A . 
 	and 002h		;038f	e6 02 	. . 
-	jr z,$+17		;0391	28 0f 	( . 
+	jr z,03a2h		;0391	28 0f 	( . 
 	ld a,(TBYTE2)		;0393	3a 61 e0 	: a . 
 	and 004h		;0396	e6 04 	. . 
-	jr nz,$+18		;0398	20 10 	  . 
+	jr nz,03aah		;0398	20 10 	  . 
 	pop hl			;039a	e1 	. 
 	ei			;039b	fb 	. 
 	call 00226h		;039c	cd 26 02 	. & . 
@@ -812,16 +812,16 @@ CINIT:				;COMM INITIALIZATION
 	ld b,002h		;03dd	06 02 	. . 
 	ld a,(MBYTE3)		;03df	3a 42 e0 	: B . 
 	bit 0,a			;03e2	cb 47 	. G 
-	jr z,$+4		;03e4	28 02 	( . 
+	jr z,03e8h		;03e4	28 02 	( . 
 	set 0,b			;03e6	cb c0 	. . 
 	bit 1,a			;03e8	cb 4f 	. O 
-	jr z,$+4		;03ea	28 02 	( . 
+	jr z,03eeh		;03ea	28 02 	( . 
 	set 3,b			;03ec	cb d8 	. . 
 	bit 2,a			;03ee	cb 57 	. W 
-	jr z,$+4		;03f0	28 02 	( . 
+	jr z,03f4h		;03f0	28 02 	( . 
 	set 4,b			;03f2	cb e0 	. . 
 	bit 3,a			;03f4	cb 5f 	. _ 
-	jr z,$+4		;03f6	28 02 	( . 
+	jr z,03fah		;03f6	28 02 	( . 
 	set 2,b			;03f8	cb d0 	. . 
 	call 004abh		;03fa	cd ab 04 	. . . 
 	ld b,005h		;03fd	06 05 	. . 
@@ -840,7 +840,7 @@ CINIT:				;COMM INITIALIZATION
 	dec hl			;041b	2b 	+ 
 	ld a,h			;041c	7c 	| 
 	or l			;041d	b5 	. 
-	jr nz,$-3		;041e	20 fb 	  . 
+	jr nz,041bh		;041e	20 fb 	  . 
 	pop hl			;0420	e1 	. 
 	ret			;0421	c9 	. 
 	ld a,(LIGHTS)		;0422	3a ce e0 	: . . 
@@ -881,22 +881,22 @@ CINIT:				;COMM INITIALIZATION
 	ret			;045b	c9 	. 
 	ld a,(MBYTE4)		;045c	3a 43 e0 	: C . 
 	and 001h		;045f	e6 01 	. . 
-	jr z,$+13		;0461	28 0b 	( . 
+	jr z,046eh		;0461	28 0b 	( . 
 	ld a,(OBYTE1)		;0463	3a 46 e0 	: F . 
 	and 001h		;0466	e6 01 	. . 
-	jr z,$+6		;0468	28 04 	( . 
+	jr z,046eh		;0468	28 04 	( . 
 	ld b,000h		;046a	06 00 	. . 
-	jr $+29			;046c	18 1b 	. . 
+	jr 0489h			;046c	18 1b 	. . 
 	ld b,001h		;046e	06 01 	. . 
 	ld a,(OBYTE4)		;0470	3a 49 e0 	: I . 
 	and 001h		;0473	e6 01 	. . 
-	jr nz,$+9		;0475	20 07 	  . 
+	jr nz,047eh		;0475	20 07 	  . 
 	ld a,(MBYTE4)		;0477	3a 43 e0 	: C . 
 	and 002h		;047a	e6 02 	. . 
-	jr nz,$+13		;047c	20 0b 	  . 
+	jr nz,0489h		;047c	20 0b 	  . 
 	call 004a1h		;047e	cd a1 04 	. . . 
 	and 020h		;0481	e6 20 	.   
-	jr z,$+6		;0483	28 04 	( . 
+	jr z,0489h		;0483	28 04 	( . 
 	ld a,002h		;0485	3e 02 	> . 
 	or b			;0487	b0 	. 
 	ld b,a			;0488	47 	G 
@@ -906,13 +906,13 @@ CINIT:				;COMM INITIALIZATION
 	call 004afh		;048d	cd af 04 	. . . 
 	ret			;0490	c9 	. 
 	ld c,000h		;0491	0e 00 	. . 
-	jr $+16			;0493	18 0e 	. . 
+	jr 04a3h			;0493	18 0e 	. . 
 	ld c,003h		;0495	0e 03 	. . 
-	jr $+12			;0497	18 0a 	. . 
+	jr 04a3h			;0497	18 0a 	. . 
 	ld c,005h		;0499	0e 05 	. . 
-	jr $+8			;049b	18 06 	. . 
+	jr 04a3h			;049b	18 06 	. . 
 	ld c,004h		;049d	0e 04 	. . 
-	jr $+4			;049f	18 02 	. . 
+	jr 04a3h			;049f	18 02 	. . 
 	ld c,006h		;04a1	0e 06 	. . 
 	ld a,(CDATAR)		;04a3	3a 81 e0 	: . . 
 	add a,c			;04a6	81 	. 
@@ -920,9 +920,9 @@ CINIT:				;COMM INITIALIZATION
 	in a,(c)		;04a8	ed 78 	. x 
 	ret			;04aa	c9 	. 
 	ld c,003h		;04ab	0e 03 	. . 
-	jr $+8			;04ad	18 06 	. . 
+	jr 04b5h			;04ad	18 06 	. . 
 	ld c,004h		;04af	0e 04 	. . 
-	jr $+4			;04b1	18 02 	. . 
+	jr 04b5h			;04b1	18 02 	. . 
 	ld c,000h		;04b3	0e 00 	. . 
 	ld a,(CDATAR)		;04b5	3a 81 e0 	: . . 
 	add a,c			;04b8	81 	. 
@@ -948,17 +948,17 @@ KINIT:				; KEYBOARD INITIALIZATION
 	ld b,000h		;04de	06 00 	. . 
 	ld a,(LANG)		;04e0	3a 69 e0 	: i . 
 	bit 0,a			;04e3	cb 47 	. G 
-	jr nz,$+4		;04e5	20 02 	  . 
+	jr nz,04e9h		;04e5	20 02 	  . 
 	set 3,b			;04e7	cb d8 	. . 
 	bit 1,a			;04e9	cb 4f 	. O 
-	jr nz,$+4		;04eb	20 02 	  . 
+	jr nz,04efh		;04eb	20 02 	  . 
 	set 2,b			;04ed	cb d0 	. . 
 	bit 2,a			;04ef	cb 57 	. W 
-	jr nz,$+4		;04f1	20 02 	  . 
+	jr nz,04f5h		;04f1	20 02 	  . 
 	set 0,b			;04f3	cb c0 	. . 
 	ld a,(OBYTE1)		;04f5	3a 46 e0 	: F . 
 	and 008h		;04f8	e6 08 	. . 
-	jr z,$+4		;04fa	28 02 	( . 
+	jr z,04feh		;04fa	28 02 	( . 
 	set 1,b			;04fc	cb c8 	. . 
 	ld a,b			;04fe	78 	x 
 	out (024h),a		;04ff	d3 24 	. $ 
@@ -968,7 +968,7 @@ KINIT:				; KEYBOARD INITIALIZATION
 	and 01fh		;0509	e6 1f 	. . 
 	ret z			;050b	c8 	. 
 	in a,(020h)		;050c	db 20 	.   
-	jr $-7			;050e	18 f7 	. . 
+	jr 0507h			;050e	18 f7 	. . 
 	di			;0510	f3 	. 
 	add hl,hl		;0511	29 	) 
 	add a,e			;0512	83 	. 
@@ -987,15 +987,15 @@ PINIT:				; PRINTER INITIALIZATION
 	ld a,(CHAPAR)		;0529	3a 6e e0 	: n . 
 	ld (SAVEA),a		;052c	32 e2 e0 	2 . . 
 	and 008h		;052f	e6 08 	. . 
-	jr nz,$+9		;0531	20 07 	  .
+	jr nz,053ah		;0531	20 07 	  .
 PABI:				; PORT A BIDIRECTIONAL
 	ld c,080h		;0533	0e 80 	. . 
 	ld a,(CHABD)		;0535	3a 6f e0 	: o . 
-	jr $+17			;0538	18 0f 	. . 
+	jr 0549h			;0538	18 0f 	. . 
 	ld a,(CHBPAR)		;053a	3a 70 e0 	: p . 
 	ld (SAVEA),a		;053d	32 e2 e0 	2 . . 
 	and 008h		;0540	e6 08 	. . 
-	jr nz,$+77		;0542	20 4b 	  K
+	jr nz,058fh		;0542	20 4b 	  K
 PBBI:				; PORT B BIDIRECTIONAL
 	ld c,090h		;0544	0e 90 	. . 
 	ld a,(CHBBD)		;0546	3a 71 e0 	: q . 
@@ -1007,17 +1007,17 @@ PBBI:				; PORT B BIDIRECTIONAL
 	ld b,003h		;0554	06 03 	. . 
 	ld a,(SAVEA)		;0556	3a e2 e0 	: . . 
 	and 004h		;0559	e6 04 	. . 
-	jr nz,$+4		;055b	20 02 	  . 
+	jr nz,055fh		;055b	20 02 	  . 
 	ld b,00ah		;055d	06 0a 	. . 
 	ld a,(SAVEA)		;055f	3a e2 e0 	: . . 
 	and 002h		;0562	e6 02 	. . 
-	jr z,$+6		;0564	28 04 	( . 
+	jr z,056ah		;0564	28 04 	( . 
 	ld a,010h		;0566	3e 10 	> . 
 	or b			;0568	b0 	. 
 	ld b,a			;0569	47 	G 
 	ld a,(SAVEA)		;056a	3a e2 e0 	: . . 
 	and 001h		;056d	e6 01 	. . 
-	jr z,$+6		;056f	28 04 	( . 
+	jr z,0575h		;056f	28 04 	( . 
 	ld a,004h		;0571	3e 04 	> . 
 	or b			;0573	b0 	. 
 	ld b,a			;0574	47 	G 
@@ -1044,24 +1044,24 @@ PBBI:				; PORT B BIDIRECTIONAL
 	ld (NOPTR),a		;0599	32 f8 e0 	2 . . 
 	ret			;059c	c9 	. 
 	ld a,(BDATAR)		;059d	3a 80 e0 	: . . 
-	jr $+45			;05a0	18 2b 	. + 
+	jr 05cdh			;05a0	18 2b 	. + 
 	ld a,(BDATAR)		;05a2	3a 80 e0 	: . . 
 	add a,005h		;05a5	c6 05 	. . 
-	jr $+38			;05a7	18 24 	. $ 
+	jr 05cdh			;05a7	18 24 	. $ 
 	ld a,(BDATAR)		;05a9	3a 80 e0 	: . . 
 	add a,006h		;05ac	c6 06 	. . 
-	jr $+31			;05ae	18 1d 	. . 
+	jr 05cdh			;05ae	18 1d 	. . 
 	ld a,(BDATAR)		;05b0	3a 80 e0 	: . . 
-	jr $+33			;05b3	18 1f 	. . 
+	jr 05d4h			;05b3	18 1f 	. . 
 	ld a,(BDATAR)		;05b5	3a 80 e0 	: . . 
 	add a,001h		;05b8	c6 01 	. . 
-	jr $+26			;05ba	18 18 	. . 
+	jr 05d4h			;05ba	18 18 	. . 
 	ld a,(PDATAR)		;05bc	3a 82 e0 	: . . 
-	jr $+14			;05bf	18 0c 	. .
+	jr 05cdh			;05bf	18 0c 	. .
 PILSR:				; INPUT PRINTER LSR
 	ld a,(PDATAR)		;05c1	3a 82 e0 	: . . 
 	add a,005h		;05c4	c6 05 	. . 
-	jr $+7			;05c6	18 05 	. . 
+	jr 05cdh			;05c6	18 05 	. . 
 	ld a,(PDATAR)		;05c8	3a 82 e0 	: . . 
 	add a,006h		;05cb	c6 06 	. . 
 	ld c,a			;05cd	4f 	O 
@@ -1071,15 +1071,15 @@ PILSR:				; INPUT PRINTER LSR
 	ld c,a			;05d4	4f 	O 
 	push bc			;05d5	c5 	. 
 	cp 080h			;05d6	fe 80 	. . 
-	jr nz,$+7		;05d8	20 05 	  . 
+	jr nz,05dfh		;05d8	20 05 	  . 
 	ld a,(CHAPAR)		;05da	3a 6e e0 	: n . 
-	jr $+9			;05dd	18 07 	. . 
+	jr 05e6h			;05dd	18 07 	. . 
 	cp 090h			;05df	fe 90 	. . 
-	jr nz,$+13		;05e1	20 0b 	  . 
+	jr nz,05eeh		;05e1	20 0b 	  . 
 	ld a,(CHBPAR)		;05e3	3a 70 e0 	: p . 
 	res 7,b			;05e6	cb b8 	. . 
 	and 002h		;05e8	e6 02 	. . 
-	jr z,$+4		;05ea	28 02 	( . 
+	jr z,05eeh		;05ea	28 02 	( . 
 	set 7,b			;05ec	cb f8 	. . 
 	out (c),b		;05ee	ed 41 	. A 
 	pop bc			;05f0	c1 	. 
@@ -1135,38 +1135,38 @@ CMTRPU:				; COMM INTERRUPT TRAP-USER
 	in b,(c)		;0632	ed 40 	. @ 
 	ld a,h			;0634	7c 	| 
 	and 001h		;0635	e6 01 	. . 
-	jr z,$+96		;0637	28 5e 	( ^ 
+	jr z,0697h		;0637	28 5e 	( ^ 
 	ld a,(MBYTE4)		;0639	3a 43 e0 	: C . 
 	and 008h		;063c	e6 08 	. . 
-	jr nz,$+26		;063e	20 18 	  . 
+	jr nz,0658h		;063e	20 18 	  . 
 	ld a,e			;0640	7b 	{ 
 	and 020h		;0641	e6 20 	.   
-	jr z,$+84		;0643	28 52 	( R 
+	jr z,0697h		;0643	28 52 	( R 
 	ld a,e			;0645	7b 	{ 
 	and 080h		;0646	e6 80 	. . 
-	jr nz,$+16		;0648	20 0e 	  . 
+	jr nz,0658h		;0648	20 0e 	  . 
 	ld a,(MBYTE4)		;064a	3a 43 e0 	: C . 
 	and 002h		;064d	e6 02 	. . 
-	jr z,$+9		;064f	28 07 	( . 
+	jr z,0658h		;064f	28 07 	( . 
 	ld a,(OBYTE4)		;0651	3a 49 e0 	: I . 
 	and 001h		;0654	e6 01 	. . 
-	jr z,$+65		;0656	28 3f 	( ? 
+	jr z,0697h		;0656	28 3f 	( ? 
 	ld a,d			;0658	7a 	z 
 	and 010h		;0659	e6 10 	. . 
-	jr z,$+13		;065b	28 0b 	( . 
+	jr z,0668h		;065b	28 0b 	( . 
 	call 01519h		;065d	cd 19 15 	. . . 
 	call 0045ch		;0660	cd 5c 04 	. \ . 
 	call 0024ch		;0663	cd 4c 02 	. L . 
-	jr $+7			;0666	18 05 	. . 
+	jr 066dh			;0666	18 05 	. . 
 	ld a,d			;0668	7a 	z 
 	and 00eh		;0669	e6 0e 	. . 
-	jr z,$+4		;066b	28 02 	( . 
+	jr z,066fh		;066b	28 02 	( . 
 	ld b,0ffh		;066d	06 ff 	. . 
 	ld hl,(BFCNT)		;066f	2a 83 e0 	* . . 
 	inc hl			;0672	23 	# 
 	ld a,h			;0673	7c 	| 
 	cp 003h			;0674	fe 03 	. . 
-	jr nz,$+14		;0676	20 0c 	  . 
+	jr nz,0684h		;0676	20 0c 	  . 
 	push hl			;0678	e5 	. 
 	push bc			;0679	c5 	. 
 	call 01deah		;067a	cd ea 1d 	. . . 
@@ -1174,14 +1174,14 @@ CMTRPU:				; COMM INTERRUPT TRAP-USER
 	pop hl			;067e	e1 	. 
 	ld a,l			;067f	7d 	} 
 	cp 0dfh			;0680	fe df 	. . 
-	jr z,$+21		;0682	28 13 	( . 
+	jr z,0697h		;0682	28 13 	( . 
 	ld (BFCNT),hl		;0684	22 83 e0 	" . . 
 	ld hl,(BFINAD)		;0687	2a 85 e0 	* . . 
 	ld (hl),b		;068a	70 	p 
 	inc hl			;068b	23 	# 
 	ld a,h			;068c	7c 	| 
 	cp 0dfh			;068d	fe df 	. . 
-	jr nz,$+5		;068f	20 03 	  . 
+	jr nz,0694h		;068f	20 03 	  . 
 	ld hl,0db20h		;0691	21 20 db 	!   . 
 	ld (BFINAD),hl		;0694	22 85 e0 	" . . 
 	pop hl			;0697	e1 	. 
@@ -1199,7 +1199,7 @@ CMTRPU:				; COMM INTERRUPT TRAP-USER
 	ld b,a			;06a7	47 	G 
 	call 005a2h		;06a8	cd a2 05 	. . . 
 	and 01eh		;06ab	e6 1e 	. . 
-	jr z,$+4		;06ad	28 02 	( . 
+	jr z,06b1h		;06ad	28 02 	( . 
 	ld b,07fh		;06af	06 7f 	.  
 	call 0314ch		;06b1	cd 4c 31 	. L 1 
 	pop de			;06b4	d1 	. 
@@ -1217,21 +1217,21 @@ KBTRPU:				; KEYBOARD INTERRUPT TRAP-USER
 	in a,(025h)		;06c0	db 25 	. % 
 	ld b,a			;06c2	47 	G 
 	and 01eh		;06c3	e6 1e 	. . 
-	jr nz,$+37		;06c5	20 23 	  # 
+	jr nz,06eah		;06c5	20 23 	  # 
 	ld a,b			;06c7	78 	x 
 	and 001h		;06c8	e6 01 	. . 
-	jr z,$+32		;06ca	28 1e 	( . 
+	jr z,06eah		;06ca	28 1e 	( . 
 	ld hl,(KBINAD)		;06cc	2a 8a e0 	* . . 
 	in a,(020h)		;06cf	db 20 	.   
 	cp 067h			;06d1	fe 67 	. g 
-	jr z,$+26		;06d3	28 18 	( . 
+	jr z,06edh		;06d3	28 18 	( . 
 	cp 0e7h			;06d5	fe e7 	. . 
-	jr z,$+22		;06d7	28 14 	( . 
+	jr z,06edh		;06d7	28 14 	( . 
 	ld (hl),a		;06d9	77 	w 
 	inc hl			;06da	23 	# 
 	ld a,l			;06db	7d 	} 
 	cp 020h			;06dc	fe 20 	.   
-	jr nz,$+5		;06de	20 03 	  . 
+	jr nz,06e3h		;06de	20 03 	  . 
 	ld hl,0db10h		;06e0	21 10 db 	! . . 
 	ld (KBINAD),hl		;06e3	22 8a e0 	" . . 
 	ld hl,KBCNT		;06e6	21 89 e0 	! . . 
@@ -1244,14 +1244,14 @@ KBTRPU:				; KEYBOARD INTERRUPT TRAP-USER
 PTTRAP:				; PRINTER INPUT TRAP
 	call 005bch		;06f1	cd bc 05 	. . . 
 	cp 011h			;06f4	fe 11 	. . 
-	jr z,$+16		;06f6	28 0e 	( . 
+	jr z,0706h		;06f6	28 0e 	( . 
 	cp 013h			;06f8	fe 13 	. . 
 	ret nz			;06fa	c0 	. 
 	ld a,(OBYTE1)		;06fb	3a 46 e0 	: F . 
 	and 002h		;06fe	e6 02 	. . 
-	jr z,$+6		;0700	28 04 	( . 
+	jr z,0706h		;0700	28 04 	( . 
 	ld a,001h		;0702	3e 01 	> . 
-	jr $+3			;0704	18 01 	. . 
+	jr 0707h			;0704	18 01 	. . 
 	xor a			;0706	af 	. 
 	ld (0e0f7h),a		;0707	32 f7 e0 	2 . . 
 	ret			;070a	c9 	.
@@ -1287,29 +1287,29 @@ TMTTRPU:			; TIMER INTERRUPT TRAP-USER
 	ld (T3RUN),a		;0734	32 f3 e0 	2 . . 
 	ld a,(UD2ACT)		;0737	3a 9d e0 	: . . 
 	and a			;073a	a7 	. 
-	jr z,$+19		;073b	28 11 	( . 
+	jr z,074eh		;073b	28 11 	( . 
 	dec a			;073d	3d 	= 
 	ld (UD2ACT),a		;073e	32 9d e0 	2 . . 
-	jr nz,$+10		;0741	20 08 	  . 
+	jr nz,074bh		;0741	20 08 	  . 
 	ld hl,(UD2ADD)		;0743	2a 9e e0 	* . . 
 	call 022f6h		;0746	cd f6 22 	. . " 
-	jr $+5			;0749	18 03 	. . 
+	jr 074eh			;0749	18 03 	. . 
 	call 0070bh		;074b	cd 0b 07 	. . . 
 	ld a,(KBDACT)		;074e	3a 95 e0 	: . . 
 	and a			;0751	a7 	. 
-	jr z,$+16		;0752	28 0e 	( . 
+	jr z,0762h		;0752	28 0e 	( . 
 	dec a			;0754	3d 	= 
 	ld (KBDACT),a		;0755	32 95 e0 	2 . . 
-	jr nz,$+7		;0758	20 05 	  . 
+	jr nz,075fh		;0758	20 05 	  . 
 	ld a,008h		;075a	3e 08 	> . 
 	ld (KBRACT),a		;075c	32 96 e0 	2 . . 
 	call 0070bh		;075f	cd 0b 07 	. . . 
 	ld a,(KBRACT)		;0762	3a 96 e0 	: . . 
 	and a			;0765	a7 	. 
-	jr z,$+31		;0766	28 1d 	( . 
+	jr z,0785h		;0766	28 1d 	( . 
 	dec a			;0768	3d 	= 
 	ld (KBRACT),a		;0769	32 96 e0 	2 . . 
-	jr nz,$+22		;076c	20 14 	  . 
+	jr nz,0782h		;076c	20 14 	  . 
 	ld a,(LOCKLT)		;076e	3a d0 e0 	: . . 
 	or 001h			;0771	f6 01 	. . 
 	out (020h),a		;0773	d3 20 	.   
@@ -1321,47 +1321,47 @@ TMTTRPU:			; TIMER INTERRUPT TRAP-USER
 	call 0070bh		;0782	cd 0b 07 	. . . 
 	ld a,(ALRACT)		;0785	3a 93 e0 	: . . 
 	and a			;0788	a7 	. 
-	jr z,$+17		;0789	28 0f 	( . 
+	jr z,079ah		;0789	28 0f 	( . 
 	dec a			;078b	3d 	= 
 	ld (ALRACT),a		;078c	32 93 e0 	2 . . 
-	jr nz,$+8		;078f	20 06 	  . 
+	jr nz,0797h		;078f	20 06 	  . 
 	ld a,001h		;0791	3e 01 	> . 
 	out (033h),a		;0793	d3 33 	. 3 
-	jr $+5			;0795	18 03 	. . 
+	jr 079ah			;0795	18 03 	. . 
 	call 0070bh		;0797	cd 0b 07 	. . . 
 	ld a,(TXDACT)		;079a	3a 99 e0 	: . . 
 	and a			;079d	a7 	. 
-	jr z,$+9		;079e	28 07 	( . 
+	jr z,07a7h		;079e	28 07 	( . 
 	xor a			;07a0	af 	. 
 	ld (TXDACT),a		;07a1	32 99 e0 	2 . . 
 	call 03188h		;07a4	cd 88 31 	. . 1 
 	ld a,(PNTACT)		;07a7	3a 98 e0 	: . . 
 	and a			;07aa	a7 	. 
-	jr z,$+11		;07ab	28 09 	( . 
+	jr z,07b6h		;07ab	28 09 	( . 
 	dec a			;07ad	3d 	= 
 	ld (PNTACT),a		;07ae	32 98 e0 	2 . . 
-	jr z,$+5		;07b1	28 03 	( . 
+	jr z,07b6h		;07b1	28 03 	( . 
 	call 0070bh		;07b3	cd 0b 07 	. . . 
 	ld a,(PCDACT)		;07b6	3a 97 e0 	: . . 
 	and a			;07b9	a7 	. 
-	jr z,$+6		;07ba	28 04 	( . 
+	jr z,07c0h		;07ba	28 04 	( . 
 	xor a			;07bc	af 	. 
 	ld (PCDACT),a		;07bd	32 97 e0 	2 . . 
 	ld a,(BRKACT)		;07c0	3a 94 e0 	: . . 
 	and a			;07c3	a7 	. 
-	jr z,$+16		;07c4	28 0e 	( . 
+	jr z,07d4h		;07c4	28 0e 	( . 
 	dec a			;07c6	3d 	= 
 	ld (BRKACT),a		;07c7	32 94 e0 	2 . . 
-	jr nz,$+7		;07ca	20 05 	  . 
+	jr nz,07d1h		;07ca	20 05 	  . 
 	call 003ddh		;07cc	cd dd 03 	. . . 
-	jr $+5			;07cf	18 03 	. . 
+	jr 07d4h			;07cf	18 03 	. . 
 	call 0070bh		;07d1	cd 0b 07 	. . . 
 	ld a,(UD1ACT)		;07d4	3a 9a e0 	: . . 
 	and a			;07d7	a7 	. 
 	ret z			;07d8	c8 	. 
 	dec a			;07d9	3d 	= 
 	ld (UD1ACT),a		;07da	32 9a e0 	2 . . 
-	jr nz,$+9		;07dd	20 07 	  . 
+	jr nz,07e6h		;07dd	20 07 	  . 
 	ld hl,(UD1ADD)		;07df	2a 9b e0 	* . . 
 	call 022f6h		;07e2	cd f6 22 	. . " 
 	ret			;07e5	c9 	. 
@@ -1380,7 +1380,7 @@ TMTTRPU:			; TIMER INTERRUPT TRAP-USER
 	ld b,l			;07f9	45 	E 
 	inc de			;07fa	13 	. 
 	add hl,de		;07fb	19 	. 
-	jr nz,$+40		;07fc	20 26 	  & 
+	jr nz,0824h		;07fc	20 26 	  & 
 	inc l			;07fe	2c 	, 
 	ld (03f38h),a		;07ff	32 38 3f 	2 8 ? 
 	ld b,l			;0802	45 	E 
@@ -1424,31 +1424,31 @@ TPINP:				; TOUCHPANEL INPUT
 	ld hl,007eah		;0835	21 ea 07 	! . . 
 	ld a,(OBYTE4)		;0838	3a 49 e0 	: I . 
 	and 002h		;083b	e6 02 	. . 
-	jr z,$+5		;083d	28 03 	( . 
+	jr z,0842h		;083d	28 03 	( . 
 	ld hl,007fah		;083f	21 fa 07 	! . . 
 	add hl,de		;0842	19 	. 
 	ld d,(hl)		;0843	56 	V 
 	ld e,000h		;0844	1e 00 	. . 
 	ld a,(OBYTE4)		;0846	3a 49 e0 	: I . 
 	and 004h		;0849	e6 04 	. . 
-	jr nz,$+17		;084b	20 0f 	  . 
+	jr nz,085ch		;084b	20 0f 	  . 
 	ld a,b			;084d	78 	x 
 	cpl			;084e	2f 	/ 
 	and 00fh		;084f	e6 0f 	. . 
 	cp 00eh			;0851	fe 0e 	. . 
-	jr nc,$+17		;0853	30 0f 	0 . 
+	jr nc,0864h		;0853	30 0f 	0 . 
 	sub 002h		;0855	d6 02 	. . 
 	ret m			;0857	f8 	. 
 	rlca			;0858	07 	. 
 	inc a			;0859	3c 	< 
-	jr $+16			;085a	18 0e 	. . 
+	jr 086ah			;085a	18 0e 	. . 
 	ld a,b			;085c	78 	x 
 	cpl			;085d	2f 	/ 
 	and 00fh		;085e	e6 0f 	. . 
 	cp 00fh			;0860	fe 0f 	. . 
-	jr nz,$+7		;0862	20 05 	  . 
+	jr nz,0869h		;0862	20 05 	  . 
 	ld a,(LASTLN)		;0864	3a cd e0 	: . . 
-	jr $+3			;0867	18 01 	. . 
+	jr 086ah			;0867	18 01 	. . 
 	rlca			;0869	07 	. 
 	ld e,a			;086a	5f 	_ 
 	ret			;086b	c9 	. 
@@ -1598,7 +1598,7 @@ TPINP:				; TOUCHPANEL INPUT
 	add a,h			;0a65	84 	. 
 	add a,h			;0a66	84 	. 
 	nop			;0a67	00 	. 
-	jr z,$+2		;0a68	28 00 	( . 
+	jr z,0a6ah		;0a68	28 00 	( . 
 	call nz,00404h		;0a6a	c4 04 04 	. . . 
 	call nz,0e404h		;0a6d	c4 04 e4 	. . . 
 	nop			;0a70	00 	. 
@@ -1725,34 +1725,34 @@ TPINP:				; TOUCHPANEL INPUT
 	call 03203h		;0d0d	cd 03 32 	. . 2 
 	ld hl,(CURSOR)		;0d10	2a b7 e0 	* . . 
 	ld (hl),02ah		;0d13	36 2a 	6 * 
-	jr $+5			;0d15	18 03 	. . 
+	jr 0d1ah			;0d15	18 03 	. . 
 	call 01519h		;0d17	cd 19 15 	. . . 
 	ld a,085h		;0d1a	3e 85 	> . 
 	out (01ch),a		;0d1c	d3 1c 	. . 
 	call 02925h		;0d1e	cd 25 29 	. % ) 
 	ld a,b			;0d21	78 	x 
 	bit 7,b			;0d22	cb 78 	. x 
-	jr z,$+12		;0d24	28 0a 	( . 
+	jr z,0d30h		;0d24	28 0a 	( . 
 	cp 0a5h			;0d26	fe a5 	. . 
-	jr nz,$-10		;0d28	20 f4 	  . 
+	jr nz,0d1eh		;0d28	20 f4 	  . 
 	xor a			;0d2a	af 	. 
 	ld (CONT),a		;0d2b	32 b5 e0 	2 . . 
-	jr $-16			;0d2e	18 ee 	. . 
+	jr 0d1eh			;0d2e	18 ee 	. . 
 	cp 025h			;0d30	fe 25 	. % 
 	jp nz,00d3ch		;0d32	c2 3c 0d 	. < . 
 	ld a,001h		;0d35	3e 01 	> . 
 	ld (CONT),a		;0d37	32 b5 e0 	2 . . 
-	jr $-28			;0d3a	18 e2 	. . 
+	jr 0d1eh			;0d3a	18 e2 	. . 
 	cp 018h			;0d3c	fe 18 	. . 
-	jr nz,$+9		;0d3e	20 07 	  . 
+	jr nz,0d47h		;0d3e	20 07 	  . 
 	ld a,(CONT)		;0d40	3a b5 e0 	: . . 
 	rra			;0d43	1f 	. 
 	jp c,00ed6h		;0d44	da d6 0e 	. . . 
 	call 02947h		;0d47	cd 47 29 	. G ) 
 	cp 081h			;0d4a	fe 81 	. . 
-	jr c,$-53		;0d4c	38 c9 	8 . 
+	jr c,0d17h		;0d4c	38 c9 	8 . 
 	cp 089h			;0d4e	fe 89 	. . 
-	jr nc,$-57		;0d50	30 c5 	0 . 
+	jr nc,0d17h		;0d50	30 c5 	0 . 
 	push af			;0d52	f5 	. 
 	call 02069h		;0d53	cd 69 20 	. i   
 	pop af			;0d56	f1 	. 
@@ -1764,9 +1764,9 @@ TPINP:				; TOUCHPANEL INPUT
 	ld l,037h		;0d63	2e 37 	. 7 
 	ld a,(ASEL)		;0d65	3a 66 e0 	: f . 
 	and 007h		;0d68	e6 07 	. . 
-	jr nz,$+6		;0d6a	20 04 	  . 
+	jr nz,0d70h		;0d6a	20 04 	  . 
 	inc a			;0d6c	3c 	< 
-	jr $+3			;0d6d	18 01 	. . 
+	jr 0d70h			;0d6d	18 01 	. . 
 	ld a,b			;0d6f	78 	x 
 	ld (MDACT),a		;0d70	32 fe e0 	2 . . 
 	cp 007h			;0d73	fe 07 	. . 
@@ -1786,7 +1786,7 @@ TPINP:				; TOUCHPANEL INPUT
 	ld (OBYTE4),a		;0d92	32 49 e0 	2 I . 
 	ld a,(MBYTE1)		;0d95	3a 40 e0 	: @ . 
 	and 001h		;0d98	e6 01 	. . 
-	jr nz,$+31		;0d9a	20 1d 	  .
+	jr nz,0db9h		;0d9a	20 1d 	  .
 MODENE:				; DISPLAY MODE NOT ENABLED
 	call 0026dh		;0d9c	cd 6d 02 	. m . 
 	ld d,000h		;0d9f	16 00 	. . 
@@ -1801,7 +1801,7 @@ MODENE:				; DISPLAY MODE NOT ENABLED
 	jp 00c9ch		;0db6	c3 9c 0c 	. . . 
 	ld a,(MBYTE1)		;0db9	3a 40 e0 	: @ . 
 	and 002h		;0dbc	e6 02 	. . 
-	jr z,$+103		;0dbe	28 65 	( e 
+	jr z,0e25h		;0dbe	28 65 	( e 
 	ld d,000h		;0dc0	16 00 	. . 
 	ld e,01ah		;0dc2	1e 1a 	. . 
 	call 031fbh		;0dc4	cd fb 31 	. . 1 
@@ -1818,13 +1818,13 @@ MODENE:				; DISPLAY MODE NOT ENABLED
 	ld c,a			;0ddf	4f 	O 
 	call 02925h		;0de0	cd 25 29 	. % ) 
 	bit 7,b			;0de3	cb 78 	. x 
-	jr nz,$-5		;0de5	20 f9 	  . 
+	jr nz,0de0h		;0de5	20 f9 	  . 
 	call 02947h		;0de7	cd 47 29 	. G ) 
 	cp 050h			;0dea	fe 50 	. P 
-	jr c,$+4		;0dec	38 02 	8 . 
+	jr c,0df0h		;0dec	38 02 	8 . 
 	sub 020h		;0dee	d6 20 	.   
 	cp c			;0df0	b9 	. 
-	jr z,$+10		;0df1	28 08 	( . 
+	jr z,0dfbh		;0df1	28 08 	( . 
 	ld a,(ERROR)		;0df3	3a bd e0 	: . . 
 	or 001h			;0df6	f6 01 	. . 
 	ld (ERROR),a		;0df8	32 bd e0 	2 . . 
@@ -1837,10 +1837,10 @@ MODENE:				; DISPLAY MODE NOT ENABLED
 	call 00e8eh		;0e05	cd 8e 0e 	. . . 
 	pop hl			;0e08	e1 	. 
 	inc hl			;0e09	23 	# 
-	jr z,$-48		;0e0a	28 ce 	( . 
+	jr z,0ddah		;0e0a	28 ce 	( . 
 	ld a,(ERROR)		;0e0c	3a bd e0 	: . . 
 	cp 001h			;0e0f	fe 01 	. . 
-	jr nz,$+20		;0e11	20 12 	  . 
+	jr nz,0e25h		;0e11	20 12 	  . 
 	call 014bdh		;0e13	cd bd 14 	. . . 
 	call 014bdh		;0e16	cd bd 14 	. . . 
 	ld hl,00b0eh		;0e19	21 0e 0b 	! . . 
@@ -1881,7 +1881,7 @@ MODENE:				; DISPLAY MODE NOT ENABLED
 	inc de			;0e68	13 	. 
 	inc hl			;0e69	23 	# 
 	inc hl			;0e6a	23 	# 
-	djnz $-17		;0e6b	10 ed 	. . 
+	djnz 0e5ah		;0e6b	10 ed 	. . 
 	ret			;0e6d	c9 	. 
 	ld de,(CURSOR)		;0e6e	ed 5b b7 e0 	. [ . . 
 	inc de			;0e72	13 	. 
@@ -1894,7 +1894,7 @@ MODENE:				; DISPLAY MODE NOT ENABLED
 	inc de			;0e7a	13 	. 
 	inc de			;0e7b	13 	. 
 	inc hl			;0e7c	23 	# 
-	djnz $-8		;0e7d	10 f6 	. . 
+	djnz 0e75h		;0e7d	10 f6 	. . 
 	ret			;0e7f	c9 	. 
 	ld de,(CURSOR)		;0e80	ed 5b b7 e0 	. [ . . 
 	ld b,(hl)		;0e84	46 	F 
@@ -1904,11 +1904,11 @@ MODENE:				; DISPLAY MODE NOT ENABLED
 	inc de			;0e88	13 	. 
 	inc de			;0e89	13 	. 
 	inc hl			;0e8a	23 	# 
-	djnz $-5		;0e8b	10 f9 	. . 
+	djnz 0e86h		;0e8b	10 f9 	. . 
 	ret			;0e8d	c9 	. 
 	xor a			;0e8e	af 	. 
 	ld (BSCRPE),a		;0e8f	32 ad e0 	2 . . 
-	jr $+7			;0e92	18 05 	. . 
+	jr 0e99h			;0e92	18 05 	. . 
 	ld a,001h		;0e94	3e 01 	> . 
 	ld (BSCRPE),a		;0e96	32 ad e0 	2 . . 
 	push bc			;0e99	c5 	. 
@@ -1920,31 +1920,31 @@ MODENE:				; DISPLAY MODE NOT ENABLED
 	ld b,a			;0ea3	47 	G 
 	ld a,(BSCRPE)		;0ea4	3a ad e0 	: . . 
 	rra			;0ea7	1f 	. 
-	jr c,$+17		;0ea8	38 0f 	8 . 
+	jr c,0eb9h		;0ea8	38 0f 	8 . 
 	ld a,b			;0eaa	78 	x 
 	cp 04fh			;0eab	fe 4f 	. O 
-	jr z,$+35		;0ead	28 21 	( ! 
+	jr z,0ed0h		;0ead	28 21 	( ! 
 	inc b			;0eaf	04 	. 
 	inc hl			;0eb0	23 	# 
 	inc hl			;0eb1	23 	# 
 	ld a,(hl)		;0eb2	7e 	~ 
 	bit 7,a			;0eb3	cb 7f 	.  
-	jr z,$-11		;0eb5	28 f3 	( . 
-	jr $+15			;0eb7	18 0d 	. . 
+	jr z,0eaah		;0eb5	28 f3 	( . 
+	jr 0ec6h			;0eb7	18 0d 	. . 
 	ld a,b			;0eb9	78 	x 
 	cp 000h			;0eba	fe 00 	. . 
-	jr z,$+20		;0ebc	28 12 	( . 
+	jr z,0ed0h		;0ebc	28 12 	( . 
 	dec b			;0ebe	05 	. 
 	dec hl			;0ebf	2b 	+ 
 	dec hl			;0ec0	2b 	+ 
 	ld a,(hl)		;0ec1	7e 	~ 
 	bit 7,a			;0ec2	cb 7f 	.  
-	jr z,$-11		;0ec4	28 f3 	( . 
+	jr z,0eb9h		;0ec4	28 f3 	( . 
 	ld a,b			;0ec6	78 	x 
 	ld (CHRCNT),a		;0ec7	32 b1 e0 	2 . . 
 	call 03203h		;0eca	cd 03 32 	. . 2 
 	xor a			;0ecd	af 	. 
-	jr $+4			;0ece	18 02 	. . 
+	jr 0ed2h			;0ece	18 02 	. . 
 	xor a			;0ed0	af 	. 
 	inc a			;0ed1	3c 	< 
 	pop hl			;0ed2	e1 	. 
@@ -1955,7 +1955,7 @@ MODENE:				; DISPLAY MODE NOT ENABLED
 	ld (TIPE),a		;0ed8	32 ee e0 	2 . . 
 	ld hl,04000h		;0edb	21 00 40 	! . @ 
 	ld (MODEST),hl		;0ede	22 d9 e0 	" . . 
-	jr $+6			;0ee1	18 04 	. . 
+	jr 0ee7h			;0ee1	18 04 	. . 
 	xor a			;0ee3	af 	. 
 	ld (TIPE),a		;0ee4	32 ee e0 	2 . . 
 	call 00e47h		;0ee7	cd 47 0e 	. G . 
@@ -1967,7 +1967,7 @@ MODENE:				; DISPLAY MODE NOT ENABLED
 	ld hl,009c4h		;0ef8	21 c4 09 	! . . 
 	ld a,(TIPE)		;0efb	3a ee e0 	: . . 
 	rra			;0efe	1f 	. 
-	jr c,$+5		;0eff	38 03 	8 . 
+	jr c,0f04h		;0eff	38 03 	8 . 
 	ld hl,00a91h		;0f01	21 91 0a 	! . . 
 	call 00e80h		;0f04	cd 80 0e 	. . . 
 	call 021f5h		;0f07	cd f5 21 	. . ! 
@@ -1976,7 +1976,7 @@ MODENE:				; DISPLAY MODE NOT ENABLED
 	call 00e80h		;0f10	cd 80 0e 	. . . 
 	ld a,(TIPE)		;0f13	3a ee e0 	: . . 
 	rra			;0f16	1f 	. 
-	jr nc,$+19		;0f17	30 11 	0 . 
+	jr nc,0f2ah		;0f17	30 11 	0 . 
 	ld a,04ah		;0f19	3e 4a 	> J 
 	ld (CHRCNT),a		;0f1b	32 b1 e0 	2 . . 
 	call 03203h		;0f1e	cd 03 32 	. . 2 
@@ -1991,7 +1991,7 @@ MODENE:				; DISPLAY MODE NOT ENABLED
 	ld hl,00a68h		;0f38	21 68 0a 	! h . 
 	ld a,(TIPE)		;0f3b	3a ee e0 	: . . 
 	rra			;0f3e	1f 	. 
-	jr c,$+5		;0f3f	38 03 	8 . 
+	jr c,0f44h		;0f3f	38 03 	8 . 
 	ld hl,00abah		;0f41	21 ba 0a 	! . . 
 	call 00e6eh		;0f44	cd 6e 0e 	. n . 
 	call 021cah		;0f47	cd ca 21 	. . ! 
@@ -2002,86 +2002,86 @@ MODENE:				; DISPLAY MODE NOT ENABLED
 	ld b,00ch		;0f56	06 0c 	. . 
 	ld a,(TIPE)		;0f58	3a ee e0 	: . . 
 	rra			;0f5b	1f 	. 
-	jr c,$+4		;0f5c	38 02 	8 . 
+	jr c,0f60h		;0f5c	38 02 	8 . 
 	ld b,018h		;0f5e	06 18 	. . 
 	call 0112bh		;0f60	cd 2b 11 	. + . 
 	call 021cah		;0f63	cd ca 21 	. . ! 
 	call 00e8eh		;0f66	cd 8e 0e 	. . . 
-	jr $+5			;0f69	18 03 	. . 
+	jr 0f6eh			;0f69	18 03 	. . 
 	call 01519h		;0f6b	cd 19 15 	. . . 
 	call 02925h		;0f6e	cd 25 29 	. % ) 
 	bit 7,b			;0f71	cb 78 	. x 
-	jr nz,$-5		;0f73	20 f9 	  . 
+	jr nz,0f6eh		;0f73	20 f9 	  . 
 	ld a,b			;0f75	78 	x 
 	cp 06fh			;0f76	fe 6f 	. o 
 	jp z,0100fh		;0f78	ca 0f 10 	. . . 
 	call 02947h		;0f7b	cd 47 29 	. G ) 
 	cp 020h			;0f7e	fe 20 	.   
-	jr z,$+85		;0f80	28 53 	( S 
+	jr z,0fd5h		;0f80	28 53 	( S 
 	cp 0e1h			;0f82	fe e1 	. . 
-	jr nz,$+7		;0f84	20 05 	  . 
+	jr nz,0f8bh		;0f84	20 05 	  . 
 	call 00e94h		;0f86	cd 94 0e 	. . . 
-	jr $+79			;0f89	18 4d 	. M 
+	jr 0fd8h			;0f89	18 4d 	. M 
 	cp 08bh			;0f8b	fe 8b 	. . 
-	jr nc,$-34		;0f8d	30 dc 	0 . 
+	jr nc,0f6bh		;0f8d	30 dc 	0 . 
 	cp 081h			;0f8f	fe 81 	. . 
-	jr c,$+19		;0f91	38 11 	8 . 
+	jr c,0fa4h		;0f91	38 11 	8 . 
 	ld hl,011a8h		;0f93	21 a8 11 	! . . 
 	ld b,a			;0f96	47 	G 
 	ld a,(TIPE)		;0f97	3a ee e0 	: . . 
 	rra			;0f9a	1f 	. 
-	jr c,$+5		;0f9b	38 03 	8 . 
+	jr c,0fa0h		;0f9b	38 03 	8 . 
 	ld hl,011bch		;0f9d	21 bc 11 	! . . 
 	ld a,b			;0fa0	78 	x 
 	jp 01186h		;0fa1	c3 86 11 	. . . 
 	call 00fddh		;0fa4	cd dd 0f 	. . . 
-	jr z,$+46		;0fa7	28 2c 	( , 
-	jr $-62			;0fa9	18 c0 	. . 
+	jr z,0fd5h		;0fa7	28 2c 	( , 
+	jr 0f6bh			;0fa9	18 c0 	. . 
 	ld a,008h		;0fab	3e 08 	> . 
-	jr $+34			;0fad	18 20 	.   
+	jr 0fcfh			;0fad	18 20 	.   
 	ld a,010h		;0faf	3e 10 	> . 
-	jr $+30			;0fb1	18 1c 	. . 
+	jr 0fcfh			;0fb1	18 1c 	. . 
 	ld a,018h		;0fb3	3e 18 	> . 
-	jr $+26			;0fb5	18 18 	. . 
+	jr 0fcfh			;0fb5	18 18 	. . 
 	ld a,020h		;0fb7	3e 20 	>   
-	jr $+22			;0fb9	18 14 	. . 
+	jr 0fcfh			;0fb9	18 14 	. . 
 	ld a,028h		;0fbb	3e 28 	> ( 
-	jr $+18			;0fbd	18 10 	. . 
+	jr 0fcfh			;0fbd	18 10 	. . 
 	ld a,031h		;0fbf	3e 31 	> 1 
-	jr $+14			;0fc1	18 0c 	. . 
+	jr 0fcfh			;0fc1	18 0c 	. . 
 	ld a,039h		;0fc3	3e 39 	> 9 
-	jr $+10			;0fc5	18 08 	. . 
+	jr 0fcfh			;0fc5	18 08 	. . 
 	ld a,041h		;0fc7	3e 41 	> A 
-	jr $+6			;0fc9	18 04 	. . 
+	jr 0fcfh			;0fc9	18 04 	. . 
 	ld a,049h		;0fcb	3e 49 	> I 
-	jr $+2			;0fcd	18 00 	. . 
+	jr 0fcfh			;0fcd	18 00 	. . 
 	ld (CHRCNT),a		;0fcf	32 b1 e0 	2 . . 
 	call 03203h		;0fd2	cd 03 32 	. . 2 
 	call 00e8eh		;0fd5	cd 8e 0e 	. . . 
-	jr nz,$-45		;0fd8	20 d1 	  . 
+	jr nz,0fabh		;0fd8	20 d1 	  . 
 	jp 00f6eh		;0fda	c3 6e 0f 	. n . 
 	ld hl,(CURSOR)		;0fdd	2a b7 e0 	* . . 
 	inc hl			;0fe0	23 	# 
 	ld c,(hl)		;0fe1	4e 	N 
 	cp 030h			;0fe2	fe 30 	. 0 
-	jr c,$+36		;0fe4	38 22 	8 " 
+	jr c,1008h		;0fe4	38 22 	8 " 
 	cp 032h			;0fe6	fe 32 	. 2 
-	jr c,$+35		;0fe8	38 21 	8 ! 
+	jr c,100bh		;0fe8	38 21 	8 ! 
 	cp 038h			;0fea	fe 38 	. 8 
-	jr c,$+18		;0fec	38 10 	8 . 
+	jr c,0ffeh		;0fec	38 10 	8 . 
 	cp 03ah			;0fee	fe 3a 	. : 
-	jr c,$+20		;0ff0	38 12 	8 . 
+	jr c,1004h		;0ff0	38 12 	8 . 
 	sub 020h		;0ff2	d6 20 	.   
 	cp 041h			;0ff4	fe 41 	. A 
-	jr c,$+18		;0ff6	38 10 	8 . 
+	jr c,1008h		;0ff6	38 10 	8 . 
 	cp 047h			;0ff8	fe 47 	. G 
-	jr c,$+10		;0ffa	38 08 	8 . 
-	jr $+12			;0ffc	18 0a 	. . 
+	jr c,1004h		;0ffa	38 08 	8 . 
+	jr 1008h			;0ffc	18 0a 	. . 
 	bit 6,c			;0ffe	cb 71 	. q 
-	jr nz,$+11		;1000	20 09 	  . 
-	jr $+6			;1002	18 04 	. . 
+	jr nz,100bh		;1000	20 09 	  . 
+	jr 1008h			;1002	18 04 	. . 
 	bit 5,c			;1004	cb 69 	. i 
-	jr nz,$+5		;1006	20 03 	  . 
+	jr nz,100bh		;1006	20 03 	  . 
 	xor a			;1008	af 	. 
 	inc a			;1009	3c 	< 
 	ret			;100a	c9 	. 
@@ -2097,18 +2097,18 @@ MODENE:				; DISPLAY MODE NOT ENABLED
 	ld b,00ch		;101e	06 0c 	. . 
 	ld a,(TIPE)		;1020	3a ee e0 	: . . 
 	rra			;1023	1f 	. 
-	jr c,$+4		;1024	38 02 	8 . 
+	jr c,1028h		;1024	38 02 	8 . 
 	ld b,018h		;1026	06 18 	. . 
 	ld hl,(CURSOR)		;1028	2a b7 e0 	* . . 
 	ld a,(hl)		;102b	7e 	~ 
 	sub 030h		;102c	d6 30 	. 0 
 	cp 00ah			;102e	fe 0a 	. . 
-	jr c,$+4		;1030	38 02 	8 . 
+	jr c,1034h		;1030	38 02 	8 . 
 	sub 007h		;1032	d6 07 	. . 
 	ld (de),a		;1034	12 	. 
 	call 00e8eh		;1035	cd 8e 0e 	. . . 
 	inc de			;1038	13 	. 
-	djnz $-17		;1039	10 ed 	. . 
+	djnz 1028h		;1039	10 ed 	. . 
 	ld a,009h		;103b	3e 09 	> . 
 	ld (0401dh),a		;103d	32 1d 40 	2 . @ 
 	ld a,006h		;1040	3e 06 	> . 
@@ -2123,7 +2123,7 @@ MODENE:				; DISPLAY MODE NOT ENABLED
 	call 03d09h		;1057	cd 09 3d 	. . = 
 	ld a,b			;105a	78 	x 
 	rra			;105b	1f 	. 
-	jr nc,$+4		;105c	30 02 	0 . 
+	jr nc,1060h		;105c	30 02 	0 . 
 	set 3,a			;105e	cb df 	. . 
 	ld (0401fh),a		;1060	32 1f 40 	2 . @ 
 	ret			;1063	c9 	. 
@@ -2133,20 +2133,20 @@ MODENE:				; DISPLAY MODE NOT ENABLED
 	call 031fbh		;106b	cd fb 31 	. . 1 
 	ld hl,008e5h		;106e	21 e5 08 	! . . 
 	call 022a6h		;1071	cd a6 22 	. . " 
-	jr $+5			;1074	18 03 	. . 
+	jr 1079h			;1074	18 03 	. . 
 	call 01519h		;1076	cd 19 15 	. . . 
 	call 02925h		;1079	cd 25 29 	. % ) 
 	bit 7,b			;107c	cb 78 	. x 
-	jr nz,$-5		;107e	20 f9 	  . 
+	jr nz,1079h		;107e	20 f9 	  . 
 	call 02947h		;1080	cd 47 29 	. G ) 
 	cp 031h			;1083	fe 31 	. 1 
-	jr c,$-15		;1085	38 ef 	8 . 
+	jr c,1076h		;1085	38 ef 	8 . 
 	cp 033h			;1087	fe 33 	. 3 
-	jr c,$+11		;1089	38 09 	8 . 
+	jr c,1094h		;1089	38 09 	8 . 
 	cp 037h			;108b	fe 37 	. 7 
-	jr nc,$-23		;108d	30 e7 	0 . 
+	jr nc,1076h		;108d	30 e7 	0 . 
 	call 0109ah		;108f	cd 9a 10 	. . . 
-	jr $+31			;1092	18 1d 	. . 
+	jr 10b1h			;1092	18 1d 	. . 
 	call 0109ah		;1094	cd 9a 10 	. . . 
 	jp 00ee3h		;1097	c3 e3 0e 	. . . 
 	ld hl,(CURSOR)		;109a	2a b7 e0 	* . . 
@@ -2170,38 +2170,38 @@ MODENE:				; DISPLAY MODE NOT ENABLED
 	ld a,(MDACT)		;10c0	3a fe e0 	: . . 
 	ld de,040e0h		;10c3	11 e0 40 	. . @ 
 	cp 003h			;10c6	fe 03 	. . 
-	jr z,$+19		;10c8	28 11 	( . 
+	jr z,10dbh		;10c8	28 11 	( . 
 	ld de,040e8h		;10ca	11 e8 40 	. . @ 
 	cp 004h			;10cd	fe 04 	. . 
-	jr z,$+12		;10cf	28 0a 	( . 
+	jr z,10dbh		;10cf	28 0a 	( . 
 	ld de,040f0h		;10d1	11 f0 40 	. . @ 
 	cp 005h			;10d4	fe 05 	. . 
-	jr z,$+5		;10d6	28 03 	( . 
+	jr z,10dbh		;10d6	28 03 	( . 
 	ld de,040f8h		;10d8	11 f8 40 	. . @ 
 	ld hl,(CURSOR)		;10db	2a b7 e0 	* . . 
 	ld b,004h		;10de	06 04 	. . 
 	push de			;10e0	d5 	. 
 	call 00e5ah		;10e1	cd 5a 0e 	. Z . 
 	pop de			;10e4	d1 	. 
-	jr $+5			;10e5	18 03 	. . 
+	jr 10eah			;10e5	18 03 	. . 
 	call 01519h		;10e7	cd 19 15 	. . . 
 	call 02925h		;10ea	cd 25 29 	. % ) 
 	bit 7,b			;10ed	cb 78 	. x 
-	jr nz,$-5		;10ef	20 f9 	  . 
+	jr nz,10eah		;10ef	20 f9 	  . 
 	call 02947h		;10f1	cd 47 29 	. G ) 
 	cp 0e3h			;10f4	fe e3 	. . 
-	jr z,$+47		;10f6	28 2d 	( - 
+	jr z,1125h		;10f6	28 2d 	( - 
 	ld b,a			;10f8	47 	G 
 	push de			;10f9	d5 	. 
 	call 027f5h		;10fa	cd f5 27 	. . ' 
 	pop de			;10fd	d1 	. 
 	ld a,b			;10fe	78 	x 
 	cp 020h			;10ff	fe 20 	.   
-	jr c,$-26		;1101	38 e4 	8 . 
+	jr c,10e7h		;1101	38 e4 	8 . 
 	cp 07fh			;1103	fe 7f 	.  
-	jr nc,$-30		;1105	30 e0 	0 . 
+	jr nc,10e7h		;1105	30 e0 	0 . 
 	cp 050h			;1107	fe 50 	. P 
-	jr c,$+4		;1109	38 02 	8 . 
+	jr c,110dh		;1109	38 02 	8 . 
 	sub 020h		;110b	d6 20 	.   
 	ld hl,(CURSOR)		;110d	2a b7 e0 	* . . 
 	ld (hl),a		;1110	77 	w 
@@ -2219,7 +2219,7 @@ MODENE:				; DISPLAY MODE NOT ENABLED
 	ld (de),a		;111e	12 	. 
 	inc de			;111f	13 	. 
 	call 00e8eh		;1120	cd 8e 0e 	. . . 
-	jr z,$-57		;1123	28 c5 	( . 
+	jr z,10eah		;1123	28 c5 	( . 
 	call 0104bh		;1125	cd 4b 10 	. K . 
 	jp 00ee3h		;1128	c3 e3 0e 	. . . 
 	ld a,(de)		;112b	1a 	. 
@@ -2227,7 +2227,7 @@ MODENE:				; DISPLAY MODE NOT ENABLED
 	ld c,a			;112f	4f 	O 
 	call 0117ch		;1130	cd 7c 11 	. | . 
 	inc de			;1133	13 	. 
-	djnz $-9		;1134	10 f5 	. . 
+	djnz 112bh		;1134	10 f5 	. . 
 	ret			;1136	c9 	.
 HASCII:				; HEX TO ASCII
 	and 00fh		;1137	e6 0f 	. . 
@@ -2254,7 +2254,7 @@ HASCII:				; HEX TO ASCII
 	or c			;1158	b1 	. 
 	ld (de),a		;1159	12 	. 
 	inc de			;115a	13 	. 
-	djnz $-26		;115b	10 e4 	. . 
+	djnz 1141h		;115b	10 e4 	. . 
 	ret			;115d	c9 	. 
 	call 00e8eh		;115e	cd 8e 0e 	. . . 
 	ld hl,(CURSOR)		;1161	2a b7 e0 	* . . 
@@ -2266,13 +2266,13 @@ HASCII:				; HEX TO ASCII
 	ld b,004h		;116a	06 04 	. . 
 	ld c,030h		;116c	0e 30 	. 0 
 	rrca			;116e	0f 	. 
-	jr nc,$+3		;116f	30 01 	0 . 
+	jr nc,1172h		;116f	30 01 	0 . 
 	inc c			;1171	0c 	. 
 	call 0117ch		;1172	cd 7c 11 	. | . 
-	djnz $-9		;1175	10 f5 	. . 
+	djnz 116ch		;1175	10 f5 	. . 
 	inc de			;1177	13 	. 
 	pop bc			;1178	c1 	. 
-	djnz $-17		;1179	10 ed 	. . 
+	djnz 1168h		;1179	10 ed 	. . 
 	ret			;117b	c9 	. 
 	ld hl,(CURSOR)		;117c	2a b7 e0 	* . . 
 	ld (hl),c		;117f	71 	q 
@@ -2327,7 +2327,7 @@ HASCII:				; HEX TO ASCII
 	jp 0c70fh		;11b6	c3 0f c7 	. . . 
 	rrca			;11b9	0f 	. 
 	ld h,h			;11ba	64 	d 
-	djnz $-101		;11bb	10 99 	. . 
+	djnz 1156h		;11bb	10 99 	. . 
 	inc c			;11bd	0c 	. 
 	xor e			;11be	ab 	. 
 	rrca			;11bf	0f 	. 
@@ -2366,8 +2366,8 @@ HASCII:				; HEX TO ASCII
 	inc de			;11e7	13 	. 
 	jp c,0f513h		;11e8	da 13 f5 	. . . 
 	inc de			;11eb	13 	. 
-	djnz $+22		;11ec	10 14 	. . 
-	jr c,$+22		;11ee	38 14 	8 . 
+	djnz 1202h		;11ec	10 14 	. . 
+	jr c,1204h		;11ee	38 14 	8 . 
 	ld c,l			;11f0	4d 	M 
 	inc d			;11f1	14 	. 
 	ld l,e			;11f2	6b 	k 
@@ -2413,7 +2413,7 @@ HASCII:				; HEX TO ASCII
 	call 013a7h		;124a	cd a7 13 	. . . 
 	xor a			;124d	af 	. 
 	ld (SAVEA),a		;124e	32 e2 e0 	2 . . 
-	jr $+88			;1251	18 56 	. V 
+	jr 12a9h			;1251	18 56 	. V 
 	pop hl			;1253	e1 	. 
 	ld a,002h		;1254	3e 02 	> . 
 	ld (STALN),a		;1256	32 ea e0 	2 . . 
@@ -2451,27 +2451,27 @@ HASCII:				; HEX TO ASCII
 	call 01489h		;129d	cd 89 14 	. . . 
 	xor a			;12a0	af 	. 
 	ld (SAVECR),a		;12a1	32 f6 e0 	2 . . 
-	jr $+5			;12a4	18 03 	. . 
+	jr 12a9h			;12a4	18 03 	. . 
 	call 01519h		;12a6	cd 19 15 	. . . 
 	ld a,085h		;12a9	3e 85 	> . 
 	out (01ch),a		;12ab	d3 1c 	. . 
 	call 02925h		;12ad	cd 25 29 	. % ) 
 	bit 7,b			;12b0	cb 78 	. x 
-	jr nz,$-5		;12b2	20 f9 	  . 
+	jr nz,12adh		;12b2	20 f9 	  . 
 	call 02947h		;12b4	cd 47 29 	. G ) 
 	cp 081h			;12b7	fe 81 	. . 
-	jr c,$-19		;12b9	38 eb 	8 . 
+	jr c,12a6h		;12b9	38 eb 	8 . 
 	cp 08bh			;12bb	fe 8b 	. . 
-	jr nc,$-23		;12bd	30 e7 	0 . 
+	jr nc,12a6h		;12bd	30 e7 	0 . 
 	ld b,a			;12bf	47 	G 
 	ld hl,011d0h		;12c0	21 d0 11 	! . . 
 	ld a,(STALN)		;12c3	3a ea e0 	: . . 
 	cp 001h			;12c6	fe 01 	. . 
-	jr z,$+5		;12c8	28 03 	( . 
+	jr z,12cdh		;12c8	28 03 	( . 
 	ld hl,011e4h		;12ca	21 e4 11 	! . . 
 	ld a,b			;12cd	78 	x 
 	call 01186h		;12ce	cd 86 11 	. . . 
-	jr $-40			;12d1	18 d6 	. . 
+	jr 12a9h			;12d1	18 d6 	. . 
 	ld a,b			;12d3	78 	x 
 	ld (CHRCNT),a		;12d4	32 b1 e0 	2 . . 
 	push hl			;12d7	e5 	. 
@@ -2488,16 +2488,16 @@ HASCII:				; HEX TO ASCII
 	ld (de),a		;12ee	12 	. 
 	bit 0,a			;12ef	cb 47 	. G 
 	ld hl,00bbah		;12f1	21 ba 0b 	! . . 
-	jr z,$-33		;12f4	28 dd 	( . 
+	jr z,12d3h		;12f4	28 dd 	( . 
 	call 02963h		;12f6	cd 63 29 	. c ) 
 	call 0024ch		;12f9	cd 4c 02 	. L . 
 	ld hl,00bb4h		;12fc	21 b4 0b 	! . . 
-	jr $-44			;12ff	18 d2 	. . 
+	jr 12d3h			;12ff	18 d2 	. . 
 	ld b,011h		;1301	06 11 	. . 
 	ld de,OBYTE1		;1303	11 46 e0 	. F . 
 	ld a,(NOPTR)		;1306	3a f8 e0 	: . . 
 	and a			;1309	a7 	. 
-	jr z,$+7		;130a	28 05 	( . 
+	jr z,1311h		;130a	28 05 	( . 
 	ld a,(de)		;130c	1a 	. 
 	res 1,a			;130d	cb 8f 	. . 
 	ld (de),a		;130f	12 	. 
@@ -2507,28 +2507,28 @@ HASCII:				; HEX TO ASCII
 	ld (de),a		;1314	12 	. 
 	bit 1,a			;1315	cb 4f 	. O 
 	ld hl,00bb4h		;1317	21 b4 0b 	! . . 
-	jr z,$-71		;131a	28 b7 	( . 
+	jr z,12d3h		;131a	28 b7 	( . 
 	ld hl,00bbah		;131c	21 ba 0b 	! . . 
-	jr $-76			;131f	18 b2 	. . 
+	jr 12d3h			;131f	18 b2 	. . 
 	ld b,019h		;1321	06 19 	. . 
 	ld de,OBYTE1		;1323	11 46 e0 	. F . 
 	ld a,(de)		;1326	1a 	. 
 	xor 004h		;1327	ee 04 	. . 
 	ld (de),a		;1329	12 	. 
 	bit 2,a			;132a	cb 57 	. W 
-	jr $-21			;132c	18 e9 	. . 
+	jr 1317h			;132c	18 e9 	. . 
 	ld b,021h		;132e	06 21 	. ! 
 	ld de,OBYTE1		;1330	11 46 e0 	. F . 
 	ld a,(de)		;1333	1a 	. 
 	xor 008h		;1334	ee 08 	. . 
 	ld (de),a		;1336	12 	. 
 	bit 3,a			;1337	cb 5f 	. _ 
-	jr nz,$+13		;1339	20 0b 	  . 
+	jr nz,1346h		;1339	20 0b 	  . 
 	in a,(024h)		;133b	db 24 	. $ 
 	and 0fdh		;133d	e6 fd 	. . 
 	out (024h),a		;133f	d3 24 	. $ 
 	ld hl,00bc0h		;1341	21 c0 0b 	! . . 
-	jr $-113		;1344	18 8d 	. . 
+	jr 12d3h		;1344	18 8d 	. . 
 	in a,(024h)		;1346	db 24 	. $ 
 	or 002h			;1348	f6 02 	. . 
 	out (024h),a		;134a	d3 24 	. $ 
@@ -2536,7 +2536,7 @@ HASCII:				; HEX TO ASCII
 	jp 012d3h		;134f	c3 d3 12 	. . . 
 	ld a,(SAVEA)		;1352	3a e2 e0 	: . . 
 	rra			;1355	1f 	. 
-	jr c,$+17		;1356	38 0f 	8 . 
+	jr c,1367h		;1356	38 0f 	8 . 
 	xor a			;1358	af 	. 
 	ld (CPSLK),a		;1359	32 b6 e0 	2 . . 
 	ld a,(SHIFT)		;135c	3a e6 e0 	: . . 
@@ -2550,7 +2550,7 @@ HASCII:				; HEX TO ASCII
 	ld (de),a		;136f	12 	. 
 	bit 0,a			;1370	cb 47 	. G 
 	ld hl,00bcch		;1372	21 cc 0b 	! . . 
-	jr z,$+5		;1375	28 03 	( . 
+	jr z,137ah		;1375	28 03 	( . 
 	ld hl,00bd2h		;1377	21 d2 0b 	! . . 
 	jp 012d3h		;137a	c3 d3 12 	. . . 
 	ld b,032h		;137d	06 32 	. 2 
@@ -2560,9 +2560,9 @@ HASCII:				; HEX TO ASCII
 	ld (de),a		;1385	12 	. 
 	bit 1,a			;1386	cb 4f 	. O 
 	ld hl,00bd8h		;1388	21 d8 0b 	! . . 
-	jr z,$-17		;138b	28 ed 	( . 
+	jr z,137ah		;138b	28 ed 	( . 
 	ld hl,00bd2h		;138d	21 d2 0b 	! . . 
-	jr $-22			;1390	18 e8 	. . 
+	jr 137ah			;1390	18 e8 	. . 
 	ld b,03ah		;1392	06 3a 	. : 
 	ld de,OBYTE2		;1394	11 47 e0 	. G . 
 	ld a,(de)		;1397	1a 	. 
@@ -2570,9 +2570,9 @@ HASCII:				; HEX TO ASCII
 	ld (de),a		;139a	12 	. 
 	bit 2,a			;139b	cb 57 	. W 
 	ld hl,00be4h		;139d	21 e4 0b 	! . . 
-	jr z,$-38		;13a0	28 d8 	( . 
+	jr z,137ah		;13a0	28 d8 	( . 
 	ld hl,00bdeh		;13a2	21 de 0b 	! . . 
-	jr $-43			;13a5	18 d3 	. . 
+	jr 137ah			;13a5	18 d3 	. . 
 	ld b,042h		;13a7	06 42 	. B 
 	ld de,OBYTE2		;13a9	11 47 e0 	. G . 
 	ld a,(de)		;13ac	1a 	. 
@@ -2580,49 +2580,49 @@ HASCII:				; HEX TO ASCII
 	ld (de),a		;13af	12 	. 
 	bit 3,a			;13b0	cb 5f 	. _ 
 	ld hl,00beah		;13b2	21 ea 0b 	! . . 
-	jr z,$-59		;13b5	28 c3 	( . 
+	jr z,137ah		;13b5	28 c3 	( . 
 	ld hl,00bf0h		;13b7	21 f0 0b 	! . . 
-	jr $-64			;13ba	18 be 	. . 
+	jr 137ah			;13ba	18 be 	. . 
 	ld b,009h		;13bc	06 09 	. . 
 	ld de,OBYTE3		;13be	11 48 e0 	. H . 
 	ld a,(de)		;13c1	1a 	. 
 	xor 001h		;13c2	ee 01 	. . 
 	ld (de),a		;13c4	12 	. 
 	bit 0,a			;13c5	cb 47 	. G 
-	jr z,$+12		;13c7	28 0a 	( . 
+	jr z,13d3h		;13c7	28 0a 	( . 
 	ld hl,00bfch		;13c9	21 fc 0b 	! . . 
 	ld a,009h		;13cc	3e 09 	> . 
 	out (033h),a		;13ce	d3 33 	. 3 
 	jp 012d3h		;13d0	c3 d3 12 	. . . 
 	ld hl,00bf6h		;13d3	21 f6 0b 	! . . 
 	ld a,008h	       	;13d6	3e 08 	> . 
-	jr $-10			;13d8	18 f4 	. . 
+	jr 13ceh			;13d8	18 f4 	. . 
 	ld b,011h		;13da	06 11 	. . 
 	ld de,OBYTE3		;13dc	11 48 e0 	. H . 
 	ld a,(de)		;13df	1a 	. 
 	xor 002h		;13e0	ee 02 	. . 
 	ld (de),a		;13e2	12 	. 
 	bit 1,a			;13e3	cb 4f 	. O 
-	jr z,$+9		;13e5	28 07 	( . 
+	jr z,13eeh		;13e5	28 07 	( . 
 	ld hl,00c08h		;13e7	21 08 0c 	! . . 
 	ld a,00bh		;13ea	3e 0b 	> . 
-	jr $-30			;13ec	18 e0 	. . 
+	jr 13ceh			;13ec	18 e0 	. . 
 	ld hl,00c02h		;13ee	21 02 0c 	! . . 
 	ld a,00ah		;13f1	3e 0a 	> . 
-	jr $-37			;13f3	18 d9 	. . 
+	jr 13ceh			;13f3	18 d9 	. . 
 	ld b,019h		;13f5	06 19 	. . 
 	ld de,OBYTE3		;13f7	11 48 e0 	. H . 
 	ld a,(de)		;13fa	1a 	. 
 	xor 004h		;13fb	ee 04 	. . 
 	ld (de),a		;13fd	12 	. 
 	bit 2,a			;13fe	cb 57 	. W 
-	jr z,$+9		;1400	28 07 	( . 
+	jr z,1409h		;1400	28 07 	( . 
 	ld hl,00c14h		;1402	21 14 0c 	! . . 
 	ld a,003h		;1405	3e 03 	> . 
-	jr $-57			;1407	18 c5 	. . 
+	jr 13ceh			;1407	18 c5 	. . 
 	ld hl,00c0eh		;1409	21 0e 0c 	! . . 
 	ld a,002h		;140c	3e 02 	> . 
-	jr $-64			;140e	18 be 	. . 
+	jr 13ceh			;140e	18 be 	. . 
 	ld b,021h		;1410	06 21 	. ! 
 	ld a,001h		;1412	3e 01 	> . 
 	ld (SAVECR),a		;1414	32 f6 e0 	2 . . 
@@ -2630,7 +2630,7 @@ HASCII:				; HEX TO ASCII
 	inc a			;141a	3c 	< 
 	and 00fh		;141b	e6 0f 	. . 
 	cp 00ch			;141d	fe 0c 	. . 
-	jr nz,$+3		;141f	20 01 	  . 
+	jr nz,1422h		;141f	20 01 	  . 
 	xor a			;1421	af 	. 
 	ld (TBAUD),a		;1422	32 58 e0 	2 X . 
 	ld (RBAUD),a		;1425	32 59 e0 	2 Y . 
@@ -2652,9 +2652,9 @@ HASCII:				; HEX TO ASCII
 	ld (de),a		;1440	12 	. 
 	bit 0,a			;1441	cb 47 	. G 
 	ld hl,00c1ah		;1443	21 1a 0c 	! . . 
-	jr z,$-17		;1446	28 ed 	( . 
+	jr z,1435h		;1446	28 ed 	( . 
 	ld hl,00c20h		;1448	21 20 0c 	!   . 
-	jr $-22			;144b	18 e8 	. . 
+	jr 1435h			;144b	18 e8 	. . 
 	ld b,032h		;144d	06 32 	. 2 
 	ld a,(CHNCHG)		;144f	3a b0 e0 	: . . 
 	cpl			;1452	2f 	/ 
@@ -2664,11 +2664,11 @@ HASCII:				; HEX TO ASCII
 	xor 002h		;145a	ee 02 	. . 
 	ld (de),a		;145c	12 	. 
 	bit 1,a			;145d	cb 4f 	. O 
-	jr z,$+7		;145f	28 05 	( . 
+	jr z,1466h		;145f	28 05 	( . 
 	ld hl,00c2ch		;1461	21 2c 0c 	! , . 
-	jr $-47			;1464	18 cf 	. . 
+	jr 1435h			;1464	18 cf 	. . 
 	ld hl,00c26h		;1466	21 26 0c 	! & . 
-	jr $-52			;1469	18 ca 	. . 
+	jr 1435h			;1469	18 ca 	. . 
 	ld b,03ah		;146b	06 3a 	. : 
 	ld a,(LNNCHG)		;146d	3a d2 e0 	: . . 
 	cpl			;1470	2f 	/ 
@@ -2678,11 +2678,11 @@ HASCII:				; HEX TO ASCII
 	xor 004h		;1478	ee 04 	. . 
 	ld (de),a		;147a	12 	. 
 	bit 2,a			;147b	cb 57 	. W 
-	jr z,$+7		;147d	28 05 	( . 
+	jr z,1484h		;147d	28 05 	( . 
 	ld hl,00c38h		;147f	21 38 0c 	! 8 . 
-	jr $-77			;1482	18 b1 	. . 
+	jr 1435h			;1482	18 b1 	. . 
 	ld hl,00c32h		;1484	21 32 0c 	! 2 . 
-	jr $-82			;1487	18 ac 	. . 
+	jr 1435h			;1487	18 ac 	. . 
 	ld b,042h		;1489	06 42 	. B 
 	ld de,OBYTE4		;148b	11 49 e0 	. I . 
 	ld a,(de)		;148e	1a 	. 
@@ -2712,7 +2712,7 @@ ADVCR:				; ADVANCE CURSOR
 	ld b,a			;14c0	47 	G 
 	ld a,(CHRCNT)		;14c1	3a b1 e0 	: . . 
 	cp b			;14c4	b8 	. 
-	jr z,$+15		;14c5	28 0d 	( . 
+	jr z,14d4h		;14c5	28 0d 	( . 
 	inc a			;14c7	3c 	< 
 	ld (CHRCNT),a		;14c8	32 b1 e0 	2 . . 
 	add a,007h		;14cb	c6 07 	. . 
@@ -2727,7 +2727,7 @@ ADVCR:				; ADVANCE CURSOR
 	call z,01509h		;14dd	cc 09 15 	. . . 
 	inc b			;14e0	04 	. 
 	cp b			;14e1	b8 	. 
-	jr z,$+8		;14e2	28 06 	( . 
+	jr z,14eah		;14e2	28 06 	( . 
 	ld e,a			;14e4	5f 	_ 
 	ld d,000h		;14e5	16 00 	. . 
 	jp 031fbh		;14e7	c3 fb 31 	. . 1 
@@ -2748,11 +2748,11 @@ ALARMI:				; ALARM IF ENABLED
 	push af			;1509	f5 	. 
 	ld a,(KBINP)		;150a	3a c9 e0 	: . . 
 	rra			;150d	1f 	. 
-	jr nc,$+24		;150e	30 16 	0 . 
+	jr nc,1526h		;150e	30 16 	0 . 
 	ld a,(OBYTE1)		;1510	3a 46 e0 	: F . 
 	and 004h		;1513	e6 04 	. . 
-	jr z,$+17		;1515	28 0f 	( . 
-	jr $+3			;1517	18 01 	. .
+	jr z,1526h		;1515	28 0f 	( . 
+	jr 151ah			;1517	18 01 	. .
 ALARM:				; ALARM
 	push af			;1519	f5 	. 
 	ld a,000h		;151a	3e 00 	> . 
@@ -2770,7 +2770,7 @@ ADVMD:				; ADVANCED MODE
 	ld ix,0154ch		;1530	dd 21 4c 15 	. ! L . 
 	call 00269h		;1534	cd 69 02 	. i . 
 	call 0027eh		;1537	cd 7e 02 	. ~ . 
-	jr $+6			;153a	18 04 	. . 
+	jr 1540h			;153a	18 04 	. . 
 	ld ix,01549h		;153c	dd 21 49 15 	. ! I . 
 	ld sp,0e000h		;1540	31 00 e0 	1 . . 
 	call 01552h		;1543	cd 52 15 	. R . 
@@ -2787,21 +2787,21 @@ ADVINI:				; ADVANCED MODE INITIALIZATION
 	ld b,002h		;155e	06 02 	. . 
 	ld a,(OBYTE3)		;1560	3a 48 e0 	: H . 
 	and 004h		;1563	e6 04 	. . 
-	jr z,$+4		;1565	28 02 	( . 
+	jr z,1569h		;1565	28 02 	( . 
 	ld b,003h		;1567	06 03 	. . 
 	ld a,b			;1569	78 	x 
 	out (033h),a		;156a	d3 33 	. 3 
 	ld b,00ah		;156c	06 0a 	. . 
 	ld a,(OBYTE3)		;156e	3a 48 e0 	: H . 
 	and 002h		;1571	e6 02 	. . 
-	jr z,$+4		;1573	28 02 	( . 
+	jr z,1577h		;1573	28 02 	( . 
 	ld b,00bh		;1575	06 0b 	. . 
 	ld a,b			;1577	78 	x 
 	out (033h),a		;1578	d3 33 	. 3 
 	ld b,008h		;157a	06 08 	. . 
 	ld a,(OBYTE3)		;157c	3a 48 e0 	: H . 
 	and 001h		;157f	e6 01 	. . 
-	jr z,$+4		;1581	28 02 	( . 
+	jr z,1585h		;1581	28 02 	( . 
 	ld b,009h		;1583	06 09 	. . 
 	ld a,b			;1585	78 	x 
 	out (033h),a		;1586	d3 33 	. 3 
@@ -2819,18 +2819,18 @@ ADVINI:				; ADVANCED MODE INITIALIZATION
 	jp 01a5bh		;15a3	c3 5b 1a 	. [ . 
 	ld a,(TBYTE1)		;15a6	3a 60 e0 	: ` . 
 	and 004h		;15a9	e6 04 	. . 
-	jr nz,$+6		;15ab	20 04 	  . 
+	jr nz,15b1h		;15ab	20 04 	  . 
 	ld (MLTACT),a		;15ad	32 d6 e0 	2 . . 
 	ret			;15b0	c9 	. 
 	call 02954h		;15b1	cd 54 29 	. T ) 
 	ld hl,BDATAR		;15b4	21 80 e0 	! . . 
 	ld a,b			;15b7	78 	x 
 	and 00fh		;15b8	e6 0f 	. . 
-	jr nz,$+13		;15ba	20 0b 	  . 
+	jr nz,15c7h		;15ba	20 0b 	  . 
 	ld a,(CHAPAR)		;15bc	3a 6e e0 	: n . 
 	ld (SAVEA),a		;15bf	32 e2 e0 	2 . . 
 	call 00533h		;15c2	cd 33 05 	. 3 . 
-	jr $+11			;15c5	18 09 	. . 
+	jr 15d0h			;15c5	18 09 	. . 
 	ld a,(CHBPAR)		;15c7	3a 70 e0 	: p . 
 	ld (SAVEA),a		;15ca	32 e2 e0 	2 . . 
 	call 00544h		;15cd	cd 44 05 	. D . 
@@ -2849,24 +2849,24 @@ ADVINI:				; ADVANCED MODE INITIALIZATION
 	jp 01a60h		;15f0	c3 60 1a 	. ` . 
 	ld a,b			;15f3	78 	x 
 	cp 01eh			;15f4	fe 1e 	. . 
-	jr z,$+8		;15f6	28 06 	( . 
+	jr z,15feh		;15f6	28 06 	( . 
 	cp 012h			;15f8	fe 12 	. . 
-	jr z,$+15		;15fa	28 0d 	( . 
-	jr $+19			;15fc	18 11 	. . 
+	jr z,1609h		;15fa	28 0d 	( . 
+	jr 160fh			;15fc	18 11 	. . 
 	ld a,(RSRCV)		;15fe	3a e0 e0 	: . . 
 	and a			;1601	a7 	. 
-	jr nz,$+13		;1602	20 0b 	  . 
+	jr nz,160fh		;1602	20 0b 	  . 
 	inc a			;1604	3c 	< 
 	ld (RSRCV),a		;1605	32 e0 e0 	2 . . 
 	ret			;1608	c9 	. 
 	ld a,(RSRCV)		;1609	3a e0 e0 	: . . 
 	and a			;160c	a7 	. 
-	jr nz,$+17		;160d	20 0f 	  . 
+	jr nz,161eh		;160d	20 0f 	  . 
 	xor a			;160f	af 	. 
 	ld (RSRCV),a		;1610	32 e0 e0 	2 . . 
 	call 005a2h		;1613	cd a2 05 	. . . 
 	and 020h		;1616	e6 20 	.   
-	jr z,$-5		;1618	28 f9 	( . 
+	jr z,1613h		;1618	28 f9 	( . 
 	call 005b0h		;161a	cd b0 05 	. . . 
 	ret			;161d	c9 	. 
 	xor a			;161e	af 	. 
@@ -2879,29 +2879,29 @@ ADVINI:				; ADVANCED MODE INITIALIZATION
 	call 02963h		;162e	cd 63 29 	. c ) 
 	ret			;1631	c9 	. 
 	ld a,005h		;1632	3e 05 	> . 
-	jr $+4			;1634	18 02 	. . 
+	jr 1638h			;1634	18 02 	. . 
 	ld a,004h		;1636	3e 04 	> . 
 	out (033h),a		;1638	d3 33 	. 3 
 	ret			;163a	c9 	. 
 	ld b,0f7h		;163b	06 f7 	. . 
-	jr $+24			;163d	18 16 	. . 
+	jr 1655h			;163d	18 16 	. . 
 	ld b,0feh		;163f	06 fe 	. . 
-	jr $+20			;1641	18 12 	. . 
+	jr 1655h			;1641	18 12 	. . 
 	ld b,0efh		;1643	06 ef 	. . 
-	jr $+16			;1645	18 0e 	. . 
+	jr 1655h			;1645	18 0e 	. . 
 	ld b,0fbh		;1647	06 fb 	. . 
-	jr $+12			;1649	18 0a 	. . 
+	jr 1655h			;1649	18 0a 	. . 
 	ld b,07fh		;164b	06 7f 	.  
-	jr $+8			;164d	18 06 	. . 
+	jr 1655h			;164d	18 06 	. . 
 	ld b,0fdh		;164f	06 fd 	. . 
-	jr $+4			;1651	18 02 	. . 
+	jr 1655h			;1651	18 02 	. . 
 	ld b,0bfh		;1653	06 bf 	. . 
 	ld a,(ATTRIB)		;1655	3a a9 e0 	: . . 
 	and b			;1658	a0 	. 
 	ld (ATTRIB),a		;1659	32 a9 e0 	2 . . 
 	ret			;165c	c9 	. 
 	xor a			;165d	af 	. 
-	jr $+4			;165e	18 02 	. . 
+	jr 1662h			;165e	18 02 	. . 
 	ld a,001h		;1660	3e 01 	> . 
 	ld (GRACHR),a		;1662	32 c0 e0 	2 . . 
 	ret			;1665	c9 	. 
@@ -2957,15 +2957,15 @@ ADDB15:				; ADD BIAS OF ENABLES
 	inc hl			;16c6	23 	# 
 	ld a,c			;16c7	79 	y 
 	cp b			;16c8	b8 	. 
-	jr z,$+34		;16c9	28 20 	(   
+	jr z,16ebh		;16c9	28 20 	(   
 	ld a,(PROTE)		;16cb	3a de e0 	: . . 
 	rra			;16ce	1f 	. 
-	jr nc,$+9		;16cf	30 07 	0 . 
+	jr nc,16d8h		;16cf	30 07 	0 . 
 	inc hl			;16d1	23 	# 
 	ld a,(hl)		;16d2	7e 	~ 
 	dec hl			;16d3	2b 	+ 
 	and 080h		;16d4	e6 80 	. . 
-	jr nz,$+21		;16d6	20 13 	  . 
+	jr nz,16ebh		;16d6	20 13 	  . 
 	ld a,(hl)		;16d8	7e 	~ 
 	ld (de),a		;16d9	12 	. 
 	inc hl			;16da	23 	# 
@@ -2973,20 +2973,20 @@ ADDB15:				; ADD BIAS OF ENABLES
 	ld a,(BLKMD)		;16dc	3a ab e0 	: . . 
 	rra			;16df	1f 	. 
 	ld a,(hl)		;16e0	7e 	~ 
-	jr nc,$+4		;16e1	30 02 	0 . 
+	jr nc,16e5h		;16e1	30 02 	0 . 
 	or 020h			;16e3	f6 20 	.   
 	ld (de),a		;16e5	12 	. 
 	inc hl			;16e6	23 	# 
 	inc de			;16e7	13 	. 
 	inc b			;16e8	04 	. 
-	jr $-34			;16e9	18 dc 	. . 
+	jr 16c7h			;16e9	18 dc 	. . 
 	ld a,020h		;16eb	3e 20 	>   
 	ld (de),a		;16ed	12 	. 
 	inc de			;16ee	13 	. 
 	ld a,(BLKMD)		;16ef	3a ab e0 	: . . 
 	ld a,(BLKMD)		;16f2	3a ab e0 	: . . 
 	and a			;16f5	a7 	. 
-	jr z,$+4		;16f6	28 02 	( . 
+	jr z,16fah		;16f6	28 02 	( . 
 	ld a,020h		;16f8	3e 20 	>   
 	ld (de),a		;16fa	12 	. 
 	ret			;16fb	c9 	. 
@@ -2994,25 +2994,25 @@ ADDB15:				; ADD BIAS OF ENABLES
 	call 01d14h		;16ff	cd 14 1d 	. . . 
 	ret			;1702	c9 	. 
 	xor a			;1703	af 	. 
-	jr $+4			;1704	18 02 	. . 
+	jr 1708h			;1704	18 02 	. . 
 	ld a,001h		;1706	3e 01 	> . 
 	ld (DLMENA),a		;1708	32 b9 e0 	2 . . 
 	ret			;170b	c9 	. 
 	ld a,(TXCNT)		;170c	3a 8e e0 	: . . 
 	and a			;170f	a7 	. 
-	jr z,$+7		;1710	28 05 	( . 
+	jr z,1717h		;1710	28 05 	( . 
 	call 0302fh		;1712	cd 2f 30 	. / 0 
-	jr $-9			;1715	18 f5 	. . 
+	jr 170ch			;1715	18 f5 	. . 
 	ld a,(TBYTE2)		;1717	3a 61 e0 	: a . 
 	and 001h		;171a	e6 01 	. . 
 	jp z,01750h		;171c	ca 50 17 	. P . 
 	ld hl,(DRVADD)		;171f	2a ba e0 	* . . 
 	ld a,h			;1722	7c 	| 
 	or l			;1723	b5 	. 
-	jr z,$+15		;1724	28 0d 	( . 
+	jr z,1733h		;1724	28 0d 	( . 
 	ld a,(KBINP)		;1726	3a c9 e0 	: . . 
 	rra			;1729	1f 	. 
-	jr nc,$+5		;172a	30 03 	0 . 
+	jr nc,172fh		;172a	30 03 	0 . 
 	inc hl			;172c	23 	# 
 	inc hl			;172d	23 	# 
 	inc hl			;172e	23 	# 
@@ -3024,7 +3024,7 @@ ADDB15:				; ADD BIAS OF ENABLES
 	ld iy,01747h		;173b	fd 21 47 17 	. ! G . 
 	jp 03d0fh		;173f	c3 0f 3d 	. . = 
 	ld (DRVADD),hl		;1742	22 ba e0 	" . . 
-	jr $-31			;1745	18 df 	. . 
+	jr 1726h			;1745	18 df 	. . 
 	xor a			;1747	af 	. 
 	out (BANKSELECT),a	;1748	d3 70 	. p 
 	ld hl,00000h		;174a	21 00 00 	! . . 
@@ -3038,48 +3038,48 @@ ADDB15:				; ADD BIAS OF ENABLES
 	ret			;175d	c9 	. 
 	ld a,b			;175e	78 	x 
 	cp 012h			;175f	fe 12 	. . 
-	jr nz,$+17		;1761	20 0f 	  . 
+	jr nz,1772h		;1761	20 0f 	  . 
 	ld hl,01769h		;1763	21 69 17 	! i . 
 	jp 01a60h		;1766	c3 60 1a 	. ` . 
 	ld a,b			;1769	78 	x 
 	cp 050h			;176a	fe 50 	. P 
-	jr nz,$+6		;176c	20 04 	  . 
+	jr nz,1772h		;176c	20 04 	  . 
 	xor a			;176e	af 	. 
 	ld (DSPDIS),a		;176f	32 bc e0 	2 . . 
 	xor a			;1772	af 	. 
 	ld (MLTACT),a		;1773	32 d6 e0 	2 . . 
 	ret			;1776	c9 	. 
 	ld a,001h		;1777	3e 01 	> . 
-	jr $+3			;1779	18 01 	. . 
+	jr 177ch			;1779	18 01 	. . 
 	xor a			;177b	af 	. 
 	ld (BLKMD),a		;177c	32 ab e0 	2 . . 
 	call 00422h		;177f	cd 22 04 	. " . 
 	ret			;1782	c9 	. 
 	ld a,(OBYTE2)		;1783	3a 47 e0 	: G . 
 	and 0f7h		;1786	e6 f7 	. . 
-	jr $+21			;1788	18 13 	. . 
+	jr 179dh			;1788	18 13 	. . 
 	ld a,(OBYTE2)		;178a	3a 47 e0 	: G . 
 	or 008h			;178d	f6 08 	. . 
-	jr $+14			;178f	18 0c 	. . 
+	jr 179dh			;178f	18 0c 	. . 
 	ld a,(OBYTE2)		;1791	3a 47 e0 	: G . 
 	or 002h			;1794	f6 02 	. . 
-	jr $+7			;1796	18 05 	. . 
+	jr 179dh			;1796	18 05 	. . 
 	ld a,(OBYTE2)		;1798	3a 47 e0 	: G . 
 	and 0fdh		;179b	e6 fd 	. . 
 	ld (OBYTE2),a		;179d	32 47 e0 	2 G . 
 	ret			;17a0	c9 	. 
 	ld a,00dh		;17a1	3e 0d 	> . 
-	jr $+4			;17a3	18 02 	. . 
+	jr 17a7h			;17a3	18 02 	. . 
 	ld a,00ch		;17a5	3e 0c 	> . 
 	out (033h),a		;17a7	d3 33 	. 3 
 	ld hl,017afh		;17a9	21 af 17 	! . . 
 	jp 01a5bh		;17ac	c3 5b 1a 	. [ . 
 	ld a,b			;17af	78 	x 
 	cp 040h			;17b0	fe 40 	. @ 
-	jr c,$+7		;17b2	38 05 	8 . 
+	jr c,17b9h		;17b2	38 05 	8 . 
 	or 080h			;17b4	f6 80 	. . 
 	ld b,a			;17b6	47 	G 
-	jr $+4			;17b7	18 02 	. . 
+	jr 17bbh			;17b7	18 02 	. . 
 	ld b,07fh		;17b9	06 7f 	.  
 	call 0221bh		;17bb	cd 1b 22 	. . " 
 	xor a			;17be	af 	. 
@@ -3093,7 +3093,7 @@ ADDB15:				; ADD BIAS OF ENABLES
 	ret z			;17d1	c8 	. 
 	ld a,b			;17d2	78 	x 
 	cp 030h			;17d3	fe 30 	. 0 
-	jr c,$+28		;17d5	38 1a 	8 . 
+	jr c,17f1h		;17d5	38 1a 	8 . 
 	call 017e3h		;17d7	cd e3 17 	. . . 
 	ld (SAVEHL),hl		;17da	22 e4 e0 	" . . 
 	ld hl,017ffh		;17dd	21 ff 17 	! . . 
@@ -3109,7 +3109,7 @@ ADDB15:				; ADD BIAS OF ENABLES
 	add hl,de		;17ef	19 	. 
 	ret			;17f0	c9 	. 
 	ld a,001h		;17f1	3e 01 	> . 
-	jr $+3			;17f3	18 01 	. . 
+	jr 17f6h			;17f3	18 01 	. . 
 	xor a			;17f5	af 	. 
 	ld (HDCSER),a		;17f6	32 c1 e0 	2 . . 
 	ld hl,018b3h		;17f9	21 b3 18 	! . . 
@@ -3117,13 +3117,13 @@ ADDB15:				; ADD BIAS OF ENABLES
 	call 018b3h		;17ff	cd b3 18 	. . . 
 	ret z			;1802	c8 	. 
 	cp 030h			;1803	fe 30 	. 0 
-	jr c,$-20		;1805	38 ea 	8 . 
-	jr nz,$+8		;1807	20 06 	  . 
+	jr c,17f1h		;1805	38 ea 	8 . 
+	jr nz,180fh		;1807	20 06 	  . 
 	ld hl,(SAVEHL)		;1809	2a e4 e0 	* . . 
 	ld (hl),b		;180c	70 	p 
-	jr $-24			;180d	18 e6 	. . 
+	jr 17f5h			;180d	18 e6 	. . 
 	cp 034h			;180f	fe 34 	. 4 
-	jr nc,$-32		;1811	30 de 	0 . 
+	jr nc,17f1h		;1811	30 de 	0 . 
 	ld hl,(SAVEHL)		;1813	2a e4 e0 	* . . 
 	ld (hl),b		;1816	70 	p 
 	inc hl			;1817	23 	# 
@@ -3135,13 +3135,13 @@ ADDB15:				; ADD BIAS OF ENABLES
 	call 0188dh		;1825	cd 8d 18 	. . . 
 	ld a,(MLTCNT)		;1828	3a d5 e0 	: . . 
 	rra			;182b	1f 	. 
-	jr nc,$+7		;182c	30 05 	0 . 
+	jr nc,1833h		;182c	30 05 	0 . 
 	rra			;182e	1f 	. 
-	jr c,$+27		;182f	38 19 	8 . 
-	jr $+8			;1831	18 06 	. . 
+	jr c,184ah		;182f	38 19 	8 . 
+	jr 1839h			;1831	18 06 	. . 
 	ld a,b			;1833	78 	x 
 	ld (SAVEA),a		;1834	32 e2 e0 	2 . . 
-	jr $+14			;1837	18 0c 	. . 
+	jr 1845h			;1837	18 0c 	. . 
 	ld a,(SAVEA)		;1839	3a e2 e0 	: . . 
 	or c			;183c	b1 	. 
 	ld hl,(SAVEHL)		;183d	2a e4 e0 	* . . 
@@ -3166,7 +3166,7 @@ ADDB15:				; ADD BIAS OF ENABLES
 	call 0188dh		;1863	cd 8d 18 	. . . 
 	ld a,(MLTCNT)		;1866	3a d5 e0 	: . . 
 	rra			;1869	1f 	. 
-	jr c,$+15		;186a	38 0d 	8 . 
+	jr c,1879h		;186a	38 0d 	8 . 
 	ld a,b			;186c	78 	x 
 	ld (SAVEA),a		;186d	32 e2 e0 	2 . . 
 	ld a,001h		;1870	3e 01 	> . 
@@ -3184,17 +3184,17 @@ ADDB15:				; ADD BIAS OF ENABLES
 	ld (MLTCNT),a		;1889	32 d5 e0 	2 . . 
 	ret			;188c	c9 	. 
 	bit 4,b			;188d	cb 60 	. ` 
-	jr nz,$+32		;188f	20 1e 	  . 
+	jr nz,18afh		;188f	20 1e 	  . 
 	bit 5,b			;1891	cb 68 	. h 
-	jr z,$+28		;1893	28 1a 	( . 
+	jr z,18afh		;1893	28 1a 	( . 
 	ld a,(MLTCNT)		;1895	3a d5 e0 	: . . 
 	rra			;1898	1f 	. 
-	jr c,$+8		;1899	38 06 	8 . 
+	jr c,18a1h		;1899	38 06 	8 . 
 	bit 6,b			;189b	cb 70 	. p 
-	jr nz,$+18		;189d	20 10 	  . 
-	jr $+6			;189f	18 04 	. . 
+	jr nz,18afh		;189d	20 10 	  . 
+	jr 18a5h			;189f	18 04 	. . 
 	bit 6,b			;18a1	cb 70 	. p 
-	jr z,$+12		;18a3	28 0a 	( . 
+	jr z,18afh		;18a3	28 0a 	( . 
 	ld a,b			;18a5	78 	x 
 	and 00fh		;18a6	e6 0f 	. . 
 	ld c,a			;18a8	4f 	O 
@@ -3212,9 +3212,9 @@ ADDB15:				; ADD BIAS OF ENABLES
 	ret nz			;18b8	c0 	. 
 	ld a,(HDCSER)		;18b9	3a c1 e0 	: . . 
 	rra			;18bc	1f 	. 
-	jr nc,$+7		;18bd	30 05 	0 . 
+	jr nc,18c4h		;18bd	30 05 	0 . 
 	call 01d71h		;18bf	cd 71 1d 	. q . 
-	jr $+5			;18c2	18 03 	. . 
+	jr 18c7h			;18c2	18 03 	. . 
 	call 01d67h		;18c4	cd 67 1d 	. g . 
 	xor a			;18c7	af 	. 
 	ld (MLTACT),a		;18c8	32 d6 e0 	2 . . 
@@ -3259,7 +3259,7 @@ ADDB15:				; ADD BIAS OF ENABLES
 	call 0188dh		;191a	cd 8d 18 	. . . 
 	ld a,(MLTCNT)		;191d	3a d5 e0 	: . . 
 	rra			;1920	1f 	. 
-	jr c,$+15		;1921	38 0d 	8 . 
+	jr c,1930h		;1921	38 0d 	8 . 
 	ld a,b			;1923	78 	x 
 	ld (SAVEA),a		;1924	32 e2 e0 	2 . . 
 	ld a,001h		;1927	3e 01 	> . 
@@ -3327,30 +3327,30 @@ ADDB15:				; ADD BIAS OF ENABLES
 	ld c,a			;19b8	4f 	O 
 	ld a,b			;19b9	78 	x 
 	and 007h		;19ba	e6 07 	. . 
-	jr nz,$+6		;19bc	20 04 	  . 
+	jr nz,19c2h		;19bc	20 04 	  . 
 	ld b,002h		;19be	06 02 	. . 
-	jr $+31			;19c0	18 1d 	. . 
+	jr 19dfh			;19c0	18 1d 	. . 
 	cp 001h			;19c2	fe 01 	. . 
-	jr nz,$+6		;19c4	20 04 	  . 
+	jr nz,19cah		;19c4	20 04 	  . 
 	ld b,010h		;19c6	06 10 	. . 
-	jr $+23			;19c8	18 15 	. . 
+	jr 19dfh			;19c8	18 15 	. . 
 	cp 002h			;19ca	fe 02 	. . 
-	jr nz,$+6		;19cc	20 04 	  . 
+	jr nz,19d2h		;19cc	20 04 	  . 
 	ld b,020h		;19ce	06 20 	.   
-	jr $+15			;19d0	18 0d 	. . 
+	jr 19dfh			;19d0	18 0d 	. . 
 	cp 003h			;19d2	fe 03 	. . 
-	jr nz,$+6		;19d4	20 04 	  . 
+	jr nz,19dah		;19d4	20 04 	  . 
 	ld b,040h		;19d6	06 40 	. @ 
-	jr $+7			;19d8	18 05 	. . 
+	jr 19dfh			;19d8	18 05 	. . 
 	cp 004h			;19da	fe 04 	. . 
 	ret nz			;19dc	c0 	. 
 	ld b,008h		;19dd	06 08 	. . 
 	ld a,(INDON)		;19df	3a c7 e0 	: . . 
 	rra			;19e2	1f 	. 
-	jr nc,$+6		;19e3	30 04 	0 . 
+	jr nc,19e9h		;19e3	30 04 	0 . 
 	ld a,b			;19e5	78 	x 
 	or c			;19e6	b1 	. 
-	jr $+5			;19e7	18 03 	. . 
+	jr 19ech			;19e7	18 03 	. . 
 	ld a,b			;19e9	78 	x 
 	cpl			;19ea	2f 	/ 
 	and c			;19eb	a1 	. 
@@ -3359,7 +3359,7 @@ ADDB15:				; ADD BIAS OF ENABLES
 	out (050h),a		;19f0	d3 50 	. P 
 	ret			;19f2	c9 	. 
 	xor a			;19f3	af 	. 
-	jr $+4			;19f4	18 02 	. . 
+	jr 19f8h			;19f4	18 02 	. . 
 	ld a,001h		;19f6	3e 01 	> . 
 	ld (INDON),a		;19f8	32 c7 e0 	2 . . 
 	ld hl,019b1h		;19fb	21 b1 19 	! . . 
@@ -3380,7 +3380,7 @@ ADDB15:				; ADD BIAS OF ENABLES
 	inc hl			;1a18	23 	# 
 	ld a,(BLKMD)		;1a19	3a ab e0 	: . . 
 	rra			;1a1c	1f 	. 
-	jr nc,$+6		;1a1d	30 04 	0 . 
+	jr nc,1a23h		;1a1d	30 04 	0 . 
 	ld a,e			;1a1f	7b 	{ 
 	or 020h			;1a20	f6 20 	.   
 	ld e,a			;1a22	5f 	_ 
@@ -3394,18 +3394,18 @@ ADDB15:				; ADD BIAS OF ENABLES
 	ret z			;1a2a	c8 	. 
 	ld a,(PROTE)		;1a2b	3a de e0 	: . . 
 	rra			;1a2e	1f 	. 
-	jr nc,$-26		;1a2f	30 e4 	0 . 
+	jr nc,1a15h		;1a2f	30 e4 	0 . 
 	inc hl			;1a31	23 	# 
 	ld a,(hl)		;1a32	7e 	~ 
 	dec hl			;1a33	2b 	+ 
 	and 080h		;1a34	e6 80 	. . 
-	jr z,$-33		;1a36	28 dd 	( . 
+	jr z,1a15h		;1a36	28 dd 	( . 
 	ret			;1a38	c9 	. 
 	call 02fe7h		;1a39	cd e7 2f 	. . / 
 	call 01d10h		;1a3c	cd 10 1d 	. . . 
 	ret			;1a3f	c9 	. 
 	ld hl,01a45h		;1a40	21 45 1a 	! E . 
-	jr $+20			;1a43	18 12 	. . 
+	jr 1a57h			;1a43	18 12 	. . 
 	xor a			;1a45	af 	. 
 	ld (MLTACT),a		;1a46	32 d6 e0 	2 . . 
 	ld a,b			;1a49	78 	x 
@@ -3423,7 +3423,7 @@ ADDB15:				; ADD BIAS OF ENABLES
 	call 03372h		;1a64	cd 72 33 	. r 3 
 	ret nz			;1a67	c0 	. 
 	ld hl,01a6dh		;1a68	21 6d 1a 	! m . 
-	jr $-16			;1a6b	18 ee 	. . 
+	jr 1a5bh			;1a6b	18 ee 	. . 
 	xor a			;1a6d	af 	. 
 	ld (MLTACT),a		;1a6e	32 d6 e0 	2 . . 
 	ld a,b			;1a71	78 	x 
@@ -3449,34 +3449,34 @@ ADDB15:				; ADD BIAS OF ENABLES
 	ld b,000h		;1aa2	06 00 	. . 
 	in a,(026h)		;1aa4	db 26 	. & 
 	bit 7,a			;1aa6	cb 7f 	.  
-	jr z,$+4		;1aa8	28 02 	( . 
+	jr z,1aach		;1aa8	28 02 	( . 
 	set 2,b			;1aaa	cb d0 	. . 
 	bit 6,a			;1aac	cb 77 	. w 
-	jr nz,$+4		;1aae	20 02 	  . 
+	jr nz,1ab2h		;1aae	20 02 	  . 
 	set 3,b			;1ab0	cb d8 	. . 
 	ld a,b			;1ab2	78 	x 
 	call 031e8h		;1ab3	cd e8 31 	. . 1 
 	ld b,000h		;1ab6	06 00 	. . 
 	ld a,(TBYTE1)		;1ab8	3a 60 e0 	: ` . 
 	and 004h		;1abb	e6 04 	. . 
-	jr z,$+36		;1abd	28 22 	( " 
+	jr z,1ae1h		;1abd	28 22 	( " 
 	in a,(086h)		;1abf	db 86 	. . 
 	bit 5,a			;1ac1	cb 6f 	. o 
-	jr z,$+4		;1ac3	28 02 	( . 
+	jr z,1ac7h		;1ac3	28 02 	( . 
 	set 0,b			;1ac5	cb c0 	. . 
 	bit 4,a			;1ac7	cb 67 	. g 
-	jr z,$+4		;1ac9	28 02 	( . 
+	jr z,1acdh		;1ac9	28 02 	( . 
 	set 1,b			;1acb	cb c8 	. . 
 	in a,(096h)		;1acd	db 96 	. . 
 	bit 5,a			;1acf	cb 6f 	. o 
-	jr z,$+4		;1ad1	28 02 	( . 
+	jr z,1ad5h		;1ad1	28 02 	( . 
 	set 2,b			;1ad3	cb d0 	. . 
 	bit 4,a			;1ad5	cb 67 	. g 
-	jr z,$+4		;1ad7	28 02 	( . 
+	jr z,1adbh		;1ad7	28 02 	( . 
 	set 3,b			;1ad9	cb d8 	. . 
 	ld a,b			;1adb	78 	x 
 	call 031e8h		;1adc	cd e8 31 	. . 1 
-	jr $+6			;1adf	18 04 	. . 
+	jr 1ae5h			;1adf	18 04 	. . 
 	xor a			;1ae1	af 	. 
 	call 031e8h		;1ae2	cd e8 31 	. . 1 
 	xor a			;1ae5	af 	. 
@@ -3494,7 +3494,7 @@ ADDB15:				; ADD BIAS OF ENABLES
 	ld a,(hl)		;1afc	7e 	~ 
 	call 031e8h		;1afd	cd e8 31 	. . 1 
 	inc hl			;1b00	23 	# 
-	djnz $-5		;1b01	10 f9 	. . 
+	djnz 1afch		;1b01	10 f9 	. . 
 	ld b,033h		;1b03	06 33 	. 3 
 	call 0314ch		;1b05	cd 4c 31 	. L 1 
 	ld b,030h		;1b08	06 30 	. 0 
@@ -3506,16 +3506,16 @@ ADDB15:				; ADD BIAS OF ENABLES
 	ld (OBYTE2),a		;1b16	32 47 e0 	2 G . 
 	ret			;1b19	c9 	. 
 	xor a			;1b1a	af 	. 
-	jr $+4			;1b1b	18 02 	. . 
+	jr 1b1fh			;1b1b	18 02 	. . 
 	ld a,001h		;1b1d	3e 01 	> . 
 	ld (PROTE),a		;1b1f	32 de e0 	2 . . 
 	ret			;1b22	c9 	. 
 	ld a,(OBYTE1)		;1b23	3a 46 e0 	: F . 
 	and 0fdh		;1b26	e6 fd 	. . 
-	jr $+13			;1b28	18 0b 	. . 
+	jr 1b35h			;1b28	18 0b 	. . 
 	ld a,(NOPTR)		;1b2a	3a f8 e0 	: . . 
 	and a			;1b2d	a7 	. 
-	jr nz,$-11		;1b2e	20 f3 	  . 
+	jr nz,1b23h		;1b2e	20 f3 	  . 
 	ld a,(OBYTE1)		;1b30	3a 46 e0 	: F . 
 	or 002h			;1b33	f6 02 	. . 
 	ld (OBYTE1),a		;1b35	32 46 e0 	2 F . 
@@ -3524,7 +3524,7 @@ ADDB15:				; ADD BIAS OF ENABLES
 	jp 01a5bh		;1b3e	c3 5b 1a 	. [ . 
 	ld a,b			;1b41	78 	x 
 	cp 07eh			;1b42	fe 7e 	. ~ 
-	jr nz,$+22		;1b44	20 14 	  . 
+	jr nz,1b5ah		;1b44	20 14 	  . 
 	ld hl,01b4ch		;1b46	21 4c 1b 	! L . 
 	jp 01a60h		;1b49	c3 60 1a 	. ` . 
 	ld hl,01b5ah		;1b4c	21 5a 1b 	! Z . 
@@ -3539,9 +3539,9 @@ ADDB15:				; ADD BIAS OF ENABLES
 	ld c,a			;1b61	4f 	O 
 	ld a,b			;1b62	78 	x 
 	cp c			;1b63	b9 	. 
-	jr c,$+5		;1b64	38 03 	8 . 
+	jr c,1b69h		;1b64	38 03 	8 . 
 	sub c			;1b66	91 	. 
-	jr $-4			;1b67	18 fa 	. . 
+	jr 1b63h			;1b67	18 fa 	. . 
 	ld (XPOS),a		;1b69	32 f1 e0 	2 . . 
 	ld hl,01b7bh		;1b6c	21 7b 1b 	! { . 
 	jp 01a60h		;1b6f	c3 60 1a 	. ` . 
@@ -3549,7 +3549,7 @@ ADDB15:				; ADD BIAS OF ENABLES
 	ld a,b			;1b75	78 	x 
 	add a,050h		;1b76	c6 50 	. P 
 	ld b,a			;1b78	47 	G 
-	jr $-28			;1b79	18 e2 	. . 
+	jr 1b5dh			;1b79	18 e2 	. . 
 	xor a			;1b7b	af 	. 
 	ld (MLTACT),a		;1b7c	32 d6 e0 	2 . . 
 	call 016a7h		;1b7f	cd a7 16 	. . . 
@@ -3558,9 +3558,9 @@ ADDB15:				; ADD BIAS OF ENABLES
 	ld c,a			;1b86	4f 	O 
 	ld a,b			;1b87	78 	x 
 	cp c			;1b88	b9 	. 
-	jr c,$+5		;1b89	38 03 	8 . 
+	jr c,1b8eh		;1b89	38 03 	8 . 
 	sub c			;1b8b	91 	. 
-	jr $-4			;1b8c	18 fa 	. . 
+	jr 1b88h			;1b8c	18 fa 	. . 
 	ld e,a			;1b8e	5f 	_ 
 	ld a,(XPOS)		;1b8f	3a f1 e0 	: . . 
 	ld d,a			;1b92	57 	W 
@@ -3573,34 +3573,34 @@ ADDB15:				; ADD BIAS OF ENABLES
 	ld hl,(CURSOR)		;1b9e	2a b7 e0 	* . . 
 	ld a,(hl)		;1ba1	7e 	~ 
 	bit 7,a			;1ba2	cb 7f 	.  
-	jr nz,$+4		;1ba4	20 02 	  . 
+	jr nz,1ba8h		;1ba4	20 02 	  . 
 	res 6,b			;1ba6	cb b0 	. . 
 	inc hl			;1ba8	23 	# 
 	ld a,(hl)		;1ba9	7e 	~ 
 	bit 1,a			;1baa	cb 4f 	. O 
-	jr nz,$+4		;1bac	20 02 	  . 
+	jr nz,1bb0h		;1bac	20 02 	  . 
 	res 1,b			;1bae	cb 88 	. . 
 	bit 3,a			;1bb0	cb 5f 	. _ 
-	jr nz,$+4		;1bb2	20 02 	  . 
+	jr nz,1bb6h		;1bb2	20 02 	  . 
 	res 2,b			;1bb4	cb 90 	. . 
 	bit 4,a			;1bb6	cb 67 	. g 
-	jr nz,$+4		;1bb8	20 02 	  . 
+	jr nz,1bbch		;1bb8	20 02 	  . 
 	res 3,b			;1bba	cb 98 	. . 
 	push af			;1bbc	f5 	. 
 	call 0314ch		;1bbd	cd 4c 31 	. L 1 
 	pop af			;1bc0	f1 	. 
 	ld b,03fh		;1bc1	06 3f 	. ? 
 	bit 5,a			;1bc3	cb 6f 	. o 
-	jr nz,$+4		;1bc5	20 02 	  . 
+	jr nz,1bc9h		;1bc5	20 02 	  . 
 	res 0,b			;1bc7	cb 80 	. . 
 	bit 7,a			;1bc9	cb 7f 	.  
-	jr nz,$+4		;1bcb	20 02 	  . 
+	jr nz,1bcfh		;1bcb	20 02 	  . 
 	res 1,b			;1bcd	cb 88 	. . 
 	bit 0,a			;1bcf	cb 47 	. G 
-	jr nz,$+4		;1bd1	20 02 	  . 
+	jr nz,1bd5h		;1bd1	20 02 	  . 
 	res 2,b			;1bd3	cb 90 	. . 
 	bit 2,a			;1bd5	cb 57 	. W 
-	jr nz,$+4		;1bd7	20 02 	  . 
+	jr nz,1bdbh		;1bd7	20 02 	  . 
 	res 3,b			;1bd9	cb 98 	. . 
 	jp 03185h		;1bdb	c3 85 31 	. . 1 
 	call 03372h		;1bde	cd 72 33 	. r 3 
@@ -3619,75 +3619,75 @@ ADDB15:				; ADD BIAS OF ENABLES
 	ld b,07fh		;1bfc	06 7f 	.  
 	ld a,(OBYTE2)		;1bfe	3a 47 e0 	: G . 
 	and 004h		;1c01	e6 04 	. . 
-	jr nz,$+4		;1c03	20 02 	  . 
+	jr nz,1c07h		;1c03	20 02 	  . 
 	res 0,b			;1c05	cb 80 	. . 
 	ld a,(OBYTE4)		;1c07	3a 49 e0 	: I . 
 	and 001h		;1c0a	e6 01 	. . 
-	jr nz,$+4		;1c0c	20 02 	  . 
+	jr nz,1c10h		;1c0c	20 02 	  . 
 	res 1,b			;1c0e	cb 88 	. . 
 	call 005c8h		;1c10	cd c8 05 	. . . 
 	bit 5,a			;1c13	cb 6f 	. o 
-	jr nz,$+4		;1c15	20 02 	  . 
+	jr nz,1c19h		;1c15	20 02 	  . 
 	res 2,b			;1c17	cb 90 	. . 
 	call 005a9h		;1c19	cd a9 05 	. . . 
 	bit 5,a			;1c1c	cb 6f 	. o 
-	jr nz,$+4		;1c1e	20 02 	  . 
+	jr nz,1c22h		;1c1e	20 02 	  . 
 	res 3,b			;1c20	cb 98 	. . 
 	call 0314ch		;1c22	cd 4c 31 	. L 1 
 	ld b,07fh		;1c25	06 7f 	.  
 	ld a,(OBYTE1)		;1c27	3a 46 e0 	: F . 
 	and 004h		;1c2a	e6 04 	. . 
-	jr z,$+4		;1c2c	28 02 	( . 
+	jr z,1c30h		;1c2c	28 02 	( . 
 	res 0,b			;1c2e	cb 80 	. . 
 	ld a,(MBYTE5)		;1c30	3a 44 e0 	: D . 
 	and 002h		;1c33	e6 02 	. . 
-	jr z,$+4		;1c35	28 02 	( . 
+	jr z,1c39h		;1c35	28 02 	( . 
 	res 1,b			;1c37	cb 88 	. . 
 	call 0314ch		;1c39	cd 4c 31 	. L 1 
 	ld b,07fh		;1c3c	06 7f 	.  
 	ld a,(MBYTE3)		;1c3e	3a 42 e0 	: B . 
 	bit 2,a			;1c41	cb 57 	. W 
-	jr nz,$+4		;1c43	20 02 	  . 
+	jr nz,1c47h		;1c43	20 02 	  . 
 	res 0,b			;1c45	cb 80 	. . 
 	bit 3,a			;1c47	cb 5f 	. _ 
-	jr z,$+4		;1c49	28 02 	( . 
+	jr z,1c4dh		;1c49	28 02 	( . 
 	res 1,b			;1c4b	cb 88 	. . 
 	bit 1,a			;1c4d	cb 4f 	. O 
-	jr nz,$+4		;1c4f	20 02 	  . 
+	jr nz,1c53h		;1c4f	20 02 	  . 
 	res 2,b			;1c51	cb 90 	. . 
 	ld a,(MBYTE4)		;1c53	3a 43 e0 	: C . 
 	and 008h		;1c56	e6 08 	. . 
-	jr z,$+4		;1c58	28 02 	( . 
+	jr z,1c5ch		;1c58	28 02 	( . 
 	res 3,b			;1c5a	cb 98 	. . 
 	call 0314ch		;1c5c	cd 4c 31 	. L 1 
 	ld a,(TBAUD)		;1c5f	3a 58 e0 	: X . 
 	ld b,07fh		;1c62	06 7f 	.  
 	bit 0,a			;1c64	cb 47 	. G 
-	jr nz,$+4		;1c66	20 02 	  . 
+	jr nz,1c6ah		;1c66	20 02 	  . 
 	res 3,b			;1c68	cb 98 	. . 
 	bit 1,a			;1c6a	cb 4f 	. O 
-	jr nz,$+4		;1c6c	20 02 	  . 
+	jr nz,1c70h		;1c6c	20 02 	  . 
 	res 2,b			;1c6e	cb 90 	. . 
 	bit 2,a			;1c70	cb 57 	. W 
-	jr nz,$+4		;1c72	20 02 	  . 
+	jr nz,1c76h		;1c72	20 02 	  . 
 	res 1,b			;1c74	cb 88 	. . 
 	bit 3,a			;1c76	cb 5f 	. _ 
-	jr nz,$+4		;1c78	20 02 	  . 
+	jr nz,1c7ch		;1c78	20 02 	  . 
 	res 0,b			;1c7a	cb 80 	. . 
 	call 0314ch		;1c7c	cd 4c 31 	. L 1 
 	ld b,07fh		;1c7f	06 7f 	.  
 	ld a,(MBYTE4)		;1c81	3a 43 e0 	: C . 
 	bit 0,a			;1c84	cb 47 	. G 
-	jr z,$+4		;1c86	28 02 	( . 
+	jr z,1c8ah		;1c86	28 02 	( . 
 	res 2,b			;1c88	cb 90 	. . 
 	bit 1,a			;1c8a	cb 4f 	. O 
-	jr z,$+4		;1c8c	28 02 	( . 
+	jr z,1c90h		;1c8c	28 02 	( . 
 	res 3,b			;1c8e	cb 98 	. . 
 	call 0314ch		;1c90	cd 4c 31 	. L 1 
 	jp 01666h		;1c93	c3 66 16 	. f . 
 	ld a,(MBYTE4)		;1c96	3a 43 e0 	: C . 
 	or 004h			;1c99	f6 04 	. . 
-	jr $+7			;1c9b	18 05 	. . 
+	jr 1ca2h			;1c9b	18 05 	. . 
 	ld a,(MBYTE4)		;1c9d	3a 43 e0 	: C . 
 	and 0fbh		;1ca0	e6 fb 	. . 
 	ld (MBYTE4),a		;1ca2	32 43 e0 	2 C . 
@@ -3700,13 +3700,13 @@ ADDB15:				; ADD BIAS OF ENABLES
 	ld c,(hl)		;1cb3	4e 	N 
 	inc c			;1cb4	0c 	. 
 	cp c			;1cb5	b9 	. 
-	jr c,$+5		;1cb6	38 03 	8 . 
+	jr c,1cbbh		;1cb6	38 03 	8 . 
 	sub (hl)		;1cb8	96 	. 
-	jr $-4			;1cb9	18 fa 	. . 
+	jr 1cb5h			;1cb9	18 fa 	. . 
 	ld b,a			;1cbb	47 	G 
 	ld a,(MLTCNT)		;1cbc	3a d5 e0 	: . . 
 	and a			;1cbf	a7 	. 
-	jr nz,$+11		;1cc0	20 09 	  . 
+	jr nz,1ccbh		;1cc0	20 09 	  . 
 	inc a			;1cc2	3c 	< 
 	ld (MLTCNT),a		;1cc3	32 d5 e0 	2 . . 
 	ld a,b			;1cc6	78 	x 
@@ -3727,29 +3727,29 @@ ADDB15:				; ADD BIAS OF ENABLES
 	rra			;1ce3	1f 	. 
 	ret c			;1ce4	d8 	. 
 	ld a,001h		;1ce5	3e 01 	> . 
-	jr $+3			;1ce7	18 01 	. . 
+	jr 1ceah			;1ce7	18 01 	. . 
 	xor a			;1ce9	af 	. 
 	ld (RXOFF),a		;1cea	32 e1 e0 	2 . . 
 	ret			;1ced	c9 	. 
 	ld b,008h		;1cee	06 08 	. . 
-	jr $+24			;1cf0	18 16 	. . 
+	jr 1d08h			;1cf0	18 16 	. . 
 	ld b,001h		;1cf2	06 01 	. . 
-	jr $+20			;1cf4	18 12 	. . 
+	jr 1d08h			;1cf4	18 12 	. . 
 	ld b,010h		;1cf6	06 10 	. . 
-	jr $+16			;1cf8	18 0e 	. . 
+	jr 1d08h			;1cf8	18 0e 	. . 
 	ld b,004h		;1cfa	06 04 	. . 
-	jr $+12			;1cfc	18 0a 	. . 
+	jr 1d08h			;1cfc	18 0a 	. . 
 	ld b,080h		;1cfe	06 80 	. . 
-	jr $+8			;1d00	18 06 	. . 
+	jr 1d08h			;1d00	18 06 	. . 
 	ld b,002h		;1d02	06 02 	. . 
-	jr $+4			;1d04	18 02 	. . 
+	jr 1d08h			;1d04	18 02 	. . 
 	ld b,040h		;1d06	06 40 	. @ 
 	ld a,(ATTRIB)		;1d08	3a a9 e0 	: . . 
 	or b			;1d0b	b0 	. 
 	ld (ATTRIB),a		;1d0c	32 a9 e0 	2 . . 
 	ret			;1d0f	c9 	. 
 	ld a,003h		;1d10	3e 03 	> . 
-	jr $+4			;1d12	18 02 	. . 
+	jr 1d16h			;1d12	18 02 	. . 
 	ld a,001h		;1d14	3e 01 	> . 
 	ld (FLAG2),a		;1d16	32 bf e0 	2 . . 
 	call 02f70h		;1d19	cd 70 2f 	. p / 
@@ -3766,18 +3766,18 @@ ADDB15:				; ADD BIAS OF ENABLES
 	call 0314ch		;1d32	cd 4c 31 	. L 1 
 	ld a,(OBYTE4)		;1d35	3a 49 e0 	: I . 
 	and 002h		;1d38	e6 02 	. . 
-	jr z,$+21		;1d3a	28 13 	( . 
+	jr z,1d4fh		;1d3a	28 13 	( . 
 	ld b,07eh		;1d3c	06 7e 	. ~ 
 	call 0314ch		;1d3e	cd 4c 31 	. L 1 
 	ld b,000h		;1d41	06 00 	. . 
 	ld a,(CHRCNT)		;1d43	3a b1 e0 	: . . 
 	cp 050h			;1d46	fe 50 	. P 
-	jr c,$+4		;1d48	38 02 	8 . 
+	jr c,1d4ch		;1d48	38 02 	8 . 
 	ld b,001h		;1d4a	06 01 	. . 
 	call 01d60h		;1d4c	cd 60 1d 	. ` . 
 	ld a,(CHRCNT)		;1d4f	3a b1 e0 	: . . 
 	cp 050h			;1d52	fe 50 	. P 
-	jr c,$+4		;1d54	38 02 	8 . 
+	jr c,1d58h		;1d54	38 02 	8 . 
 	sub 050h		;1d56	d6 50 	. P 
 	ld b,a			;1d58	47 	G 
 	call 01d60h		;1d59	cd 60 1d 	. ` . 
@@ -3790,7 +3790,7 @@ ADDB15:				; ADD BIAS OF ENABLES
 	and 008h		;1d6a	e6 08 	. . 
 	ret nz			;1d6c	c0 	. 
 	ld b,006h		;1d6d	06 06 	. . 
-	jr $+15			;1d6f	18 0d 	. . 
+	jr 1d7eh			;1d6f	18 0d 	. . 
 	ld a,(OBYTE2)		;1d71	3a 47 e0 	: G . 
 	and 008h		;1d74	e6 08 	. . 
 	ret nz			;1d76	c0 	. 
@@ -3803,7 +3803,7 @@ ADDB15:				; ADD BIAS OF ENABLES
 	push bc			;1d85	c5 	. 
 	ld b,01eh		;1d86	06 1e 	. . 
 	call 0314ch		;1d88	cd 4c 31 	. L 1 
-	jr $+13			;1d8b	18 0b 	. . 
+	jr 1d98h			;1d8b	18 0b 	. . 
 	push bc			;1d8d	c5 	. 
 	ld b,01eh		;1d8e	06 1e 	. . 
 	call 0314ch		;1d90	cd 4c 31 	. L 1 
@@ -3816,7 +3816,7 @@ ADDB15:				; ADD BIAS OF ENABLES
 	push bc			;1d9e	c5 	. 
 	ld b,01eh		;1d9f	06 1e 	. . 
 	call 028ddh		;1da1	cd dd 28 	. . ( 
-	jr $+13			;1da4	18 0b 	. . 
+	jr 1db1h			;1da4	18 0b 	. . 
 	push bc			;1da6	c5 	. 
 	ld b,01eh		;1da7	06 1e 	. . 
 	call 028ddh		;1da9	cd dd 28 	. . ( 
@@ -3827,13 +3827,13 @@ ADDB15:				; ADD BIAS OF ENABLES
 	call 028ddh		;1db3	cd dd 28 	. . ( 
 	ret			;1db6	c9 	. 
 	ld b,0fbh		;1db7	06 fb 	. . 
-	jr $+4			;1db9	18 02 	. . 
+	jr 1dbdh			;1db9	18 02 	. . 
 	ld b,0fdh		;1dbb	06 fd 	. . 
 	ld a,(OBYTE4)		;1dbd	3a 49 e0 	: I . 
 	and b			;1dc0	a0 	. 
-	jr $+12			;1dc1	18 0a 	. . 
+	jr 1dcdh			;1dc1	18 0a 	. . 
 	ld b,004h		;1dc3	06 04 	. . 
-	jr $+4			;1dc5	18 02 	. . 
+	jr 1dc9h			;1dc5	18 02 	. . 
 	ld b,002h		;1dc7	06 02 	. . 
 	ld a,(OBYTE4)		;1dc9	3a 49 e0 	: I . 
 	or b			;1dcc	b0 	. 
@@ -3851,14 +3851,14 @@ ADDB15:				; ADD BIAS OF ENABLES
 	ld (hl),a		;1de3	77 	w 
 	inc hl			;1de4	23 	# 
 	inc hl			;1de5	23 	# 
-	djnz $-6		;1de6	10 f8 	. . 
-	jr $-12			;1de8	18 f2 	. . 
+	djnz 1de0h		;1de6	10 f8 	. . 
+	jr 1ddch			;1de8	18 f2 	. . 
 	ld a,(SXOFF)		;1dea	3a eb e0 	: . . 
 	and a			;1ded	a7 	. 
 	ret nz			;1dee	c0 	. 
 	ld a,001h		;1def	3e 01 	> . 
 	ld b,013h		;1df1	06 13 	. . 
-	jr $+10			;1df3	18 08 	. . 
+	jr 1dfdh			;1df3	18 08 	. . 
 	ld a,(SXOFF)		;1df5	3a eb e0 	: . . 
 	rra			;1df8	1f 	. 
 	ret nc			;1df9	d0 	. 
@@ -3894,55 +3894,55 @@ ADDB15:				; ADD BIAS OF ENABLES
 	call 01d9eh		;1e39	cd 9e 1d 	. . . 
 	jp 025a2h		;1e3c	c3 a2 25 	. . % 
 	ld c,05fh		;1e3f	0e 5f 	. _ 
-	jr $-12			;1e41	18 f2 	. . 
+	jr 1e35h			;1e41	18 f2 	. . 
 	ld c,05bh		;1e43	0e 5b 	. [ 
-	jr $-16			;1e45	18 ee 	. . 
+	jr 1e35h			;1e45	18 ee 	. . 
 	ld c,04eh		;1e47	0e 4e 	. N 
-	jr $-37			;1e49	18 d9 	. . 
+	jr 1e24h			;1e49	18 d9 	. . 
 	ld c,05eh		;1e4b	0e 5e 	. ^ 
-	jr $-24			;1e4d	18 e6 	. . 
+	jr 1e35h			;1e4d	18 e6 	. . 
 	ld c,05ah		;1e4f	0e 5a 	. Z 
-	jr $-28			;1e51	18 e2 	. . 
+	jr 1e35h			;1e51	18 e2 	. . 
 	ld c,05dh		;1e53	0e 5d 	. ] 
-	jr $-49			;1e55	18 cd 	. . 
+	jr 1e24h			;1e55	18 cd 	. . 
 	ld c,059h		;1e57	0e 59 	. Y 
-	jr $-53			;1e59	18 c9 	. . 
+	jr 1e24h			;1e59	18 c9 	. . 
 	ld c,05ch		;1e5b	0e 5c 	. \ 
-	jr $-40			;1e5d	18 d6 	. . 
+	jr 1e35h			;1e5d	18 d6 	. . 
 	ld c,058h		;1e5f	0e 58 	. X 
-	jr $-44			;1e61	18 d2 	. . 
+	jr 1e35h			;1e61	18 d2 	. . 
 	ld c,04fh		;1e63	0e 4f 	. O 
-	jr $-65			;1e65	18 bd 	. . 
+	jr 1e24h			;1e65	18 bd 	. . 
 	ld c,04bh		;1e67	0e 4b 	. K 
-	jr $-69			;1e69	18 b9 	. . 
+	jr 1e24h			;1e69	18 b9 	. . 
 	ld c,04dh		;1e6b	0e 4d 	. M 
-	jr $-73			;1e6d	18 b5 	. . 
+	jr 1e24h			;1e6d	18 b5 	. . 
 	ld c,011h		;1e6f	0e 11 	. . 
-	jr $-77			;1e71	18 b1 	. . 
+	jr 1e24h			;1e71	18 b1 	. . 
 	ld c,002h		;1e73	0e 02 	. . 
-	jr $-81			;1e75	18 ad 	. . 
+	jr 1e24h			;1e75	18 ad 	. . 
 	ld c,001h		;1e77	0e 01 	. . 
-	jr $-85			;1e79	18 a9 	. . 
+	jr 1e24h			;1e79	18 a9 	. . 
 	ld c,01ah		;1e7b	0e 1a 	. . 
-	jr $-89			;1e7d	18 a5 	. . 
+	jr 1e24h			;1e7d	18 a5 	. . 
 	ld c,019h		;1e7f	0e 19 	. . 
-	jr $-93			;1e81	18 a1 	. . 
+	jr 1e24h			;1e81	18 a1 	. . 
 	ld c,008h		;1e83	0e 08 	. . 
-	jr $-97			;1e85	18 9d 	. . 
+	jr 1e24h			;1e85	18 9d 	. . 
 	ld c,018h		;1e87	0e 18 	. . 
-	jr $-101		;1e89	18 99 	. . 
+	jr 1e24h		;1e89	18 99 	. . 
 	ld c,049h		;1e8b	0e 49 	. I 
-	jr $-88			;1e8d	18 a6 	. . 
+	jr 1e35h			;1e8d	18 a6 	. . 
 	ld c,04ah		;1e8f	0e 4a 	. J 
-	jr $-92			;1e91	18 a2 	. . 
+	jr 1e35h			;1e91	18 a2 	. . 
 	ld c,00bh		;1e93	0e 0b 	. . 
 	jp 01d9eh		;1e95	c3 9e 1d 	. . . 
 	ld c,051h		;1e98	0e 51 	. Q 
-	jr $+4			;1e9a	18 02 	. . 
+	jr 1e9eh			;1e9a	18 02 	. . 
 	ld c,052h		;1e9c	0e 52 	. R 
 	ld a,(BLKMD)		;1e9e	3a ab e0 	: . . 
 	and a			;1ea1	a7 	. 
-	jr z,$-126		;1ea2	28 80 	( . 
+	jr z,1e24h		;1ea2	28 80 	( . 
 	ld a,(OBYTE1)		;1ea4	3a 46 e0 	: F . 
 	and 001h		;1ea7	e6 01 	. . 
 	jp nz,01e24h		;1ea9	c2 24 1e 	. $ . 
@@ -3962,32 +3962,32 @@ ADDB15:				; ADD BIAS OF ENABLES
 	and 00fh		;1ecb	e6 0f 	. . 
 	or 020h			;1ecd	f6 20 	.   
 	ld c,a			;1ecf	4f 	O 
-	jr $-18			;1ed0	18 ec 	. . 
+	jr 1ebeh			;1ed0	18 ec 	. . 
 	ld c,035h		;1ed2	0e 35 	. 5 
-	jr $-22			;1ed4	18 e8 	. . 
+	jr 1ebeh			;1ed4	18 e8 	. . 
 	call 01deah		;1ed6	cd ea 1d 	. . . 
 	call 0170ch		;1ed9	cd 0c 17 	. . . 
 	call 01df5h		;1edc	cd f5 1d 	. . . 
 	ret			;1edf	c9 	. 
 	ld c,036h		;1ee0	0e 36 	. 6 
-	jr $-36			;1ee2	18 da 	. . 
+	jr 1ebeh			;1ee2	18 da 	. . 
 	ld c,031h		;1ee4	0e 31 	. 1 
-	jr $-40			;1ee6	18 d6 	. . 
+	jr 1ebeh			;1ee6	18 d6 	. . 
 	ld c,032h		;1ee8	0e 32 	. 2 
-	jr $-44			;1eea	18 d2 	. . 
+	jr 1ebeh			;1eea	18 d2 	. . 
 	ld c,058h		;1eec	0e 58 	. X 
-	jr $-54			;1eee	18 c8 	. . 
+	jr 1eb8h			;1eee	18 c8 	. . 
 	ld c,057h		;1ef0	0e 57 	. W 
-	jr $-58			;1ef2	18 c4 	. . 
+	jr 1eb8h			;1ef2	18 c4 	. . 
 	ld c,033h		;1ef4	0e 33 	. 3 
-	jr $-56			;1ef6	18 c6 	. .
+	jr 1ebeh			;1ef6	18 c6 	. .
 BFTB:				; COMM BUFFER TO B
 	ld hl,(BDOTAD)		;1ef8	2a 87 e0 	* . . 
 	ld b,(hl)		;1efb	46 	F 
 	inc hl			;1efc	23 	# 
 	ld a,h			;1efd	7c 	| 
 	cp 0dfh			;1efe	fe df 	. . 
-	jr nz,$+5		;1f00	20 03 	  . 
+	jr nz,1f05h		;1f00	20 03 	  . 
 	ld hl,0db20h		;1f02	21 20 db 	!   . 
 	ld (BDOTAD),hl		;1f05	22 87 e0 	" . . 
 	di			;1f08	f3 	. 
@@ -4002,13 +4002,13 @@ BFTDSP:				; PROCESS ONE CODE FROM COMM BUFFER
 	ei			;1f18	fb 	. 
 	ld a,h			;1f19	7c 	| 
 	and a			;1f1a	a7 	. 
-	jr nz,$+7		;1f1b	20 05 	  . 
+	jr nz,1f22h		;1f1b	20 05 	  . 
 	push bc			;1f1d	c5 	. 
 	call 01df5h		;1f1e	cd f5 1d 	. . . 
 	pop bc			;1f21	c1 	. 
 	ld a,(OBYTE2)		;1f22	3a 47 e0 	: G . 
 	and 008h		;1f25	e6 08 	. . 
-	jr z,$+13		;1f27	28 0b 	( . 
+	jr z,1f34h		;1f27	28 0b 	( . 
 	ld a,b			;1f29	78 	x 
 	cp 011h			;1f2a	fe 11 	. . 
 	jp z,01ce9h		;1f2c	ca e9 1c 	. . . 
@@ -4016,13 +4016,13 @@ BFTDSP:				; PROCESS ONE CODE FROM COMM BUFFER
 	jp z,01ce0h		;1f31	ca e0 1c 	. . . 
 	ld a,(MLTACT)		;1f34	3a d6 e0 	: . . 
 	rra			;1f37	1f 	. 
-	jr c,$+29		;1f38	38 1b 	8 . 
+	jr c,1f55h		;1f38	38 1b 	8 . 
 	push bc			;1f3a	c5 	. 
 	call 02e3fh		;1f3b	cd 3f 2e 	. ? . 
 	pop bc			;1f3e	c1 	. 
 	ld a,(DSPDIS)		;1f3f	3a bc e0 	: . . 
 	rra			;1f42	1f 	. 
-	jr nc,$+12		;1f43	30 0a 	0 . 
+	jr nc,1f4fh		;1f43	30 0a 	0 . 
 	ld a,b			;1f45	78 	x 
 	cp 01eh			;1f46	fe 1e 	. . 
 	ret nz			;1f48	c0 	. 
@@ -4031,49 +4031,49 @@ BFTDSP:				; PROCESS ONE CODE FROM COMM BUFFER
 BDISPN:				; DISPLAY B - PERFORM FUNCTION
 	ld a,(MLTACT)		;1f4f	3a d6 e0 	: . . 
 	rra			;1f52	1f 	. 
-	jr nc,$+9		;1f53	30 07 	0 . 
+	jr nc,1f5ch		;1f53	30 07 	0 . 
 	ld hl,(MLTADD)		;1f55	2a d7 e0 	* . . 
 	call 022f6h		;1f58	cd f6 22 	. . " 
 	ret			;1f5b	c9 	. 
 	ld a,b			;1f5c	78 	x 
 	cp 0ffh			;1f5d	fe ff 	. . 
-	jr nz,$+9		;1f5f	20 07 	  . 
+	jr nz,1f68h		;1f5f	20 07 	  . 
 	ld b,07fh		;1f61	06 7f 	.  
 	call 02526h		;1f63	cd 26 25 	. & % 
-	jr $+92			;1f66	18 5a 	. Z 
+	jr 1fc2h			;1f66	18 5a 	. Z 
 	res 7,b			;1f68	cb b8 	. . 
 	ld a,(OBYTE4)		;1f6a	3a 49 e0 	: I . 
 	and 008h		;1f6d	e6 08 	. . 
-	jr nz,$+83		;1f6f	20 51 	  Q 
+	jr nz,1fc2h		;1f6f	20 51 	  Q 
 	ld a,(TABLE)		;1f71	3a ec e0 	: . . 
 	cp 002h			;1f74	fe 02 	. . 
-	jr z,$+31		;1f76	28 1d 	( . 
+	jr z,1f95h		;1f76	28 1d 	( . 
 	ld a,b			;1f78	78 	x 
 	cp 020h			;1f79	fe 20 	.   
-	jr c,$+78		;1f7b	38 4c 	8 L 
+	jr c,1fc9h		;1f7b	38 4c 	8 L 
 	ld a,(TABLE)		;1f7d	3a ec e0 	: . . 
 	cp 001h			;1f80	fe 01 	. . 
-	jr nz,$+57		;1f82	20 37 	  7 
+	jr nz,1fbbh		;1f82	20 37 	  7 
 	ld a,b			;1f84	78 	x 
 	cp 060h			;1f85	fe 60 	. ` 
-	jr c,$+66		;1f87	38 40 	8 @ 
+	jr c,1fc9h		;1f87	38 40 	8 @ 
 	call 02526h		;1f89	cd 26 25 	. & % 
 	ld a,b			;1f8c	78 	x 
 	cp 07fh			;1f8d	fe 7f 	.  
-	jr nz,$+44		;1f8f	20 2a 	  * 
+	jr nz,1fbbh		;1f8f	20 2a 	  * 
 	call 01b23h		;1f91	cd 23 1b 	. # . 
 	ret			;1f94	c9 	. 
 	ld a,b			;1f95	78 	x 
 	cp 020h			;1f96	fe 20 	.   
-	jr c,$+46		;1f98	38 2c 	8 , 
+	jr c,1fc6h		;1f98	38 2c 	8 , 
 	cp 040h			;1f9a	fe 40 	. @ 
-	jr nc,$+5		;1f9c	30 03 	0 . 
+	jr nc,1fa1h		;1f9c	30 03 	0 . 
 	jp 02526h		;1f9e	c3 26 25 	. & % 
 	cp 070h			;1fa1	fe 70 	. p 
-	jr nc,$+7		;1fa3	30 05 	0 . 
+	jr nc,1faah		;1fa3	30 05 	0 . 
 	sub 040h		;1fa5	d6 40 	. @ 
 	ld b,a			;1fa7	47 	G 
-	jr $+33			;1fa8	18 1f 	. . 
+	jr 1fc9h			;1fa8	18 1f 	. . 
 	call 02526h		;1faa	cd 26 25 	. & % 
 	ld a,b			;1fad	78 	x 
 	call 017e3h		;1fae	cd e3 17 	. . . 
@@ -4149,20 +4149,20 @@ BLDADD:				; BUILD ADDRESS
 	ld b,000h		;2033	06 00 	. . 
 	ld a,(PROTE)		;2035	3a de e0 	: . . 
 	rra			;2038	1f 	. 
-	jr nc,$+24		;2039	30 16 	0 . 
+	jr nc,2051h		;2039	30 16 	0 . 
 	ld a,(CHRCNT)		;203b	3a b1 e0 	: . . 
 	ld b,a			;203e	47 	G 
 	ld hl,(CURSOR)		;203f	2a b7 e0 	* . . 
 	inc hl			;2042	23 	# 
 	ld a,(hl)		;2043	7e 	~ 
 	and 080h		;2044	e6 80 	. . 
-	jr nz,$+10		;2046	20 08 	  . 
+	jr nz,2050h		;2046	20 08 	  . 
 	or b			;2048	b0 	. 
-	jr z,$+8		;2049	28 06 	( . 
+	jr z,2051h		;2049	28 06 	( . 
 	dec b			;204b	05 	. 
 	dec hl			;204c	2b 	+ 
 	dec hl			;204d	2b 	+ 
-	jr $-11			;204e	18 f3 	. . 
+	jr 2043h			;204e	18 f3 	. . 
 	inc b			;2050	04 	. 
 	ld a,b			;2051	78 	x 
 	ld (CHRCNT),a		;2052	32 b1 e0 	2 . . 
@@ -4187,7 +4187,7 @@ CLEAR:				; CLEAR
 	ld a,e			;2076	7b 	{ 
 	add a,008h		;2077	c6 08 	. . 
 	ld e,a			;2079	5f 	_ 
-	djnz $-9		;207a	10 f5 	. . 
+	djnz 2071h		;207a	10 f5 	. . 
 	ld hl,0e110h		;207c	21 10 e1 	! . . 
 	ld bc,00f78h		;207f	01 78 0f 	. x . 
 	ld (hl),020h		;2082	36 20 	6   
@@ -4197,22 +4197,22 @@ CLEAR:				; CLEAR
 	dec bc			;2088	0b 	. 
 	ld a,c			;2089	79 	y 
 	or b			;208a	b0 	. 
-	jr nz,$-9		;208b	20 f5 	  . 
+	jr nz,2082h		;208b	20 f5 	  . 
 	call 01636h		;208d	cd 36 16 	. 6 . 
 	xor a			;2090	af 	. 
 	ld (ATTRIB),a		;2091	32 a9 e0 	2 . . 
 	call 02f3ch		;2094	cd 3c 2f 	. < / 
 	ret			;2097	c9 	. 
 	xor a			;2098	af 	. 
-	jr $+18			;2099	18 10 	. . 
+	jr 20abh			;2099	18 10 	. . 
 	ld a,008h		;209b	3e 08 	> . 
-	jr $+14			;209d	18 0c 	. . 
+	jr 20abh			;209d	18 0c 	. . 
 	ld a,010h		;209f	3e 10 	> . 
-	jr $+10			;20a1	18 08 	. . 
+	jr 20abh			;20a1	18 08 	. . 
 	ld a,01fh		;20a3	3e 1f 	> . 
-	jr $+6			;20a5	18 04 	. . 
+	jr 20abh			;20a5	18 04 	. . 
 	ld a,002h		;20a7	3e 02 	> . 
-	jr $+2			;20a9	18 00 	. . 
+	jr 20abh			;20a9	18 00 	. . 
 	ld (CLRTYP),a		;20ab	32 b3 e0 	2 . . 
 	call 020bfh		;20ae	cd bf 20 	. .   
 	xor a			;20b1	af 	. 
@@ -4230,7 +4230,7 @@ CLREOP:				; CLEAR TO END OF PAGE
 	ld a,(LNCNT)		;20c9	3a d1 e0 	: . . 
 	ld hl,LASTLN		;20cc	21 cd e0 	! . . 
 	cp (hl)			;20cf	be 	. 
-	jr z,$+19		;20d0	28 11 	( . 
+	jr z,20e3h		;20d0	28 11 	( . 
 	inc a			;20d2	3c 	< 
 	ld (LNCNT),a		;20d3	32 d1 e0 	2 . . 
 	ld l,a			;20d6	6f 	o 
@@ -4239,7 +4239,7 @@ CLREOP:				; CLEAR TO END OF PAGE
 	ld h,d			;20dc	62 	b 
 	ld l,e			;20dd	6b 	k 
 	call 0210fh		;20de	cd 0f 21 	. . ! 
-	jr $-24			;20e1	18 e6 	. . 
+	jr 20c9h			;20e1	18 e6 	. . 
 	call 02f4bh		;20e3	cd 4b 2f 	. K / 
 	ret			;20e6	c9 	. 
 	call 021fah		;20e7	cd fa 21 	. . ! 
@@ -4250,7 +4250,7 @@ CLREOP:				; CLEAR TO END OF PAGE
 	inc hl			;20f6	23 	# 
 	ld a,(PROTE)		;20f7	3a de e0 	: . . 
 	rra			;20fa	1f 	. 
-	jr nc,$+6		;20fb	30 04 	0 . 
+	jr nc,2101h		;20fb	30 04 	0 . 
 	ld a,(hl)		;20fd	7e 	~ 
 	and 080h		;20fe	e6 80 	. . 
 	ret nz			;2100	c0 	. 
@@ -4263,7 +4263,7 @@ CLREOP:				; CLEAR TO END OF PAGE
 	ret z			;210a	c8 	. 
 	inc c			;210b	0c 	. 
 	inc hl			;210c	23 	# 
-	jr $-23			;210d	18 e7 	. . 
+	jr 20f6h			;210d	18 e7 	. . 
 	push af			;210f	f5 	. 
 	push bc			;2110	c5 	. 
 	push de			;2111	d5 	. 
@@ -4271,52 +4271,52 @@ CLREOP:				; CLEAR TO END OF PAGE
 	call 02169h		;2113	cd 69 21 	. i ! 
 	ld a,(PROTE)		;2116	3a de e0 	: . . 
 	rra			;2119	1f 	. 
-	jr nc,$+4		;211a	30 02 	0 . 
+	jr nc,211eh		;211a	30 02 	0 . 
 	set 7,b			;211c	cb f8 	. . 
 	ld a,b			;211e	78 	x 
 	and a			;211f	a7 	. 
-	jr z,$+20		;2120	28 12 	( . 
+	jr z,2134h		;2120	28 12 	( . 
 	cp 080h			;2122	fe 80 	. . 
-	jr z,$+16		;2124	28 0e 	( . 
+	jr z,2134h		;2124	28 0e 	( . 
 	cp 01fh			;2126	fe 1f 	. . 
-	jr z,$+10		;2128	28 08 	( . 
+	jr z,2132h		;2128	28 08 	( . 
 	cp 09fh			;212a	fe 9f 	. . 
-	jr nz,$+28		;212c	20 1a 	  . 
+	jr nz,2148h		;212c	20 1a 	  . 
 	ld b,090h		;212e	06 90 	. . 
-	jr $+4			;2130	18 02 	. . 
+	jr 2134h			;2130	18 02 	. . 
 	ld b,010h		;2132	06 10 	. . 
 	inc hl			;2134	23 	# 
 	ld a,(hl)		;2135	7e 	~ 
 	and b			;2136	a0 	. 
-	jr nz,$+7		;2137	20 05 	  . 
+	jr nz,213eh		;2137	20 05 	  . 
 	ld (hl),d		;2139	72 	r 
 	dec hl			;213a	2b 	+ 
 	ld (hl),020h		;213b	36 20 	6   
 	inc hl			;213d	23 	# 
 	ld a,(LNSIZE)		;213e	3a d4 e0 	: . . 
 	cp c			;2141	b9 	. 
-	jr z,$+34		;2142	28 20 	(   
+	jr z,2164h		;2142	28 20 	(   
 	inc c			;2144	0c 	. 
 	inc hl			;2145	23 	# 
-	jr $-18			;2146	18 ec 	. . 
+	jr 2134h			;2146	18 ec 	. . 
 	inc hl			;2148	23 	# 
 	ld a,(hl)		;2149	7e 	~ 
 	bit 7,a			;214a	cb 7f 	.  
-	jr z,$+6		;214c	28 04 	( . 
+	jr z,2152h		;214c	28 04 	( . 
 	bit 7,b			;214e	cb 78 	. x 
-	jr nz,$+10		;2150	20 08 	  . 
+	jr nz,215ah		;2150	20 08 	  . 
 	and b			;2152	a0 	. 
-	jr z,$+7		;2153	28 05 	( . 
+	jr z,215ah		;2153	28 05 	( . 
 	ld (hl),d		;2155	72 	r 
 	dec hl			;2156	2b 	+ 
 	ld (hl),020h		;2157	36 20 	6   
 	inc hl			;2159	23 	# 
 	ld a,(LNSIZE)		;215a	3a d4 e0 	: . . 
 	cp c			;215d	b9 	. 
-	jr z,$+6		;215e	28 04 	( . 
+	jr z,2164h		;215e	28 04 	( . 
 	inc c			;2160	0c 	. 
 	inc hl			;2161	23 	# 
-	jr $-26			;2162	18 e4 	. . 
+	jr 2148h			;2162	18 e4 	. . 
 	pop hl			;2164	e1 	. 
 	pop de			;2165	d1 	. 
 	pop bc			;2166	c1 	. 
@@ -4339,9 +4339,9 @@ CLREOP:				; CLEAR TO END OF PAGE
 	ld b,a			;2183	47 	G 
 	ld a,(LNCNT)		;2184	3a d1 e0 	: . . 
 	cp b			;2187	b8 	. 
-	jr nz,$+5		;2188	20 03 	  . 
+	jr nz,218dh		;2188	20 03 	  . 
 	xor a			;218a	af 	. 
-	jr $+32			;218b	18 1e 	. .
+	jr 21abh			;218b	18 1e 	. .
 CRDOWN:				; CURSOR DOWN
 	ld a,(LASTLN)		;218d	3a cd e0 	: . . 
 	dec a			;2190	3d 	= 
@@ -4351,13 +4351,13 @@ CRDOWN:				; CURSOR DOWN
 	call z,01509h		;2196	cc 09 15 	. . . 
 	inc b			;2199	04 	. 
 	cp b			;219a	b8 	. 
-	jr z,$+9		;219b	28 07 	( . 
+	jr z,21a4h		;219b	28 07 	( . 
 	inc a			;219d	3c 	< 
 	ld (LNCNT),a		;219e	32 d1 e0 	2 . . 
 	jp 03203h		;21a1	c3 03 32 	. . 2 
 	ld a,(OBYTE2)		;21a4	3a 47 e0 	: G . 
 	and 004h		;21a7	e6 04 	. . 
-	jr nz,$+8		;21a9	20 06 	  . 
+	jr nz,21b1h		;21a9	20 06 	  . 
 	ld (LNCNT),a		;21ab	32 d1 e0 	2 . . 
 	jp 03203h		;21ae	c3 03 32 	. . 2 
 	xor a			;21b1	af 	. 
@@ -4369,7 +4369,7 @@ CRDOWN:				; CURSOR DOWN
 CRGTRN:				; CARRIAGE RETURN
 	ld a,(MBYTE5)		;21bf	3a 44 e0 	: D . 
 	and 002h		;21c2	e6 02 	. . 
-	jr z,$+6		;21c4	28 04 	( . 
+	jr z,21cah		;21c4	28 04 	( . 
 	call 02201h		;21c6	cd 01 22 	. . " 
 	ret			;21c9	c9 	. 
 	xor a			;21ca	af 	. 
@@ -4378,22 +4378,22 @@ CRGTRN:				; CARRIAGE RETURN
 CRLEFT:				; CURSOR LEFT
 	ld a,(CHRCNT)		;21d1	3a b1 e0 	: . . 
 	and a			;21d4	a7 	. 
-	jr z,$+8		;21d5	28 06 	( . 
+	jr z,21ddh		;21d5	28 06 	( . 
 	dec a			;21d7	3d 	= 
 	ld (CHRCNT),a		;21d8	32 b1 e0 	2 . . 
-	jr $+23			;21db	18 15 	. . 
+	jr 21f2h			;21db	18 15 	. . 
 	ld a,(LNSIZE)		;21dd	3a d4 e0 	: . . 
 	ld (CHRCNT),a		;21e0	32 b1 e0 	2 . . 
 	ld a,(LNCNT)		;21e3	3a d1 e0 	: . . 
 	and a			;21e6	a7 	. 
-	jr z,$+5		;21e7	28 03 	( . 
+	jr z,21ech		;21e7	28 03 	( . 
 	dec a			;21e9	3d 	= 
-	jr $+5			;21ea	18 03 	. . 
+	jr 21efh			;21ea	18 03 	. . 
 	ld a,(LASTLN)		;21ec	3a cd e0 	: . . 
 	ld (LNCNT),a		;21ef	32 d1 e0 	2 . . 
 	jp 03203h		;21f2	c3 03 32 	. . 2 
 	ld a,(LASTLN)		;21f5	3a cd e0 	: . . 
-	jr $+3			;21f8	18 01 	. . 
+	jr 21fbh			;21f8	18 01 	. . 
 	xor a			;21fa	af 	. 
 	ld e,a			;21fb	5f 	_ 
 	ld d,000h		;21fc	16 00 	. . 
@@ -4406,23 +4406,23 @@ CRLNFD:				; CARRIAGE RETURN LINE FEED
 CRUP:				; CURSOR UP
 	ld a,(LNCNT)		;2209	3a d1 e0 	: . . 
 	and a			;220c	a7 	. 
-	jr z,$+5		;220d	28 03 	( . 
+	jr z,2212h		;220d	28 03 	( . 
 	dec a			;220f	3d 	= 
-	jr $+5			;2210	18 03 	. . 
+	jr 2215h			;2210	18 03 	. . 
 	ld a,(LASTLN)		;2212	3a cd e0 	: . . 
 	ld (LNCNT),a		;2215	32 d1 e0 	2 . . 
 	jp 03203h		;2218	c3 03 32 	. . 2
 DISPB:				; DISPLAY B - STORE ON SCREEN
 	ld a,(KBINP)		;221b	3a c9 e0 	: . . 
 	rra			;221e	1f 	. 
-	jr nc,$+13		;221f	30 0b 	0 . 
+	jr nc,222ch		;221f	30 0b 	0 . 
 	call 01528h		;2221	cd 28 15 	. ( . 
-	jr z,$+29		;2224	28 1b 	( . 
+	jr z,2241h		;2224	28 1b 	( . 
 	ld a,001h		;2226	3e 01 	> . 
 	ld (POSPRO),a		;2228	32 dc e0 	2 . . 
 	ret			;222b	c9 	. 
 	call 0337ch		;222c	cd 7c 33 	. | 3 
-	jr z,$+18		;222f	28 10 	( . 
+	jr z,2241h		;222f	28 10 	( . 
 	push bc			;2231	c5 	. 
 	ld a,001h		;2232	3e 01 	> . 
 	ld (TIPE),a		;2234	32 ee e0 	2 . . 
@@ -4430,16 +4430,16 @@ DISPB:				; DISPLAY B - STORE ON SCREEN
 	xor a			;223a	af 	. 
 	ld (TIPE),a		;223b	32 ee e0 	2 . . 
 	pop bc			;223e	c1 	. 
-	jr $-19			;223f	18 eb 	. . 
+	jr 222ch			;223f	18 eb 	. . 
 	ld hl,(CURSOR)		;2241	2a b7 e0 	* . . 
 	ld a,(GRACHR)		;2244	3a c0 e0 	: . . 
 	rra			;2247	1f 	. 
-	jr nc,$+14		;2248	30 0c 	0 . 
+	jr nc,2256h		;2248	30 0c 	0 . 
 	ld a,b			;224a	78 	x 
 	cp 020h			;224b	fe 20 	.   
-	jr c,$+9		;224d	38 07 	8 . 
+	jr c,2256h		;224d	38 07 	8 . 
 	cp 040h			;224f	fe 40 	. @ 
-	jr nc,$+5		;2251	30 03 	0 . 
+	jr nc,2256h		;2251	30 03 	0 . 
 	or 080h			;2253	f6 80 	. . 
 	ld b,a			;2255	47 	G 
 	inc hl			;2256	23 	# 
@@ -4447,33 +4447,33 @@ DISPB:				; DISPLAY B - STORE ON SCREEN
 	ld c,a			;225a	4f 	O 
 	ld a,(KBINP)		;225b	3a c9 e0 	: . . 
 	and a			;225e	a7 	. 
-	jr z,$+6		;225f	28 04 	( . 
+	jr z,2265h		;225f	28 04 	( . 
 	ld a,020h		;2261	3e 20 	>   
 	or c			;2263	b1 	. 
 	ld c,a			;2264	4f 	O 
 	ld a,(PROTE)		;2265	3a de e0 	: . . 
 	and a			;2268	a7 	. 
-	jr z,$+7		;2269	28 05 	( . 
+	jr z,2270h		;2269	28 05 	( . 
 	ld a,(hl)		;226b	7e 	~ 
 	or 020h			;226c	f6 20 	.   
-	jr $+15			;226e	18 0d 	. . 
+	jr 227dh			;226e	18 0d 	. . 
 	ld a,(KBINP)		;2270	3a c9 e0 	: . . 
 	and a			;2273	a7 	. 
-	jr nz,$+5		;2274	20 03 	  . 
+	jr nz,2279h		;2274	20 03 	  . 
 	ld (hl),c		;2276	71 	q 
-	jr $+7			;2277	18 05 	. . 
+	jr 227eh			;2277	18 05 	. . 
 	ld a,(hl)		;2279	7e 	~ 
 	and 040h		;227a	e6 40 	. @ 
 	or c			;227c	b1 	. 
 	ld (hl),a		;227d	77 	w 
 	dec hl			;227e	2b 	+ 
 	call 03372h		;227f	cd 72 33 	. r 3 
-	jr z,$+9		;2282	28 07 	( . 
+	jr z,228bh		;2282	28 07 	( . 
 	ld a,(hl)		;2284	7e 	~ 
 	and 080h		;2285	e6 80 	. . 
 	or b			;2287	b0 	. 
 	ld (hl),a		;2288	77 	w 
-	jr $+3			;2289	18 01 	. . 
+	jr 228ch			;2289	18 01 	. . 
 	ld (hl),b		;228b	70 	p 
 	call 014bdh		;228c	cd bd 14 	. . . 
 	ret			;228f	c9 	.
@@ -4481,7 +4481,7 @@ DLYEN1:				; DELAY ENABLE 1
 	ld a,b			;2290	78 	x 
 	ld (UD1ACT),a		;2291	32 9a e0 	2 . . 
 	ld (UD1ADD),de		;2294	ed 53 9b e0 	. S . . 
-	jr $+10			;2298	18 08 	. .
+	jr 22a2h			;2298	18 08 	. .
 DLYEN2:				; DELAY ENABLE 2
 	ld a,b			;229a	78 	x 
 	ld (UD2ACT),a		;229b	32 9d e0 	2 . . 
@@ -4497,35 +4497,35 @@ DSTRNG:				; DATA STRING
 	call 01f4fh		;22ac	cd 4f 1f 	. O . 
 	pop hl			;22af	e1 	. 
 	inc hl			;22b0	23 	# 
-	jr $-11			;22b1	18 f3 	. . 
+	jr 22a6h			;22b1	18 f3 	. . 
 	ld a,b			;22b3	78 	x 
 	bit 7,a			;22b4	cb 7f 	.  
-	jr nz,$+34		;22b6	20 20 	    
+	jr nz,22d8h		;22b6	20 20 	    
 	rlca			;22b8	07 	. 
 	ld e,a			;22b9	5f 	_ 
 	ld d,000h		;22ba	16 00 	. . 
 	ld a,(TABLE)		;22bc	3a ec e0 	: . . 
 	ld (SAVEA),a		;22bf	32 e2 e0 	2 . . 
 	cp 000h			;22c2	fe 00 	. . 
-	jr z,$+32		;22c4	28 1e 	( . 
+	jr z,22e4h		;22c4	28 1e 	( . 
 	call 02526h		;22c6	cd 26 25 	. & % 
 	ld hl,02377h		;22c9	21 77 23 	! w # 
 	ld a,(SAVEA)		;22cc	3a e2 e0 	: . . 
 	cp 001h			;22cf	fe 01 	. . 
-	jr z,$+32		;22d1	28 1e 	( . 
+	jr z,22f1h		;22d1	28 1e 	( . 
 	ld hl,02437h		;22d3	21 37 24 	! 7 $ 
-	jr $+27			;22d6	18 19 	. . 
+	jr 22f1h			;22d6	18 19 	. . 
 	and 07fh		;22d8	e6 7f 	.  
 	ld b,a			;22da	47 	G 
 	rlca			;22db	07 	. 
 	ld e,a			;22dc	5f 	_ 
 	ld d,000h		;22dd	16 00 	. . 
 	ld hl,02497h		;22df	21 97 24 	! . $ 
-	jr $+15			;22e2	18 0d 	. . 
+	jr 22f1h			;22e2	18 0d 	. . 
 	ld hl,022f7h		;22e4	21 f7 22 	! . " 
 	ld a,(OBYTE2)		;22e7	3a 47 e0 	: G . 
 	and 008h		;22ea	e6 08 	. . 
-	jr z,$+5		;22ec	28 03 	( . 
+	jr z,22f1h		;22ec	28 03 	( . 
 	ld hl,02337h		;22ee	21 37 23 	! 7 # 
 	add hl,de		;22f1	19 	. 
 	ld e,(hl)		;22f2	5e 	^ 
@@ -4548,8 +4548,8 @@ DSTRNG:				; DATA STRING
 	ccf			;2309	3f 	? 
 	dec h			;230a	25 	% 
 	ld bc,0b822h		;230b	01 22 b8 	. " . 
-	jr nz,$-23		;230e	20 e7 	  . 
-	jr nz,$-63		;2310	20 bf 	  . 
+	jr nz,22f7h		;230e	20 e7 	  . 
+	jr nz,22d1h		;2310	20 bf 	  . 
 	ld hl,01ceeh		;2312	21 ee 1c 	! . . 
 	dec sp			;2315	3b 	; 
 	ld d,03bh		;2316	16 3b 	. ; 
@@ -4588,7 +4588,7 @@ DSTRNG:				; DATA STRING
 	adc a,l			;234b	8d 	. 
 	ld hl,020b8h		;234c	21 b8 20 	! .   
 	rst 20h			;234f	e7 	. 
-	jr nz,$-63		;2350	20 bf 	  . 
+	jr nz,2311h		;2350	20 bf 	  . 
 	ld hl,01ceeh		;2352	21 ee 1c 	! . . 
 	dec sp			;2355	3b 	; 
 	ld d,03eh		;2356	16 3e 	. > 
@@ -4614,7 +4614,7 @@ DSTRNG:				; DATA STRING
 	ld d,02bh		;2372	16 2b 	. + 
 	dec h			;2374	25 	% 
 	ld e,h			;2375	5c 	\ 
-	jr nz,$+33		;2376	20 1f 	  . 
+	jr nz,2397h		;2376	20 1f 	  . 
 	dec h			;2378	25 	% 
 	ex af,af'		;2379	08 	. 
 	ld l,004h		;237a	2e 04 	. . 
@@ -4697,8 +4697,8 @@ DSTRNG:				; DATA STRING
 	ld a,025h		;23f1	3e 25 	> % 
 	ld a,025h		;23f3	3e 25 	> % 
 	sbc a,a			;23f5	9f 	. 
-	jr nz,$-91		;23f6	20 a3 	  . 
-	jr nz,$-100		;23f8	20 9a 	  . 
+	jr nz,239bh		;23f6	20 a3 	  . 
+	jr nz,2394h		;23f8	20 9a 	  . 
 	add hl,de		;23fa	19 	. 
 	ld a,025h		;23fb	3e 25 	> % 
 	ld h,h			;23fd	64 	d 
@@ -4718,24 +4718,24 @@ DSTRNG:				; DATA STRING
 	ld d,001h		;2414	16 01 	. . 
 	ld a,(de)		;2416	1a 	. 
 	sbc a,b			;2417	98 	. 
-	jr nz,$-2		;2418	20 fc 	  . 
+	jr nz,2416h		;2418	20 fc 	  . 
 	ld d,039h		;241a	16 39 	. 9 
 	ld a,(de)		;241c	1a 	. 
 	call z,0a118h		;241d	cc 18 a1 	. . . 
 	rla			;2420	17 	. 
 	inc d			;2421	14 	. 
 	dec e			;2422	1d 	. 
-	djnz $+31		;2423	10 1d 	. . 
+	djnz 2442h		;2423	10 1d 	. . 
 	and (hl)		;2425	a6 	. 
 	inc e			;2426	1c 	. 
 	ld a,025h		;2427	3e 25 	> % 
 	cpl			;2429	2f 	/ 
-	jr nz,$+64		;242a	20 3e 	  > 
+	jr nz,246ah		;242a	20 3e 	  > 
 	dec h			;242c	25 	% 
 	ld a,025h		;242d	3e 25 	> % 
 	ld a,025h		;242f	3e 25 	> % 
 	cpl			;2431	2f 	/ 
-	jr nz,$+64		;2432	20 3e 	  > 
+	jr nz,2472h		;2432	20 3e 	  > 
 	dec h			;2434	25 	% 
 	ld a,025h		;2435	3e 25 	> % 
 	ld a,025h		;2437	3e 25 	> % 
@@ -4875,7 +4875,7 @@ DSTRNG:				; DATA STRING
 	ld e,0ddh		;24f2	1e dd 	. . 
 	rra			;24f4	1f 	. 
 	inc bc			;24f5	03 	. 
-	jr nz,$-52		;24f6	20 ca 	  . 
+	jr nz,24c2h		;24f6	20 ca 	  . 
 	ld e,0cah		;24f8	1e ca 	. . 
 	ld e,0cah		;24fa	1e ca 	. . 
 	ld e,0cah		;24fc	1e ca 	. . 
@@ -4903,7 +4903,7 @@ DSTRNG:				; DATA STRING
 	ld (TABLE),a		;2527	32 ec e0 	2 . . 
 	ret			;252a	c9 	. 
 	ld a,001h		;252b	3e 01 	> . 
-	jr $+4			;252d	18 02 	. . 
+	jr 2531h			;252d	18 02 	. . 
 	ld a,002h		;252f	3e 02 	> . 
 	ld (TABLE),a		;2531	32 ec e0 	2 . . 
 	ld a,(KBINP)		;2534	3a c9 e0 	: . . 
@@ -4933,29 +4933,29 @@ DSTRNG:				; DATA STRING
 	ld c,a			;2563	4f 	O 
 	ld a,(BLKMD)		;2564	3a ab e0 	: . . 
 	and a			;2567	a7 	. 
-	jr nz,$+7		;2568	20 05 	  . 
+	jr nz,256fh		;2568	20 05 	  . 
 	ld b,01eh		;256a	06 1e 	. . 
 	call 0314ch		;256c	cd 4c 31 	. L 1 
 	ld a,c			;256f	79 	y 
 	cp 00fh			;2570	fe 0f 	. . 
-	jr nz,$+4		;2572	20 02 	  . 
+	jr nz,2576h		;2572	20 02 	  . 
 	xor a			;2574	af 	. 
 	ld c,a			;2575	4f 	O 
 	ld a,(CONT)		;2576	3a b5 e0 	: . . 
 	rra			;2579	1f 	. 
-	jr c,$+16		;257a	38 0e 	8 . 
+	jr c,258ah		;257a	38 0e 	8 . 
 	ld a,(SHIFT)		;257c	3a e6 e0 	: . . 
 	and a			;257f	a7 	. 
-	jr nz,$+6		;2580	20 04 	  . 
+	jr nz,2586h		;2580	20 04 	  . 
 	ld a,070h		;2582	3e 70 	> p 
-	jr $+18			;2584	18 10 	. . 
+	jr 2596h			;2584	18 10 	. . 
 	ld a,060h		;2586	3e 60 	> ` 
-	jr $+14			;2588	18 0c 	. . 
+	jr 2596h			;2588	18 0c 	. . 
 	ld a,(SHIFT)		;258a	3a e6 e0 	: . . 
 	and a			;258d	a7 	. 
-	jr nz,$+6		;258e	20 04 	  . 
+	jr nz,2594h		;258e	20 04 	  . 
 	ld a,030h		;2590	3e 30 	> 0 
-	jr $+4			;2592	18 02 	. . 
+	jr 2596h			;2592	18 02 	. . 
 	ld a,020h		;2594	3e 20 	>   
 	or c			;2596	b1 	. 
 	ld b,a			;2597	47 	G 
@@ -4998,7 +4998,7 @@ DSTRNG:				; DATA STRING
 	and 040h		;25df	e6 40 	. @ 
 	ld (hl),a		;25e1	77 	w 
 	inc hl			;25e2	23 	# 
-	djnz $-8		;25e3	10 f6 	. . 
+	djnz 25dbh		;25e3	10 f6 	. . 
 	ret			;25e5	c9 	. 
 	ld a,(LASTLN)		;25e6	3a cd e0 	: . . 
 	dec a			;25e9	3d 	= 
@@ -5014,7 +5014,7 @@ KBDAS:				; CONVERT NEXT KEYBOARD CODE TO ASCII
 	call 02925h		;25fa	cd 25 29 	. % ) 
 	ld a,b			;25fd	78 	x 
 	bit 7,b			;25fe	cb 78 	. x 
-	jr z,$+8		;2600	28 06 	( . 
+	jr z,2608h		;2600	28 06 	( . 
 	call 02871h		;2602	cd 71 28 	. q ( 
 	ld b,080h		;2605	06 80 	. . 
 	ret			;2607	c9 	. 
@@ -5031,7 +5031,7 @@ KBDINP1:			; ADVANCED MODES KEYBOARD INPUT
 	bit 7,a			;2618	cb 7f 	.  
 	jp nz,02871h		;261a	c2 71 28 	. q ( 
 	cp 007h			;261d	fe 07 	. . 
-	jr nz,$+24		;261f	20 16 	  . 
+	jr nz,2637h		;261f	20 16 	  . 
 	xor a			;2621	af 	. 
 	ld (RPTACT),a		;2622	32 df e0 	2 . . 
 	ld (KBDACT),a		;2625	32 95 e0 	2 . . 
@@ -5047,17 +5047,17 @@ KBDINP1:			; ADVANCED MODES KEYBOARD INPUT
 	ret z			;263d	c8 	. 
 	ld a,(KBLKD)		;263e	3a ca e0 	: . . 
 	and a			;2641	a7 	. 
-	jr z,$+11		;2642	28 09 	( . 
+	jr z,264dh		;2642	28 09 	( . 
 	ld a,b			;2644	78 	x 
 	cp 01dh			;2645	fe 1d 	. . 
-	jr z,$+6		;2647	28 04 	( . 
+	jr z,264dh		;2647	28 04 	( . 
 	call 01519h		;2649	cd 19 15 	. . . 
 	ret			;264c	c9 	. 
 	ld a,(SAVEA)		;264d	3a e2 e0 	: . . 
 	and 03fh		;2650	e6 3f 	. ? 
-	jr z,$+77		;2652	28 4b 	( K 
+	jr z,269fh		;2652	28 4b 	( K 
 	cp 030h			;2654	fe 30 	. 0 
-	jr nc,$+73		;2656	30 47 	0 G 
+	jr nc,269fh		;2656	30 47 	0 G 
 	ld c,a			;2658	4f 	O 
 	add a,c			;2659	81 	. 
 	add a,c			;265a	81 	. 
@@ -5068,12 +5068,12 @@ KBDINP1:			; ADVANCED MODES KEYBOARD INPUT
 	ld a,(hl)		;2662	7e 	~ 
 	inc hl			;2663	23 	# 
 	and 003h		;2664	e6 03 	. . 
-	jr z,$+57		;2666	28 37 	( 7 
+	jr z,269fh		;2666	28 37 	( 7 
 	cp 001h			;2668	fe 01 	. . 
-	jr nz,$+44		;266a	20 2a 	  * 
+	jr nz,2696h		;266a	20 2a 	  * 
 	ld a,(OBYTE1)		;266c	3a 46 e0 	: F . 
 	and 001h		;266f	e6 01 	. . 
-	jr nz,$+46		;2671	20 2c 	  , 
+	jr nz,269fh		;2671	20 2c 	  , 
 	ld d,(hl)		;2673	56 	V 
 	inc hl			;2674	23 	# 
 	ld e,(hl)		;2675	5e 	^ 
@@ -5092,7 +5092,7 @@ KBDINP1:			; ADVANCED MODES KEYBOARD INPUT
 	ret z			;268f	c8 	. 
 	call 0314ch		;2690	cd 4c 31 	. L 1 
 	inc hl			;2693	23 	# 
-	jr $-9			;2694	18 f5 	. . 
+	jr 268bh			;2694	18 f5 	. . 
 	ld d,(hl)		;2696	56 	V 
 	inc hl			;2697	23 	# 
 	ld e,(hl)		;2698	5e 	^ 
@@ -5106,16 +5106,16 @@ KBDINP1:			; ADVANCED MODES KEYBOARD INPUT
 	ret z			;26a5	c8 	. 
 	ld a,(OBYTE1)		;26a6	3a 46 e0 	: F . 
 	and 001h		;26a9	e6 01 	. . 
-	jr nz,$+26		;26ab	20 18 	  . 
+	jr nz,26c5h		;26ab	20 18 	  . 
 	ld hl,(CURSOR)		;26ad	2a b7 e0 	* . . 
 	inc hl			;26b0	23 	# 
 	ld a,(hl)		;26b1	7e 	~ 
 	and 040h		;26b2	e6 40 	. @ 
-	jr z,$+17		;26b4	28 0f 	( . 
+	jr z,26c5h		;26b4	28 0f 	( . 
 	ld hl,0d810h		;26b6	21 10 d8 	! . . 
 	ld a,(hl)		;26b9	7e 	~ 
 	cp 033h			;26ba	fe 33 	. 3 
-	jr nz,$+9		;26bc	20 07 	  . 
+	jr nz,26c5h		;26bc	20 07 	  . 
 	inc hl			;26be	23 	# 
 	push bc			;26bf	c5 	. 
 	call 02696h		;26c0	cd 96 26 	. . & 
@@ -5131,19 +5131,19 @@ KBDINP1:			; ADVANCED MODES KEYBOARD INPUT
 	ld (RPTACT),a		;26d6	32 df e0 	2 . . 
 	ld a,(MBYTE4)		;26d9	3a 43 e0 	: C . 
 	and 004h		;26dc	e6 04 	. . 
-	jr nz,$+35		;26de	20 21 	  ! 
+	jr nz,2701h		;26de	20 21 	  ! 
 	ld a,(SAVEA)		;26e0	3a e2 e0 	: . . 
 	and 080h		;26e3	e6 80 	. . 
-	jr z,$+28		;26e5	28 1a 	( . 
+	jr z,2701h		;26e5	28 1a 	( . 
 	ld a,001h		;26e7	3e 01 	> . 
 	ld (RPTACT),a		;26e9	32 df e0 	2 . . 
 	ld a,07dh		;26ec	3e 7d 	> } 
 	ld (KBDACT),a		;26ee	32 95 e0 	2 . . 
 	call 0070bh		;26f1	cd 0b 07 	. . . 
-	jr $+13			;26f4	18 0b 	. . 
+	jr 2701h			;26f4	18 0b 	. . 
 	ld a,(RPTACT)		;26f6	3a df e0 	: . . 
 	rra			;26f9	1f 	. 
-	jr c,$+7		;26fa	38 05 	8 . 
+	jr c,2701h		;26fa	38 05 	8 . 
 	xor a			;26fc	af 	. 
 	ld (KBRACT),a		;26fd	32 96 e0 	2 . . 
 	ret			;2700	c9 	. 
@@ -5152,9 +5152,9 @@ KBDINP1:			; ADVANCED MODES KEYBOARD INPUT
 	ld a,001h		;2705	3e 01 	> . 
 	ld (KBINP),a		;2707	32 c9 e0 	2 . . 
 	bit 7,b			;270a	cb 78 	. x 
-	jr z,$+7		;270c	28 05 	( . 
+	jr z,2713h		;270c	28 05 	( . 
 	call 022b3h		;270e	cd b3 22 	. . " 
-	jr $+5			;2711	18 03 	. . 
+	jr 2716h			;2711	18 03 	. . 
 	call 028ddh		;2713	cd dd 28 	. . ( 
 	xor a			;2716	af 	. 
 	ld (KBINP),a		;2717	32 c9 e0 	2 . . 
@@ -5171,19 +5171,19 @@ KBDINP1:			; ADVANCED MODES KEYBOARD INPUT
 	ret z			;272c	c8 	. 
 	ld a,b			;272d	78 	x 
 	cp 01ch			;272e	fe 1c 	. . 
-	jr z,$+67		;2730	28 41 	( A 
+	jr z,2773h		;2730	28 41 	( A 
 	cp 07ch			;2732	fe 7c 	. | 
-	jr z,$+56		;2734	28 36 	( 6 
+	jr z,276ch		;2734	28 36 	( 6 
 	cp 025h			;2736	fe 25 	. % 
-	jr z,$+69		;2738	28 43 	( C 
+	jr z,277dh		;2738	28 43 	( C 
 	cp 01ah			;273a	fe 1a 	. . 
 	ret nz			;273c	c0 	. 
 	ld a,(LOCK)		;273d	3a cf e0 	: . . 
 	cp 000h			;2740	fe 00 	. . 
-	jr z,$+9		;2742	28 07 	( . 
+	jr z,274bh		;2742	28 07 	( . 
 	ld a,002h		;2744	3e 02 	> . 
 	ld (LOCK),a		;2746	32 cf e0 	2 . . 
-	jr $+57			;2749	18 37 	. 7 
+	jr 2782h			;2749	18 37 	. 7 
 	ld a,001h		;274b	3e 01 	> . 
 	ld (LOCK),a		;274d	32 cf e0 	2 . . 
 	ld a,002h		;2750	3e 02 	> . 
@@ -5191,20 +5191,20 @@ KBDINP1:			; ADVANCED MODES KEYBOARD INPUT
 	ld (LOCKLT),a		;2754	32 d0 e0 	2 . . 
 	ld a,(OBYTE2)		;2757	3a 47 e0 	: G . 
 	and 001h		;275a	e6 01 	. . 
-	jr nz,$+9		;275c	20 07 	  . 
+	jr nz,2765h		;275c	20 07 	  . 
 	ld a,001h		;275e	3e 01 	> . 
 	ld (CPSLK),a		;2760	32 b6 e0 	2 . . 
-	jr $+31			;2763	18 1d 	. . 
+	jr 2782h			;2763	18 1d 	. . 
 	ld a,(SHIFT)		;2765	3a e6 e0 	: . . 
 	or 002h			;2768	f6 02 	. . 
-	jr $+14			;276a	18 0c 	. . 
+	jr 2778h			;276a	18 0c 	. . 
 	ld a,(SHIFT)		;276c	3a e6 e0 	: . . 
 	or 004h			;276f	f6 04 	. . 
-	jr $+7			;2771	18 05 	. . 
+	jr 2778h			;2771	18 05 	. . 
 	ld a,(SHIFT)		;2773	3a e6 e0 	: . . 
 	or 001h			;2776	f6 01 	. . 
 	ld (SHIFT),a		;2778	32 e6 e0 	2 . . 
-	jr $+7			;277b	18 05 	. . 
+	jr 2782h			;277b	18 05 	. . 
 	ld a,001h		;277d	3e 01 	> . 
 	ld (CONT),a		;277f	32 b5 e0 	2 . . 
 	ld b,080h		;2782	06 80 	. . 
@@ -5219,16 +5219,16 @@ KBDINP1:			; ADVANCED MODES KEYBOARD INPUT
 	ld c,a			;2790	4f 	O 
 	ld a,(OBYTE2)		;2791	3a 47 e0 	: G . 
 	and 002h		;2794	e6 02 	. . 
-	jr z,$+38		;2796	28 24 	( $ 
+	jr z,27bch		;2796	28 24 	( $ 
 	ld hl,02785h		;2798	21 85 27 	! . ' 
 	ld c,00ch		;279b	0e 0c 	. . 
 	ld a,(hl)		;279d	7e 	~ 
 	cp b			;279e	b8 	. 
-	jr z,$+8		;279f	28 06 	( . 
+	jr z,27a7h		;279f	28 06 	( . 
 	inc hl			;27a1	23 	# 
 	dec c			;27a2	0d 	. 
-	jr nz,$-6		;27a3	20 f8 	  . 
-	jr $+23			;27a5	18 15 	. . 
+	jr nz,279dh		;27a3	20 f8 	  . 
+	jr 27bch			;27a5	18 15 	. . 
 	ld a,(SHIFT)		;27a7	3a e6 e0 	: . . 
 	ld (TIPE),a		;27aa	32 ee e0 	2 . . 
 	ld a,001h		;27ad	3e 01 	> . 
@@ -5240,17 +5240,17 @@ KBDINP1:			; ADVANCED MODES KEYBOARD INPUT
 	ld hl,(KNSNC)		;27bc	2a a1 e0 	* . . 
 	ld a,(CONT)		;27bf	3a b5 e0 	: . . 
 	rra			;27c2	1f 	. 
-	jr nc,$+18		;27c3	30 10 	0 . 
+	jr nc,27d5h		;27c3	30 10 	0 . 
 	ld a,(SHIFT)		;27c5	3a e6 e0 	: . . 
 	and a			;27c8	a7 	. 
-	jr nz,$+7		;27c9	20 05 	  . 
+	jr nz,27d0h		;27c9	20 05 	  . 
 	ld hl,(KNSC)		;27cb	2a a5 e0 	* . . 
-	jr $+16			;27ce	18 0e 	. . 
+	jr 27deh			;27ce	18 0e 	. . 
 	ld hl,(KSC)		;27d0	2a a7 e0 	* . . 
-	jr $+11			;27d3	18 09 	. . 
+	jr 27deh			;27d3	18 09 	. . 
 	ld a,(SHIFT)		;27d5	3a e6 e0 	: . . 
 	and a			;27d8	a7 	. 
-	jr z,$+5		;27d9	28 03 	( . 
+	jr z,27deh		;27d9	28 03 	( . 
 	ld hl,(KSNC)		;27db	2a a3 e0 	* . . 
 	ld e,b			;27de	58 	X 
 	ld d,000h		;27df	16 00 	. . 
@@ -5258,10 +5258,10 @@ KBDINP1:			; ADVANCED MODES KEYBOARD INPUT
 	ld b,(hl)		;27e2	46 	F 
 	ld a,(CPSLK)		;27e3	3a b6 e0 	: . . 
 	rra			;27e6	1f 	. 
-	jr nc,$+14		;27e7	30 0c 	0 . 
+	jr nc,27f5h		;27e7	30 0c 	0 . 
 	ld a,b			;27e9	78 	x 
 	cp 07bh			;27ea	fe 7b 	. { 
-	jr nc,$+9		;27ec	30 07 	0 . 
+	jr nc,27f5h		;27ec	30 07 	0 . 
 	cp 061h			;27ee	fe 61 	. a 
 	ret c			;27f0	d8 	. 
 	sub 020h		;27f1	d6 20 	.   
@@ -5273,50 +5273,50 @@ KBDINP1:			; ADVANCED MODES KEYBOARD INPUT
 	ret c			;27fa	d8 	. 
 	ld a,b			;27fb	78 	x 
 	cp 0e8h			;27fc	fe e8 	. . 
-	jr nc,$+81		;27fe	30 4f 	0 O 
+	jr nc,284fh		;27fe	30 4f 	0 O 
 	ld a,(OBYTE2)		;2800	3a 47 e0 	: G . 
 	and 008h		;2803	e6 08 	. . 
-	jr nz,$+36		;2805	20 22 	  " 
+	jr nz,2829h		;2805	20 22 	  " 
 	ld a,(SHIFT)		;2807	3a e6 e0 	: . . 
 	and a			;280a	a7 	. 
-	jr nz,$+16		;280b	20 0e 	  . 
+	jr nz,281bh		;280b	20 0e 	  . 
 	ld hl,02a73h		;280d	21 73 2a 	! s * 
 	ld a,(CONT)		;2810	3a b5 e0 	: . . 
 	rra			;2813	1f 	. 
-	jr nc,$+53		;2814	30 33 	0 3 
+	jr nc,2849h		;2814	30 33 	0 3 
 	ld hl,02b93h		;2816	21 93 2b 	! . + 
-	jr $+48			;2819	18 2e 	. . 
+	jr 2849h			;2819	18 2e 	. . 
 	ld hl,02b03h		;281b	21 03 2b 	! . + 
 	ld a,(CONT)		;281e	3a b5 e0 	: . . 
 	rra			;2821	1f 	. 
-	jr nc,$+39		;2822	30 25 	0 % 
+	jr nc,2849h		;2822	30 25 	0 % 
 	ld hl,02c23h		;2824	21 23 2c 	! # , 
-	jr $+34			;2827	18 20 	.   
+	jr 2849h			;2827	18 20 	.   
 	ld a,(SHIFT)		;2829	3a e6 e0 	: . . 
 	and a			;282c	a7 	. 
-	jr nz,$+16		;282d	20 0e 	  . 
+	jr nz,283dh		;282d	20 0e 	  . 
 	ld hl,02a7bh		;282f	21 7b 2a 	! { * 
 	ld a,(CONT)		;2832	3a b5 e0 	: . . 
 	rra			;2835	1f 	. 
-	jr nc,$+19		;2836	30 11 	0 . 
+	jr nc,2849h		;2836	30 11 	0 . 
 	ld hl,02b9bh		;2838	21 9b 2b 	! . + 
-	jr $+14			;283b	18 0c 	. . 
+	jr 2849h			;283b	18 0c 	. . 
 	ld hl,02b0bh		;283d	21 0b 2b 	! . + 
 	ld a,(CONT)		;2840	3a b5 e0 	: . . 
 	rra			;2843	1f 	. 
-	jr nc,$+5		;2844	30 03 	0 . 
+	jr nc,2849h		;2844	30 03 	0 . 
 	ld hl,02c2bh		;2846	21 2b 2c 	! + , 
 	ld a,b			;2849	78 	x 
 	and 00fh		;284a	e6 0f 	. . 
 	ld b,a			;284c	47 	G 
-	jr $-111		;284d	18 8f 	. . 
+	jr 27deh		;284d	18 8f 	. . 
 	and 01fh		;284f	e6 1f 	. . 
 	sub 008h		;2851	d6 08 	. . 
 	ld b,a			;2853	47 	G 
 	ld hl,02c33h		;2854	21 33 2c 	! 3 , 
 	ld a,(SHIFT)		;2857	3a e6 e0 	: . . 
 	and a			;285a	a7 	. 
-	jr z,$+5		;285b	28 03 	( . 
+	jr z,2860h		;285b	28 03 	( . 
 	ld hl,02ce4h		;285d	21 e4 2c 	! . , 
 	ld a,(LANG)		;2860	3a 69 e0 	: i . 
 	and 007h		;2863	e6 07 	. . 
@@ -5337,14 +5337,14 @@ KBDINP1:			; ADVANCED MODES KEYBOARD INPUT
 	add hl,de		;287a	19 	. 
 	ld a,(hl)		;287b	7e 	~ 
 	and 040h		;287c	e6 40 	. @ 
-	jr z,$+67		;287e	28 41 	( A 
+	jr z,28c1h		;287e	28 41 	( A 
 	ld a,b			;2880	78 	x 
 	cp 07ch			;2881	fe 7c 	. | 
-	jr z,$+41		;2883	28 27 	( ' 
+	jr z,28ach		;2883	28 27 	( ' 
 	cp 01ch			;2885	fe 1c 	. . 
-	jr z,$+44		;2887	28 2a 	( * 
+	jr z,28b3h		;2887	28 2a 	( * 
 	cp 025h			;2889	fe 25 	. % 
-	jr z,$+49		;288b	28 2f 	( / 
+	jr z,28bch		;288b	28 2f 	( / 
 	cp 01ah			;288d	fe 1a 	. . 
 	ret nz			;288f	c0 	. 
 	ld a,(LOCK)		;2890	3a cf e0 	: . . 
@@ -5353,16 +5353,16 @@ KBDINP1:			; ADVANCED MODES KEYBOARD INPUT
 	call 028d1h		;2896	cd d1 28 	. . ( 
 	ld a,(OBYTE2)		;2899	3a 47 e0 	: G . 
 	and 001h		;289c	e6 01 	. . 
-	jr nz,$+7		;289e	20 05 	  . 
+	jr nz,28a5h		;289e	20 05 	  . 
 	xor a			;28a0	af 	. 
 	ld (CPSLK),a		;28a1	32 b6 e0 	2 . . 
 	ret			;28a4	c9 	. 
 	ld a,(SHIFT)		;28a5	3a e6 e0 	: . . 
 	and 0fdh		;28a8	e6 fd 	. . 
-	jr $+14			;28aa	18 0c 	. . 
+	jr 28b8h			;28aa	18 0c 	. . 
 	ld a,(SHIFT)		;28ac	3a e6 e0 	: . . 
 	and 0fbh		;28af	e6 fb 	. . 
-	jr $+7			;28b1	18 05 	. . 
+	jr 28b8h			;28b1	18 05 	. . 
 	ld a,(SHIFT)		;28b3	3a e6 e0 	: . . 
 	and 0feh		;28b6	e6 fe 	. . 
 	ld (SHIFT),a		;28b8	32 e6 e0 	2 . . 
@@ -5386,24 +5386,24 @@ KBDINP1:			; ADVANCED MODES KEYBOARD INPUT
 	ret			;28dc	c9 	. 
 	ld a,(BLKMD)		;28dd	3a ab e0 	: . . 
 	rra			;28e0	1f 	. 
-	jr nc,$+6		;28e1	30 04 	0 . 
+	jr nc,28e7h		;28e1	30 04 	0 . 
 	call 01f4fh		;28e3	cd 4f 1f 	. O . 
 	ret			;28e6	c9 	. 
 	ld a,(OBYTE1)		;28e7	3a 46 e0 	: F . 
 	and 001h		;28ea	e6 01 	. . 
-	jr nz,$+36		;28ec	20 22 	  " 
+	jr nz,2910h		;28ec	20 22 	  " 
 	ld a,(OBYTE4)		;28ee	3a 49 e0 	: I . 
 	and 001h		;28f1	e6 01 	. . 
-	jr nz,$+46		;28f3	20 2c 	  , 
+	jr nz,2921h		;28f3	20 2c 	  , 
 	ld a,(DSPDIS)		;28f5	3a bc e0 	: . . 
 	rra			;28f8	1f 	. 
-	jr c,$+37		;28f9	38 23 	8 # 
+	jr c,291eh		;28f9	38 23 	8 # 
 	ld a,b			;28fb	78 	x 
 	cp 020h			;28fc	fe 20 	.   
-	jr c,$+8		;28fe	38 06 	8 . 
+	jr c,2906h		;28fe	38 06 	8 . 
 	ld a,(TABLE)		;2900	3a ec e0 	: . . 
 	and a			;2903	a7 	. 
-	jr z,$+12		;2904	28 0a 	( . 
+	jr z,2910h		;2904	28 0a 	( . 
 	call 0314ch		;2906	cd 4c 31 	. L 1 
 	call 02e3fh		;2909	cd 3f 2e 	. ? . 
 	call 01f4fh		;290c	cd 4f 1f 	. O . 
@@ -5425,13 +5425,13 @@ KINPUT:				; KEYBOARD INPUT
 	call nz,0302fh		;2929	c4 2f 30 	. / 0 
 	ld a,(KBCNT)		;292c	3a 89 e0 	: . . 
 	and a			;292f	a7 	. 
-	jr z,$-11		;2930	28 f3 	( . 
+	jr z,2925h		;2930	28 f3 	( . 
 	ld hl,(KBOTAD)		;2932	2a 8c e0 	* . . 
 	ld b,(hl)		;2935	46 	F 
 	inc hl			;2936	23 	# 
 	ld a,l			;2937	7d 	} 
 	cp 020h			;2938	fe 20 	.   
-	jr nz,$+5		;293a	20 03 	  . 
+	jr nz,293fh		;293a	20 03 	  . 
 	ld hl,0db10h		;293c	21 10 db 	! . . 
 	ld (KBOTAD),hl		;293f	22 8c e0 	" . . 
 	ld hl,KBCNT		;2942	21 89 e0 	! . . 
@@ -5455,7 +5455,7 @@ KBDLCK:				; LOCK KEYBOARD
 	ld (KBLKD),a		;2959	32 ca e0 	2 . . 
 	ld a,(LIGHTS)		;295c	3a ce e0 	: . . 
 	or 004h			;295f	f6 04 	. . 
-	jr $+11			;2961	18 09 	. .
+	jr 296ch			;2961	18 09 	. .
 KBDUNL:				; UNLOCK KEYBOARD
 	xor a			;2963	af 	. 
 	ld (KBLKD),a		;2964	32 ca e0 	2 . . 
@@ -5568,7 +5568,7 @@ KBDUNL:				; UNLOCK KEYBOARD
 	add a,b			;29dd	80 	. 
 	add a,b			;29de	80 	. 
 	add a,b			;29df	80 	. 
-	jr nz,$+25		;29e0	20 17 	  . 
+	jr nz,29f9h		;29e0	20 17 	  . 
 	ld c,00bh		;29e2	0e 0b 	. . 
 	add a,b			;29e4	80 	. 
 	add a,b			;29e5	80 	. 
@@ -5576,7 +5576,7 @@ KBDUNL:				; UNLOCK KEYBOARD
 	add a,b			;29e7	80 	. 
 	sbc a,a			;29e8	9f 	. 
 	add a,b			;29e9	80 	. 
-	jr $+14			;29ea	18 0c 	. . 
+	jr 29f8h			;29ea	18 0c 	. . 
 	add a,b			;29ec	80 	. 
 	add a,b			;29ed	80 	. 
 	add a,b			;29ee	80 	. 
@@ -5614,14 +5614,14 @@ KBDUNL:				; UNLOCK KEYBOARD
 	add hl,bc		;2a0e	09 	. 
 	add a,b			;2a0f	80 	. 
 	xor (hl)		;2a10	ae 	. 
-	jr c,$+55		;2a11	38 35 	8 5 
+	jr c,2a48h		;2a11	38 35 	8 5 
 	add a,c			;2a13	81 	. 
 	ld sp,07161h		;2a14	31 61 71 	1 a q 
 	jp m,03980h		;2a17	fa 80 39 	. . 9 
 	ld (hl),082h		;2a1a	36 82 	6 . 
 	ld (07773h),a		;2a1c	32 73 77 	2 s w 
 	ei			;2a1f	fb 	. 
-	jr nz,$-126		;2a20	20 80 	  . 
+	jr nz,29a2h		;2a20	20 80 	  . 
 	add a,b			;2a22	80 	. 
 	add a,e			;2a23	83 	. 
 	inc sp			;2a24	33 	3 
@@ -5644,7 +5644,7 @@ KBDUNL:				; UNLOCK KEYBOARD
 	ld (hl),h		;2a36	74 	t 
 	halt			;2a37	76 	v 
 	sbc a,e			;2a38	9b 	. 
-	jr nc,$+52		;2a39	30 32 	0 2 
+	jr nc,2a6dh		;2a39	30 32 	0 2 
 	add a,(hl)		;2a3b	86 	. 
 	ld (hl),068h		;2a3c	36 68 	6 h 
 	call p,09e62h		;2a3e	f4 62 9e 	. b . 
@@ -5657,7 +5657,7 @@ KBDUNL:				; UNLOCK KEYBOARD
 	sub d			;2a49	92 	. 
 	add a,b			;2a4a	80 	. 
 	adc a,b			;2a4b	88 	. 
-	jr c,$+109		;2a4c	38 6b 	8 k 
+	jr c,2ab9h		;2a4c	38 6b 	8 k 
 	ld l,c			;2a4e	69 	i 
 	ld l,l			;2a4f	6d 	m 
 	sbc a,d			;2a50	9a 	. 
@@ -5670,7 +5670,7 @@ KBDUNL:				; UNLOCK KEYBOARD
 	call m,0e380h		;2a57	fc 80 e3 	. . . 
 	add a,b			;2a5a	80 	. 
 	adc a,d			;2a5b	8a 	. 
-	jr nc,$-7		;2a5c	30 f7 	0 . 
+	jr nc,2a55h		;2a5c	30 f7 	0 . 
 	ld (hl),b		;2a5e	70 	p 
 	defb 0fdh,00bh,097h	;illegal sequence		;2a5f	fd 0b 97 	. . . 
 	adc a,(hl)		;2a62	8e 	. 
@@ -5738,7 +5738,7 @@ KBDUNL:				; UNLOCK KEYBOARD
 	ld d,e			;2aad	53 	S 
 	ld d,a			;2aae	57 	W 
 	ei			;2aaf	fb 	. 
-	jr nz,$-126		;2ab0	20 80 	  . 
+	jr nz,2a32h		;2ab0	20 80 	  . 
 	add a,b			;2ab2	80 	. 
 	add a,e			;2ab3	83 	. 
 	jp pe,04544h		;2ab4	ea 44 45 	. D E 
@@ -5812,14 +5812,14 @@ KBDUNL:				; UNLOCK KEYBOARD
 	ld a,(bc)		;2b06	0a 	. 
 	add hl,de		;2b07	19 	. 
 	ex af,af'		;2b08	08 	. 
-	jr $+28			;2b09	18 1a 	. . 
+	jr 2b25h			;2b09	18 1a 	. . 
 	and c			;2b0b	a1 	. 
 	ex af,af'		;2b0c	08 	. 
 	sbc a,b			;2b0d	98 	. 
 	dec c			;2b0e	0d 	. 
 	ex af,af'		;2b0f	08 	. 
 	add hl,de		;2b10	19 	. 
-	jr $+28			;2b11	18 1a 	. . 
+	jr 2b2dh			;2b11	18 1a 	. . 
 	add a,b			;2b13	80 	. 
 	add a,b			;2b14	80 	. 
 	add a,b			;2b15	80 	. 
@@ -5848,7 +5848,7 @@ KBDUNL:				; UNLOCK KEYBOARD
 	sub c			;2b2e	91 	. 
 	add a,b			;2b2f	80 	. 
 	xor (hl)		;2b30	ae 	. 
-	jr c,$-25		;2b31	38 e5 	8 . 
+	jr c,2b18h		;2b31	38 e5 	8 . 
 	add a,c			;2b33	81 	. 
 	ld sp,01101h		;2b34	31 01 11 	1 . . 
 	jp m,03980h		;2b37	fa 80 39 	. . 9 
@@ -5857,13 +5857,13 @@ KBDUNL:				; UNLOCK KEYBOARD
 	inc de			;2b3d	13 	. 
 	rla			;2b3e	17 	. 
 	ld a,(de)		;2b3f	1a 	. 
-	jr nz,$-126		;2b40	20 80 	  . 
+	jr nz,2ac2h		;2b40	20 80 	  . 
 	add a,b			;2b42	80 	. 
 	add a,e			;2b43	83 	. 
 	inc sp			;2b44	33 	3 
 	inc b			;2b45	04 	. 
 	dec b			;2b46	05 	. 
-	jr $+129		;2b47	18 7f 	.  
+	jr 2bc8h		;2b47	18 7f 	.  
 	adc a,l			;2b49	8d 	. 
 	dec de			;2b4a	1b 	. 
 	add a,h			;2b4b	84 	. 
@@ -5877,7 +5877,7 @@ KBDUNL:				; UNLOCK KEYBOARD
 	rlca			;2b55	07 	. 
 	inc d			;2b56	14 	. 
 	ld d,09dh		;2b57	16 9d 	. . 
-	jr nc,$-23		;2b59	30 e7 	0 . 
+	jr nc,2b42h		;2b59	30 e7 	0 . 
 	add a,(hl)		;2b5b	86 	. 
 	ld (hl),008h		;2b5c	36 08 	6 . 
 	add hl,de		;2b5e	19 	. 
@@ -5891,7 +5891,7 @@ KBDUNL:				; UNLOCK KEYBOARD
 	ret nz			;2b69	c0 	. 
 	add a,b			;2b6a	80 	. 
 	adc a,b			;2b6b	88 	. 
-	jr c,$+13		;2b6c	38 0b 	8 . 
+	jr c,2b79h		;2b6c	38 0b 	8 . 
 	add hl,bc		;2b6e	09 	. 
 	dec c			;2b6f	0d 	. 
 	sbc a,d			;2b70	9a 	. 
@@ -5904,8 +5904,8 @@ KBDUNL:				; UNLOCK KEYBOARD
 	call m,0e380h		;2b77	fc 80 e3 	. . . 
 	add a,b			;2b7a	80 	. 
 	adc a,d			;2b7b	8a 	. 
-	jr nc,$-7		;2b7c	30 f7 	0 . 
-	djnz $-1		;2b7e	10 fd 	. . 
+	jr nc,2b75h		;2b7c	30 f7 	0 . 
+	djnz 2b7dh		;2b7e	10 fd 	. . 
 	dec bc			;2b80	0b 	. 
 	sub a			;2b81	97 	. 
 	adc a,(hl)		;2b82	8e 	. 
@@ -5929,7 +5929,7 @@ KBDUNL:				; UNLOCK KEYBOARD
 	ld a,(bc)		;2b96	0a 	. 
 	add hl,de		;2b97	19 	. 
 	ex af,af'		;2b98	08 	. 
-	jr $+28			;2b99	18 1a 	. . 
+	jr 2bb5h			;2b99	18 1a 	. . 
 	pop bc			;2b9b	c1 	. 
 	ex af,af'		;2b9c	08 	. 
 	add a,b			;2b9d	80 	. 
@@ -5975,11 +5975,11 @@ KBDUNL:				; UNLOCK KEYBOARD
 	inc de			;2bcd	13 	. 
 	rla			;2bce	17 	. 
 	ld a,(de)		;2bcf	1a 	. 
-	jr nz,$-126		;2bd0	20 80 	  . 
+	jr nz,2b52h		;2bd0	20 80 	  . 
 	add a,b			;2bd2	80 	. 
 	add a,e			;2bd3	83 	. 
 	jp pe,00504h		;2bd4	ea 04 05 	. . . 
-	jr $+15			;2bd7	18 0d 	. . 
+	jr 2be6h			;2bd7	18 0d 	. . 
 	adc a,l			;2bd9	8d 	. 
 	ld a,(bc)		;2bda	0a 	. 
 	add a,h			;2bdb	84 	. 
@@ -6025,7 +6025,7 @@ KBDUNL:				; UNLOCK KEYBOARD
 	adc a,d			;2c0b	8a 	. 
 	ret p			;2c0c	f0 	. 
 	rst 30h			;2c0d	f7 	. 
-	djnz $-1		;2c0e	10 fd 	. . 
+	djnz 2c0dh		;2c0e	10 fd 	. . 
 	inc c			;2c10	0c 	. 
 	sub e			;2c11	93 	. 
 	adc a,(hl)		;2c12	8e 	. 
@@ -6057,7 +6057,7 @@ KBDUNL:				; UNLOCK KEYBOARD
 	dec c			;2c2e	0d 	. 
 	ex af,af'		;2c2f	08 	. 
 	add hl,de		;2c30	19 	. 
-	jr $+28			;2c31	18 1a 	. . 
+	jr 2c4dh			;2c31	18 1a 	. . 
 	ld b,e			;2c33	43 	C 
 	inc l			;2c34	2c 	, 
 	ld b,e			;2c35	43 	C 
@@ -6075,8 +6075,8 @@ KBDUNL:				; UNLOCK KEYBOARD
 	call 0802ch		;2c41	cd 2c 80 	. , . 
 	ld (03433h),a		;2c44	32 33 34 	2 3 4 
 	ld (hl),037h		;2c47	36 37 	6 7 
-	jr c,$+59		;2c49	38 39 	8 9 
-	jr nc,$+47		;2c4b	30 2d 	0 - 
+	jr c,2c84h		;2c49	38 39 	8 9 
+	jr nc,2c7ah		;2c4b	30 2d 	0 - 
 	dec a			;2c4d	3d 	= 
 	ld h,b			;2c4e	60 	` 
 	ld a,c			;2c4f	79 	y 
@@ -6092,8 +6092,8 @@ KBDUNL:				; UNLOCK KEYBOARD
 	jp nz,03332h		;2c5a	c2 32 33 	. 2 3 
 	inc (hl)		;2c5d	34 	4 
 	ld (hl),037h		;2c5e	36 37 	6 7 
-	jr c,$+59		;2c60	38 39 	8 9 
-	jr nc,$+41		;2c62	30 27 	0 ' 
+	jr c,2c9bh		;2c60	38 39 	8 9 
+	jr nc,2c8bh		;2c62	30 27 	0 ' 
 	ld e,(hl)		;2c64	5e 	^ 
 	add a,b			;2c65	80 	. 
 	ld a,c			;2c66	79 	y 
@@ -6108,8 +6108,8 @@ KBDUNL:				; UNLOCK KEYBOARD
 	jp nz,03332h		;2c71	c2 32 33 	. 2 3 
 	inc (hl)		;2c74	34 	4 
 	ld (hl),037h		;2c75	36 37 	6 7 
-	jr c,$+59		;2c77	38 39 	8 9 
-	jr nc,$+128		;2c79	30 7e 	0 ~ 
+	jr c,2cb2h		;2c77	38 39 	8 9 
+	jr nc,2cf9h		;2c79	30 7e 	0 ~ 
 	daa			;2c7b	27 	' 
 	add a,b			;2c7c	80 	. 
 	ld a,d			;2c7d	7a 	z 
@@ -6125,8 +6125,8 @@ KBDUNL:				; UNLOCK KEYBOARD
 	jp nz,03332h		;2c88	c2 32 33 	. 2 3 
 	inc (hl)		;2c8b	34 	4 
 	ld (hl),037h		;2c8c	36 37 	6 7 
-	jr c,$+59		;2c8e	38 39 	8 9 
-	jr nc,$+45		;2c90	30 2b 	0 + 
+	jr c,2cc9h		;2c8e	38 39 	8 9 
+	jr nc,2cbdh		;2c90	30 2b 	0 + 
 	ld h,b			;2c92	60 	` 
 	add a,b			;2c93	80 	. 
 	ld a,c			;2c94	79 	y 
@@ -6142,8 +6142,8 @@ KBDUNL:				; UNLOCK KEYBOARD
 	ld h,b			;2c9f	60 	` 
 	ld (03433h),a		;2ca0	32 33 34 	2 3 4 
 	ld (hl),037h		;2ca3	36 37 	6 7 
-	jr c,$+59		;2ca5	38 39 	8 9 
-	jr nc,$+47		;2ca7	30 2d 	0 - 
+	jr c,2ce0h		;2ca5	38 39 	8 9 
+	jr nc,2cd6h		;2ca7	30 2d 	0 - 
 	dec a			;2ca9	3d 	= 
 	add a,b			;2caa	80 	. 
 	ld a,c			;2cab	79 	y 
@@ -6159,8 +6159,8 @@ KBDUNL:				; UNLOCK KEYBOARD
 	ld h,b			;2cb6	60 	` 
 	ld (03433h),a		;2cb7	32 33 34 	2 3 4 
 	ld (hl),037h		;2cba	36 37 	6 7 
-	jr c,$+59		;2cbc	38 39 	8 9 
-	jr nc,$+47		;2cbe	30 2d 	0 - 
+	jr c,2cf7h		;2cbc	38 39 	8 9 
+	jr nc,2cedh		;2cbe	30 2d 	0 - 
 	dec a			;2cc0	3d 	= 
 	add a,b			;2cc1	80 	. 
 	ld a,c			;2cc2	79 	y 
@@ -6174,8 +6174,8 @@ KBDUNL:				; UNLOCK KEYBOARD
 	jp nz,03332h		;2ccd	c2 32 33 	. 2 3 
 	inc (hl)		;2cd0	34 	4 
 	ld (hl),037h		;2cd1	36 37 	6 7 
-	jr c,$+59		;2cd3	38 39 	8 9 
-	jr nc,$+45		;2cd5	30 2b 	0 + 
+	jr c,2d0eh		;2cd3	38 39 	8 9 
+	jr nc,2d02h		;2cd5	30 2b 	0 + 
 	ld h,b			;2cd7	60 	` 
 	add a,b			;2cd8	80 	. 
 	ld a,c			;2cd9	79 	y 
@@ -6206,7 +6206,7 @@ KBDUNL:				; UNLOCK KEYBOARD
 	inc h			;2cf7	24 	$ 
 	ld e,(hl)		;2cf8	5e 	^ 
 	ld h,02ah		;2cf9	26 2a 	& * 
-	jr z,$+43		;2cfb	28 29 	( ) 
+	jr z,2d26h		;2cfb	28 29 	( ) 
 	ld e,a			;2cfd	5f 	_ 
 	dec hl			;2cfe	2b 	+ 
 	ld a,(hl)		;2cff	7e 	~ 
@@ -6222,7 +6222,7 @@ KBDUNL:				; UNLOCK KEYBOARD
 	inc h			;2d0e	24 	$ 
 	dec hl			;2d0f	2b 	+ 
 	cpl			;2d10	2f 	/ 
-	jr z,$+43		;2d11	28 29 	( ) 
+	jr z,2d3ch		;2d11	28 29 	( ) 
 	dec a			;2d13	3d 	= 
 	ccf			;2d14	3f 	? 
 	ld a,(hl)		;2d15	7e 	~ 
@@ -6236,7 +6236,7 @@ KBDUNL:				; UNLOCK KEYBOARD
 	ld a,(0c35fh)		;2d20	3a 5f c3 	: _ . 
 	ld (02440h),hl		;2d23	22 40 24 	" @ $ 
 	ld h,02fh		;2d26	26 2f 	& / 
-	jr z,$+43		;2d28	28 29 	( ) 
+	jr z,2d53h		;2d28	28 29 	( ) 
 	dec a			;2d2a	3d 	= 
 	ccf			;2d2b	3f 	? 
 	ld h,b			;2d2c	60 	` 
@@ -6250,7 +6250,7 @@ KBDUNL:				; UNLOCK KEYBOARD
 	ld a,(0c35fh)		;2d37	3a 5f c3 	: _ . 
 	ld (02423h),hl		;2d3a	22 23 24 	" # $ 
 	ld h,02fh		;2d3d	26 2f 	& / 
-	jr z,$+43		;2d3f	28 29 	( ) 
+	jr z,2d6ah		;2d3f	28 29 	( ) 
 	dec a			;2d41	3d 	= 
 	ccf			;2d42	3f 	? 
 	ld b,b			;2d43	40 	@ 
@@ -6268,7 +6268,7 @@ KBDUNL:				; UNLOCK KEYBOARD
 	inc h			;2d53	24 	$ 
 	ld e,(hl)		;2d54	5e 	^ 
 	ld h,02ah		;2d55	26 2a 	& * 
-	jr z,$+43		;2d57	28 29 	( ) 
+	jr z,2d82h		;2d57	28 29 	( ) 
 	ld e,a			;2d59	5f 	_ 
 	dec hl			;2d5a	2b 	+ 
 	add a,b			;2d5b	80 	. 
@@ -6285,7 +6285,7 @@ KBDUNL:				; UNLOCK KEYBOARD
 	inc h			;2d6a	24 	$ 
 	ld e,(hl)		;2d6b	5e 	^ 
 	ld h,02ah		;2d6c	26 2a 	& * 
-	jr z,$+43		;2d6e	28 29 	( ) 
+	jr z,2d99h		;2d6e	28 29 	( ) 
 	ld e,a			;2d70	5f 	_ 
 	dec hl			;2d71	2b 	+ 
 	add a,b			;2d72	80 	. 
@@ -6297,7 +6297,7 @@ KBDUNL:				; UNLOCK KEYBOARD
 	ld a,(0c33fh)		;2d7c	3a 3f c3 	: ? . 
 	ld (02423h),hl		;2d7f	22 23 24 	" # $ 
 	ld h,02fh		;2d82	26 2f 	& / 
-	jr z,$+43		;2d84	28 29 	( ) 
+	jr z,2dafh		;2d84	28 29 	( ) 
 	dec a			;2d86	3d 	= 
 	ccf			;2d87	3f 	? 
 	ld b,b			;2d88	40 	@ 
@@ -6312,37 +6312,37 @@ KBDUNL:				; UNLOCK KEYBOARD
 	ld a,(0cd5fh)		;2d93	3a 5f cd 	: _ . 
 	sbc a,d			;2d96	9a 	. 
 	dec l			;2d97	2d 	- 
-	jr $-3			;2d98	18 fb 	. .
+	jr 2d95h			;2d98	18 fb 	. .
 MNTOR:				; USER ENTRY TO MONITOR
 	ld a,(NOPTR)		;2d9a	3a f8 e0 	: . . 
 	and a			;2d9d	a7 	. 
-	jr nz,$+10		;2d9e	20 08 	  . 
+	jr nz,2da8h		;2d9e	20 08 	  . 
 	call 005c1h		;2da0	cd c1 05 	. . . 
 	and 001h		;2da3	e6 01 	. . 
 	call nz,006f1h		;2da5	c4 f1 06 	. . . 
 	ld a,(PRINTA)		;2da8	3a dd e0 	: . . 
 	and a			;2dab	a7 	. 
-	jr z,$+7		;2dac	28 05 	( . 
+	jr z,2db3h		;2dac	28 05 	( . 
 	call 02e55h		;2dae	cd 55 2e 	. U . 
-	jr $+19			;2db1	18 11 	. . 
+	jr 2dc4h			;2db1	18 11 	. . 
 	ld a,(0e0f7h)		;2db3	3a f7 e0 	: . . 
 	and a			;2db6	a7 	. 
-	jr nz,$+13		;2db7	20 0b 	  . 
+	jr nz,2dc4h		;2db7	20 0b 	  . 
 	ld hl,(BFCNT)		;2db9	2a 83 e0 	* . . 
 	ld a,l			;2dbc	7d 	} 
 	or h			;2dbd	b4 	. 
-	jr z,$+6		;2dbe	28 04 	( . 
+	jr z,2dc4h		;2dbe	28 04 	( . 
 	call 01f11h		;2dc0	cd 11 1f 	. . . 
 	ret			;2dc3	c9 	. 
 	ld a,(HMSGA)		;2dc4	3a c2 e0 	: . . 
 	and a			;2dc7	a7 	. 
-	jr nz,$+9		;2dc8	20 07 	  . 
+	jr nz,2dd1h		;2dc8	20 07 	  . 
 	ld a,(KBCNT)		;2dca	3a 89 e0 	: . . 
 	and a			;2dcd	a7 	. 
 	call nz,02614h		;2dce	c4 14 26 	. . & 
 	ld a,(TXCNT)		;2dd1	3a 8e e0 	: . . 
 	and a			;2dd4	a7 	. 
-	jr z,$+6		;2dd5	28 04 	( . 
+	jr z,2ddbh		;2dd5	28 04 	( . 
 	call 0302fh		;2dd7	cd 2f 30 	. / 0 
 	ret			;2dda	c9 	. 
 	ld a,(BLKSND)		;2ddb	3a ac e0 	: . . 
@@ -6365,22 +6365,22 @@ MNTOR:				; USER ENTRY TO MONITOR
 	call 0070bh		;2e00	cd 0b 07 	. . . 
 	ret			;2e03	c9 	. 
 	ld b,001h		;2e04	06 01 	. . 
-	jr $+4			;2e06	18 02 	. . 
+	jr 2e0ah			;2e06	18 02 	. . 
 	ld b,003h		;2e08	06 03 	. . 
 	ld a,(NOPTR)		;2e0a	3a f8 e0 	: . . 
 	and a			;2e0d	a7 	. 
-	jr nz,$+15		;2e0e	20 0d 	  . 
+	jr nz,2e1dh		;2e0e	20 0d 	  . 
 	ld a,(KBINP)		;2e10	3a c9 e0 	: . . 
 	rra			;2e13	1f 	. 
-	jr c,$+13		;2e14	38 0b 	8 . 
+	jr c,2e21h		;2e14	38 0b 	8 . 
 	call 005c8h		;2e16	cd c8 05 	. . . 
 	and 020h		;2e19	e6 20 	.   
-	jr nz,$+12		;2e1b	20 0a 	  . 
+	jr nz,2e27h		;2e1b	20 0a 	  . 
 	call 01d77h		;2e1d	cd 77 1d 	. w . 
 	ret			;2e20	c9 	. 
 	ld a,(BLKMD)		;2e21	3a ab e0 	: . . 
 	rra			;2e24	1f 	. 
-	jr c,$+7		;2e25	38 05 	8 . 
+	jr c,2e2ch		;2e25	38 05 	8 . 
 	ld a,001h		;2e27	3e 01 	> . 
 	ld (COMPNT),a		;2e29	32 b4 e0 	2 . . 
 	ld a,b			;2e2c	78 	x 
@@ -6400,7 +6400,7 @@ PRINTB:				; PRINT B
 	ret z			;2e49	c8 	. 
 	call 005c1h		;2e4a	cd c1 05 	. . . 
 	and 020h		;2e4d	e6 20 	.   
-	jr z,$-5		;2e4f	28 f9 	( . 
+	jr z,2e4ah		;2e4f	28 f9 	( . 
 	call 005d1h		;2e51	cd d1 05 	. . . 
 	ret			;2e54	c9 	.
 PRINTC:				; PRINT NEXT CHARACTER
@@ -6415,13 +6415,13 @@ PRINTC:				; PRINT NEXT CHARACTER
 	ret z			;2e65	c8 	. 
 	ld a,(PCRLF)		;2e66	3a da e0 	: . . 
 	and a			;2e69	a7 	. 
-	jr z,$+28		;2e6a	28 1a 	( . 
+	jr z,2e86h		;2e6a	28 1a 	( . 
 	cp 001h			;2e6c	fe 01 	. . 
-	jr nz,$+11		;2e6e	20 09 	  . 
+	jr nz,2e79h		;2e6e	20 09 	  . 
 	ld a,002h		;2e70	3e 02 	> . 
 	ld (PCRLF),a		;2e72	32 da e0 	2 . . 
 	ld b,00dh		;2e75	06 0d 	. . 
-	jr $+8			;2e77	18 06 	. . 
+	jr 2e7fh			;2e77	18 06 	. . 
 	xor a			;2e79	af 	. 
 	ld (PCRLF),a		;2e7a	32 da e0 	2 . . 
 	ld b,00ah		;2e7d	06 0a 	. . 
@@ -6430,45 +6430,45 @@ PRINTC:				; PRINT NEXT CHARACTER
 	ret			;2e85	c9 	. 
 	ld a,(PNTNXT)		;2e86	3a db e0 	: . . 
 	and a			;2e89	a7 	. 
-	jr z,$+9		;2e8a	28 07 	( . 
+	jr z,2e93h		;2e8a	28 07 	( . 
 	ld b,a			;2e8c	47 	G 
 	xor a			;2e8d	af 	. 
 	ld (PNTNXT),a		;2e8e	32 db e0 	2 . . 
-	jr $+41			;2e91	18 27 	. ' 
+	jr 2ebah			;2e91	18 27 	. ' 
 	ld hl,(CURSOR)		;2e93	2a b7 e0 	* . . 
 	ld b,(hl)		;2e96	46 	F 
 	ld a,(PRINTA)		;2e97	3a dd e0 	: . . 
 	cp 001h			;2e9a	fe 01 	. . 
-	jr z,$+10		;2e9c	28 08 	( . 
+	jr z,2ea6h		;2e9c	28 08 	( . 
 	inc hl			;2e9e	23 	# 
 	ld a,(hl)		;2e9f	7e 	~ 
 	and 01fh		;2ea0	e6 1f 	. . 
-	jr z,$+4		;2ea2	28 02 	( . 
+	jr z,2ea6h		;2ea2	28 02 	( . 
 	ld b,020h		;2ea4	06 20 	.   
 	ld a,b			;2ea6	78 	x 
 	cp 020h			;2ea7	fe 20 	.   
-	jr z,$+8		;2ea9	28 06 	( . 
+	jr z,2eb1h		;2ea9	28 06 	( . 
 	xor a			;2eab	af 	. 
 	ld (SPFLAG),a		;2eac	32 e7 e0 	2 . . 
-	jr $+11			;2eaf	18 09 	. . 
+	jr 2ebah			;2eaf	18 09 	. . 
 	ld a,(SPFLAG)		;2eb1	3a e7 e0 	: . . 
 	rra			;2eb4	1f 	. 
-	jr c,$+5		;2eb5	38 03 	8 . 
+	jr c,2ebah		;2eb5	38 03 	8 . 
 	call 02f1ch		;2eb7	cd 1c 2f 	. . / 
 	ld a,b			;2eba	78 	x 
 	cp 07fh			;2ebb	fe 7f 	.  
-	jr c,$+4		;2ebd	38 02 	8 . 
+	jr c,2ec1h		;2ebd	38 02 	8 . 
 	ld b,020h		;2ebf	06 20 	.   
 	call 005d1h		;2ec1	cd d1 05 	. . . 
 	ld a,b			;2ec4	78 	x 
 	cp 00dh			;2ec5	fe 0d 	. . 
-	jr nz,$+11		;2ec7	20 09 	  . 
+	jr nz,2ed2h		;2ec7	20 09 	  . 
 	ld a,00ah		;2ec9	3e 0a 	> . 
 	ld (PNTNXT),a		;2ecb	32 db e0 	2 . . 
 	call 02defh		;2ece	cd ef 2d 	. . - 
 	ret			;2ed1	c9 	. 
 	cp 00ah			;2ed2	fe 0a 	. . 
-	jr nz,$+29		;2ed4	20 1b 	  . 
+	jr nz,2ef1h		;2ed4	20 1b 	  . 
 	call 02defh		;2ed6	cd ef 2d 	. . - 
 	xor a			;2ed9	af 	. 
 	ld (SPFLAG),a		;2eda	32 e7 e0 	2 . . 
@@ -6476,7 +6476,7 @@ PRINTC:				; PRINT NEXT CHARACTER
 	ld b,a			;2ee0	47 	G 
 	ld a,(LASTLN)		;2ee1	3a cd e0 	: . . 
 	cp b			;2ee4	b8 	. 
-	jr z,$+32		;2ee5	28 1e 	( . 
+	jr z,2f05h		;2ee5	28 1e 	( . 
 	ld a,(LNSIZE)		;2ee7	3a d4 e0 	: . . 
 	ld (CHRCNT),a		;2eea	32 b1 e0 	2 . . 
 	call 014bdh		;2eed	cd bd 14 	. . . 
@@ -6485,7 +6485,7 @@ PRINTC:				; PRINT NEXT CHARACTER
 	ld b,a			;2ef4	47 	G 
 	ld a,(LNSIZE)		;2ef5	3a d4 e0 	: . . 
 	cp b			;2ef8	b8 	. 
-	jr z,$+6		;2ef9	28 04 	( . 
+	jr z,2effh		;2ef9	28 04 	( . 
 	call 014bdh		;2efb	cd bd 14 	. . . 
 	ret			;2efe	c9 	. 
 	ld a,00dh		;2eff	3e 0d 	> . 
@@ -6493,7 +6493,7 @@ PRINTC:				; PRINT NEXT CHARACTER
 	ret			;2f04	c9 	. 
 	ld a,(COMPNT)		;2f05	3a b4 e0 	: . . 
 	rra			;2f08	1f 	. 
-	jr nc,$+5		;2f09	30 03 	0 . 
+	jr nc,2f0eh		;2f09	30 03 	0 . 
 	call 01d67h		;2f0b	cd 67 1d 	. g . 
 	xor a			;2f0e	af 	. 
 	ld (PRINTA),a		;2f0f	32 dd e0 	2 . . 
@@ -6506,7 +6506,7 @@ PRINTC:				; PRINT NEXT CHARACTER
 	ld b,a			;2f22	47 	G 
 	ld a,(LNSIZE)		;2f23	3a d4 e0 	: . . 
 	cp b			;2f26	b8 	. 
-	jr nz,$+5		;2f27	20 03 	  . 
+	jr nz,2f2ch		;2f27	20 03 	  . 
 	ld b,00dh		;2f29	06 0d 	. . 
 	ret			;2f2b	c9 	. 
 	inc b			;2f2c	04 	. 
@@ -6514,7 +6514,7 @@ PRINTC:				; PRINT NEXT CHARACTER
 	inc hl			;2f2e	23 	# 
 	ld a,(hl)		;2f2f	7e 	~ 
 	cp 020h			;2f30	fe 20 	.   
-	jr z,$-15		;2f32	28 ef 	( . 
+	jr z,2f23h		;2f32	28 ef 	( . 
 	ld a,001h		;2f34	3e 01 	> . 
 	ld (SPFLAG),a		;2f36	32 e7 e0 	2 . . 
 	ld b,020h		;2f39	06 20 	.   
@@ -6522,7 +6522,7 @@ PRINTC:				; PRINT NEXT CHARACTER
 RESET:				; RESET
 	ld a,(MBYTE5)		;2f3c	3a 44 e0 	: D . 
 	and 001h		;2f3f	e6 01 	. . 
-	jr z,$+6		;2f41	28 04 	( . 
+	jr z,2f47h		;2f41	28 04 	( . 
 	call 021f5h		;2f43	cd f5 21 	. . ! 
 	ret			;2f46	c9 	. 
 	call 021fah		;2f47	cd fa 21 	. . ! 
@@ -6551,7 +6551,7 @@ SCROLL:				; SCROLL
 	ld l,a			;2f78	6f 	o 
 	ld a,(FLAG2)		;2f79	3a bf e0 	: . . 
 	and 002h		;2f7c	e6 02 	. . 
-	jr z,$+6		;2f7e	28 04 	( . 
+	jr z,2f84h		;2f7e	28 04 	( . 
 	ld a,(SRLLST)		;2f80	3a e9 e0 	: . . 
 	ld l,a			;2f83	6f 	o 
 	call 01fcdh		;2f84	cd cd 1f 	. . . 
@@ -6572,7 +6572,7 @@ SCROLL:				; SCROLL
 	call 02fach		;2f9f	cd ac 2f 	. . / 
 	ld a,(FLAG2)		;2fa2	3a bf e0 	: . . 
 	rra			;2fa5	1f 	. 
-	jr c,$-91		;2fa6	38 a3 	8 . 
+	jr c,2f4bh		;2fa6	38 a3 	8 . 
 	call 021f5h		;2fa8	cd f5 21 	. . ! 
 	ret			;2fab	c9 	. 
 	ld d,h			;2fac	54 	T 
@@ -6586,7 +6586,7 @@ SCROLL:				; SCROLL
 	ld b,a			;2fb6	47 	G 
 	ld a,(SRLLST)		;2fb7	3a e9 e0 	: . . 
 	sub b			;2fba	90 	. 
-	jr nz,$+4		;2fbb	20 02 	  . 
+	jr nz,2fbfh		;2fbb	20 02 	  . 
 	pop bc			;2fbd	c1 	. 
 	ret			;2fbe	c9 	. 
 	rlca			;2fbf	07 	. 
@@ -6594,7 +6594,7 @@ SCROLL:				; SCROLL
 	ld b,000h		;2fc1	06 00 	. . 
 	ld a,(FLAG2)		;2fc3	3a bf e0 	: . . 
 	and 002h		;2fc6	e6 02 	. . 
-	jr nz,$+11		;2fc8	20 09 	  . 
+	jr nz,2fd3h		;2fc8	20 09 	  . 
 	ldir			;2fca	ed b0 	. . 
 	pop hl			;2fcc	e1 	. 
 	ld a,l			;2fcd	7d 	} 
@@ -6624,24 +6624,24 @@ SCROLL:				; SCROLL
 	ret			;2fe6	c9 	. 
 	ld a,(PROTE)		;2fe7	3a de e0 	: . . 
 	and a			;2fea	a7 	. 
-	jr z,$+35		;2feb	28 21 	( ! 
+	jr z,300eh		;2feb	28 21 	( ! 
 	ld a,(LNCNT)		;2fed	3a d1 e0 	: . . 
 	ld c,a			;2ff0	4f 	O 
 	call 0301bh		;2ff1	cd 1b 30 	. . 0 
-	jr z,$+10		;2ff4	28 08 	( . 
+	jr z,2ffeh		;2ff4	28 08 	( . 
 	call 01519h		;2ff6	cd 19 15 	. . . 
 	call 01666h		;2ff9	cd 66 16 	. f . 
 	pop hl			;2ffc	e1 	. 
 	ret			;2ffd	c9 	. 
 	ld a,(LASTLN)		;2ffe	3a cd e0 	: . . 
 	cp c			;3001	b9 	. 
-	jr z,$+9		;3002	28 07 	( . 
+	jr z,300bh		;3002	28 07 	( . 
 	inc c			;3004	0c 	. 
 	call 0301bh		;3005	cd 1b 30 	. . 0 
-	jr z,$-10		;3008	28 f4 	( . 
+	jr z,2ffeh		;3008	28 f4 	( . 
 	dec c			;300a	0d 	. 
 	ld a,c			;300b	79 	y 
-	jr $+5			;300c	18 03 	. . 
+	jr 3011h			;300c	18 03 	. . 
 	ld a,(LASTLN)		;300e	3a cd e0 	: . . 
 	ld (SRLLST),a		;3011	32 e9 e0 	2 . . 
 	ld a,(LNCNT)		;3014	3a d1 e0 	: . . 
@@ -6658,7 +6658,7 @@ SCROLL:				; SCROLL
 	and 080h		;3028	e6 80 	. . 
 	ret nz			;302a	c0 	. 
 	inc hl			;302b	23 	# 
-	djnz $-6		;302c	10 f8 	. . 
+	djnz 3026h		;302c	10 f8 	. . 
 	ret			;302e	c9 	.
 SEND:				; SEND NEXT CODE FROM COMM BUFFER
 	ld a,(PCDACT)		;302f	3a 97 e0 	: . . 
@@ -6672,13 +6672,13 @@ SEND:				; SEND NEXT CODE FROM COMM BUFFER
 	ret z			;303e	c8 	. 
 	ld a,(MBYTE4)		;303f	3a 43 e0 	: C . 
 	and 008h		;3042	e6 08 	. . 
-	jr nz,$+67		;3044	20 41 	  A 
+	jr nz,3087h		;3044	20 41 	  A 
 	call 0049dh		;3046	cd 9d 04 	. . . 
 	and 001h		;3049	e6 01 	. . 
 	ret z			;304b	c8 	. 
 	call 004a1h		;304c	cd a1 04 	. . . 
 	and 020h		;304f	e6 20 	.   
-	jr nz,$+14		;3051	20 0c 	  . 
+	jr nz,305fh		;3051	20 0c 	  . 
 	call 02954h		;3053	cd 54 29 	. T ) 
 	ld a,(KBLKD)		;3056	3a ca e0 	: . . 
 	or 002h			;3059	f6 02 	. . 
@@ -6686,14 +6686,14 @@ SEND:				; SEND NEXT CODE FROM COMM BUFFER
 	ret			;305e	c9 	. 
 	ld a,(KBLKD)		;305f	3a ca e0 	: . . 
 	and 002h		;3062	e6 02 	. . 
-	jr z,$+13		;3064	28 0b 	( . 
+	jr z,3071h		;3064	28 0b 	( . 
 	call 02963h		;3066	cd 63 29 	. c ) 
 	ld a,(KBLKD)		;3069	3a ca e0 	: . . 
 	and 0fdh		;306c	e6 fd 	. . 
 	ld (KBLKD),a		;306e	32 ca e0 	2 . . 
 	call 0049dh		;3071	cd 9d 04 	. . . 
 	and 002h		;3074	e6 02 	. . 
-	jr nz,$+11		;3076	20 09 	  . 
+	jr nz,3081h		;3076	20 09 	  . 
 	call 0049dh		;3078	cd 9d 04 	. . . 
 	or 002h			;307b	f6 02 	. . 
 	ld b,a			;307d	47 	G 
@@ -6708,10 +6708,10 @@ SEND:				; SEND NEXT CODE FROM COMM BUFFER
 	inc hl			;3091	23 	# 
 	ld a,(PROTE)		;3092	3a de e0 	: . . 
 	rra			;3095	1f 	. 
-	jr nc,$+7		;3096	30 05 	0 . 
+	jr nc,309dh		;3096	30 05 	0 . 
 	ld a,(hl)		;3098	7e 	~ 
 	and 080h		;3099	e6 80 	. . 
-	jr nz,$+14		;309b	20 0c 	  . 
+	jr nz,30a9h		;309b	20 0c 	  . 
 	ld hl,(CURSOR)		;309d	2a b7 e0 	* . . 
 	ld b,(hl)		;30a0	46 	F 
 	inc hl			;30a1	23 	# 
@@ -6723,26 +6723,26 @@ SEND:				; SEND NEXT CODE FROM COMM BUFFER
 	ld c,a			;30ac	4f 	O 
 	ld a,(CHRCNT)		;30ad	3a b1 e0 	: . . 
 	cp c			;30b0	b9 	. 
-	jr nz,$+67		;30b1	20 41 	  A 
+	jr nz,30f4h		;30b1	20 41 	  A 
 	ld a,(LASTLN)		;30b3	3a cd e0 	: . . 
 	ld c,a			;30b6	4f 	O 
 	ld a,(LNCNT)		;30b7	3a d1 e0 	: . . 
 	cp c			;30ba	b9 	. 
-	jr nz,$+57		;30bb	20 37 	  7 
+	jr nz,30f4h		;30bb	20 37 	  7 
 	call 02f4bh		;30bd	cd 4b 2f 	. K / 
 	xor a			;30c0	af 	. 
 	ld (BLKSND),a		;30c1	32 ac e0 	2 . . 
 	ld a,(FNCODE)		;30c4	3a f5 e0 	: . . 
 	and a			;30c7	a7 	. 
-	jr nz,$+10		;30c8	20 08 	  . 
+	jr nz,30d2h		;30c8	20 08 	  . 
 	ld hl,(SAVEHL)		;30ca	2a e4 e0 	* . . 
 	call 0268bh		;30cd	cd 8b 26 	. . & 
-	jr $+26			;30d0	18 18 	. . 
+	jr 30eah			;30d0	18 18 	. . 
 	ld b,01eh		;30d2	06 1e 	. . 
 	call 0314ch		;30d4	cd 4c 31 	. L 1 
 	ld a,(FNCODE)		;30d7	3a f5 e0 	: . . 
 	bit 7,a			;30da	cb 7f 	.  
-	jr z,$+7		;30dc	28 05 	( . 
+	jr z,30e3h		;30dc	28 05 	( . 
 	ld b,012h		;30de	06 12 	. . 
 	call 0314ch		;30e0	cd 4c 31 	. L 1 
 	ld a,(FNCODE)		;30e3	3a f5 e0 	: . . 
@@ -6764,13 +6764,13 @@ SEND:				; SEND NEXT CODE FROM COMM BUFFER
 	inc hl			;3108	23 	# 
 	ld a,l			;3109	7d 	} 
 	cp 0c0h			;310a	fe c0 	. . 
-	jr nz,$+5		;310c	20 03 	  . 
+	jr nz,3111h		;310c	20 03 	  . 
 	ld hl,0df00h		;310e	21 00 df 	! . . 
 	ld (TXOTAD),hl		;3111	22 91 e0 	" . . 
 	call 004b3h		;3114	cd b3 04 	. . . 
 	ld a,(MBYTE5)		;3117	3a 44 e0 	: D . 
 	and 004h		;311a	e6 04 	. . 
-	jr z,$+10		;311c	28 08 	( . 
+	jr z,3126h		;311c	28 08 	( . 
 	ld a,001h		;311e	3e 01 	> . 
 	ld (PCDACT),a		;3120	32 97 e0 	2 . . 
 	call 0070bh		;3123	cd 0b 07 	. . . 
@@ -6780,18 +6780,18 @@ SEND:				; SEND NEXT CODE FROM COMM BUFFER
 	res 7,b			;312b	cb b8 	. . 
 	ld a,b			;312d	78 	x 
 	cp 00dh			;312e	fe 0d 	. . 
-	jr z,$+13		;3130	28 0b 	( . 
+	jr z,313dh		;3130	28 0b 	( . 
 	cp 00ah			;3132	fe 0a 	. . 
-	jr z,$+9		;3134	28 07 	( . 
+	jr z,313dh		;3134	28 07 	( . 
 	cp 006h			;3136	fe 06 	. . 
-	jr z,$+5		;3138	28 03 	( . 
+	jr z,313dh		;3138	28 03 	( . 
 	cp 015h			;313a	fe 15 	. . 
 	ret nz			;313c	c0 	. 
 	call 03188h		;313d	cd 88 31 	. . 1 
 	ret			;3140	c9 	. 
 	ld a,(BLKMD)		;3141	3a ab e0 	: . . 
 	and a			;3144	a7 	. 
-	jr z,$+7		;3145	28 05 	( . 
+	jr z,314ch		;3145	28 05 	( . 
 	ld a,(KBINP)		;3147	3a c9 e0 	: . . 
 	and a			;314a	a7 	. 
 	ret nz			;314b	c0 	.
@@ -6799,7 +6799,7 @@ SENDB:				; STORE B IN COMM SEND BUFFER
 	res 7,b			;314c	cb b8 	. . 
 	ld a,(MBYTE3)		;314e	3a 42 e0 	: B . 
 	and 004h		;3151	e6 04 	. . 
-	jr z,$+4		;3153	28 02 	( . 
+	jr z,3157h		;3153	28 02 	( . 
 	set 7,b			;3155	cb f8 	. .
 SENDB8:				; STORE B IN COM SEND BUFFER
 	ld a,(OBYTE1)		;3157	3a 46 e0 	: F . 
@@ -6812,7 +6812,7 @@ SENDB8:				; STORE B IN COM SEND BUFFER
 	inc hl			;3163	23 	# 
 	ld a,l			;3164	7d 	} 
 	cp 0c0h			;3165	fe c0 	. . 
-	jr nz,$+5		;3167	20 03 	  . 
+	jr nz,316ch		;3167	20 03 	  . 
 	ld hl,0df00h		;3169	21 00 df 	! . . 
 	ld (TXINAD),hl		;316c	22 8f e0 	" . . 
 	ld a,(TXCNT)		;316f	3a 8e e0 	: . . 
@@ -6832,10 +6832,10 @@ SENDB8:				; STORE B IN COM SEND BUFFER
 	ret nz			;318c	c0 	. 
 	ld a,(TXCNT)		;318d	3a 8e e0 	: . . 
 	and a			;3190	a7 	. 
-	jr nz,$+30		;3191	20 1c 	  . 
+	jr nz,31afh		;3191	20 1c 	  . 
 	ld a,(TXEMPF)		;3193	3a f0 e0 	: . . 
 	rra			;3196	1f 	. 
-	jr nc,$+10		;3197	30 08 	0 . 
+	jr nc,31a1h		;3197	30 08 	0 . 
 	xor a			;3199	af 	. 
 	ld (TXEMPF),a		;319a	32 f0 e0 	2 . . 
 	call 0045ch		;319d	cd 5c 04 	. \ . 
@@ -6843,7 +6843,7 @@ SENDB8:				; STORE B IN COM SEND BUFFER
 	call 00499h		;31a1	cd 99 04 	. . . 
 	and 060h		;31a4	e6 60 	. ` 
 	cp 060h			;31a6	fe 60 	. ` 
-	jr nz,$+7		;31a8	20 05 	  . 
+	jr nz,31afh		;31a8	20 05 	  . 
 	ld a,001h		;31aa	3e 01 	> . 
 	ld (TXEMPF),a		;31ac	32 f0 e0 	2 . . 
 	ld a,001h		;31af	3e 01 	> . 
@@ -6869,7 +6869,7 @@ SENDB8:				; STORE B IN COM SEND BUFFER
 	ret			;31d7	c9 	. 
 	ld a,(DLMENA)		;31d8	3a b9 e0 	: . . 
 	and a			;31db	a7 	. 
-	jr nz,$+6		;31dc	20 04 	  . 
+	jr nz,31e2h		;31dc	20 04 	  . 
 	call 03188h		;31de	cd 88 31 	. . 1 
 	ret			;31e1	c9 	. 
 	ld b,00dh		;31e2	06 0d 	. . 
@@ -6912,15 +6912,15 @@ SETCR:				; SET CURSOR
 	ld b,a			;3223	47 	G 
 	ld a,(OBYTE4)		;3224	3a 49 e0 	: I . 
 	and 004h		;3227	e6 04 	. . 
-	jr z,$+11		;3229	28 09 	( . 
+	jr z,3234h		;3229	28 09 	( . 
 	ld a,b			;322b	78 	x 
 	cp 01eh			;322c	fe 1e 	. . 
-	jr c,$+13		;322e	38 0b 	8 . 
+	jr c,323bh		;322e	38 0b 	8 . 
 	sub 01eh		;3230	d6 1e 	. . 
-	jr $+9			;3232	18 07 	. . 
+	jr 323bh			;3232	18 07 	. . 
 	ld a,b			;3234	78 	x 
 	cp 018h			;3235	fe 18 	. . 
-	jr c,$+4		;3237	38 02 	8 . 
+	jr c,323bh		;3237	38 02 	8 . 
 	sub 018h		;3239	d6 18 	. . 
 	out (01dh),a		;323b	d3 1d 	. . 
 	ret			;323d	c9 	.
@@ -6928,18 +6928,18 @@ TABBK:				; TAB BACKWARDS
 	call 0330ah		;323e	cd 0a 33 	. . 3 
 	ld a,b			;3241	78 	x 
 	or c			;3242	b1 	. 
-	jr nz,$+15		;3243	20 0d 	  . 
+	jr nz,3252h		;3243	20 0d 	  . 
 	ld a,(LNSIZE)		;3245	3a d4 e0 	: . . 
 	ld d,a			;3248	57 	W 
 	ld a,(LASTLN)		;3249	3a cd e0 	: . . 
 	ld e,a			;324c	5f 	_ 
 	call 031fbh		;324d	cd fb 31 	. . 1 
-	jr $-18			;3250	18 ec 	. . 
+	jr 323eh			;3250	18 ec 	. . 
 	ld a,b			;3252	78 	x 
 	and a			;3253	a7 	. 
-	jr nz,$+7		;3254	20 05 	  . 
+	jr nz,325bh		;3254	20 05 	  . 
 	call 0329bh		;3256	cd 9b 32 	. . 2 
-	jr $+9			;3259	18 07 	. . 
+	jr 3262h			;3259	18 07 	. . 
 	dec b			;325b	05 	. 
 	dec hl			;325c	2b 	+ 
 	dec hl			;325d	2b 	+ 
@@ -6947,15 +6947,15 @@ TABBK:				; TAB BACKWARDS
 	dec ix			;3260	dd 2b 	. + 
 	ld a,(ix+000h)		;3262	dd 7e 00 	. ~ . 
 	and 040h		;3265	e6 40 	. @ 
-	jr nz,$+45		;3267	20 2b 	  + 
+	jr nz,3294h		;3267	20 2b 	  + 
 	ld a,(hl)		;3269	7e 	~ 
 	and d			;326a	a2 	. 
-	jr nz,$-25		;326b	20 e5 	  . 
+	jr nz,3252h		;326b	20 e5 	  . 
 	ld a,b			;326d	78 	x 
 	and a			;326e	a7 	. 
-	jr nz,$+7		;326f	20 05 	  . 
+	jr nz,3276h		;326f	20 05 	  . 
 	call 0329bh		;3271	cd 9b 32 	. . 2 
-	jr $+9			;3274	18 07 	. . 
+	jr 327dh			;3274	18 07 	. . 
 	dec b			;3276	05 	. 
 	dec hl			;3277	2b 	+ 
 	dec hl			;3278	2b 	+ 
@@ -6963,24 +6963,24 @@ TABBK:				; TAB BACKWARDS
 	dec ix			;327b	dd 2b 	. + 
 	ld a,(ix+000h)		;327d	dd 7e 00 	. ~ . 
 	and 040h		;3280	e6 40 	. @ 
-	jr nz,$+18		;3282	20 10 	  . 
+	jr nz,3294h		;3282	20 10 	  . 
 	ld a,(hl)		;3284	7e 	~ 
 	and d			;3285	a2 	. 
-	jr z,$-25		;3286	28 e5 	( . 
+	jr z,326dh		;3286	28 e5 	( . 
 	ld a,(LNSIZE)		;3288	3a d4 e0 	: . . 
 	cp b			;328b	b8 	. 
-	jr z,$+5		;328c	28 03 	( . 
+	jr z,3291h		;328c	28 03 	( . 
 	inc b			;328e	04 	. 
-	jr $+5			;328f	18 03 	. . 
+	jr 3294h			;328f	18 03 	. . 
 	inc c			;3291	0c 	. 
 	ld b,000h		;3292	06 00 	. . 
 	ld d,b			;3294	50 	P 
 	ld e,c			;3295	59 	Y 
 	call 031fbh		;3296	cd fb 31 	. . 1 
-	jr $+105		;3299	18 67 	. g 
+	jr 3302h		;3299	18 67 	. g 
 	xor a			;329b	af 	. 
 	or c			;329c	b1 	. 
-	jr z,$+97		;329d	28 5f 	( _ 
+	jr z,32feh		;329d	28 5f 	( _ 
 	dec c			;329f	0d 	. 
 	ld e,c			;32a0	59 	Y 
 	ld a,(LNSIZE)		;32a1	3a d4 e0 	: . . 
@@ -6990,12 +6990,12 @@ TABBK:				; TAB BACKWARDS
 	ret			;32ab	c9 	.
 TABFW:				; TAB FORWARDS
 	call 0330ah		;32ac	cd 0a 33 	. . 3 
-	jr $+27			;32af	18 19 	. . 
+	jr 32cah			;32af	18 19 	. . 
 	ld a,(LNSIZE)		;32b1	3a d4 e0 	: . . 
 	cp b			;32b4	b8 	. 
-	jr nz,$+7		;32b5	20 05 	  . 
+	jr nz,32bch		;32b5	20 05 	  . 
 	call 032edh		;32b7	cd ed 32 	. . 2 
-	jr $+9			;32ba	18 07 	. . 
+	jr 32c3h			;32ba	18 07 	. . 
 	inc b			;32bc	04 	. 
 	inc hl			;32bd	23 	# 
 	inc hl			;32be	23 	# 
@@ -7003,15 +7003,15 @@ TABFW:				; TAB FORWARDS
 	inc ix			;32c1	dd 23 	. # 
 	ld a,(ix+000h)		;32c3	dd 7e 00 	. ~ . 
 	and 040h		;32c6	e6 40 	. @ 
-	jr nz,$-52		;32c8	20 ca 	  . 
+	jr nz,3294h		;32c8	20 ca 	  . 
 	ld a,(hl)		;32ca	7e 	~ 
 	and d			;32cb	a2 	. 
-	jr z,$-27		;32cc	28 e3 	( . 
+	jr z,32b1h		;32cc	28 e3 	( . 
 	ld a,(LNSIZE)		;32ce	3a d4 e0 	: . . 
 	cp b			;32d1	b8 	. 
-	jr nz,$+7		;32d2	20 05 	  . 
+	jr nz,32d9h		;32d2	20 05 	  . 
 	call 032edh		;32d4	cd ed 32 	. . 2 
-	jr $+9			;32d7	18 07 	. . 
+	jr 32e0h			;32d7	18 07 	. . 
 	inc b			;32d9	04 	. 
 	inc hl			;32da	23 	# 
 	inc hl			;32db	23 	# 
@@ -7019,14 +7019,14 @@ TABFW:				; TAB FORWARDS
 	inc ix			;32de	dd 23 	. # 
 	ld a,(ix+000h)		;32e0	dd 7e 00 	. ~ . 
 	and 040h		;32e3	e6 40 	. @ 
-	jr nz,$-81		;32e5	20 ad 	  . 
+	jr nz,3294h		;32e5	20 ad 	  . 
 	ld a,(hl)		;32e7	7e 	~ 
 	and d			;32e8	a2 	. 
-	jr nz,$-27		;32e9	20 e3 	  . 
-	jr $-87			;32eb	18 a7 	. . 
+	jr nz,32ceh		;32e9	20 e3 	  . 
+	jr 3294h			;32eb	18 a7 	. . 
 	ld a,(LASTLN)		;32ed	3a cd e0 	: . . 
 	cp c			;32f0	b9 	. 
-	jr z,$+13		;32f1	28 0b 	( . 
+	jr z,32feh		;32f1	28 0b 	( . 
 	inc c			;32f3	0c 	. 
 	ld e,c			;32f4	59 	Y 
 	ld d,000h		;32f5	16 00 	. . 
@@ -7053,7 +7053,7 @@ TABFW:				; TAB FORWARDS
 	ld c,a			;3322	4f 	O 
 	ld a,(PROTE)		;3323	3a de e0 	: . . 
 	rra			;3326	1f 	. 
-	jr c,$+5		;3327	38 03 	8 . 
+	jr c,332ch		;3327	38 03 	8 . 
 	ld d,010h		;3329	16 10 	. . 
 	ret			;332b	c9 	. 
 	ld d,080h		;332c	16 80 	. . 
@@ -7071,12 +7071,12 @@ TABFW:				; TAB FORWARDS
 	call 03368h		;3343	cd 68 33 	. h 3 
 	inc hl			;3346	23 	# 
 	inc hl			;3347	23 	# 
-	djnz $-5		;3348	10 f9 	. . 
+	djnz 3343h		;3348	10 f9 	. . 
 	ret			;334a	c9 	.
 TABSET:				; TAB SET
 	ld a,001h		;334b	3e 01 	> . 
 	ld (TABST),a		;334d	32 ed e0 	2 . . 
-	jr $+6			;3350	18 04 	. .
+	jr 3356h			;3350	18 04 	. .
 TABCLR:				; TAB CLEAR
 	xor a			;3352	af 	. 
 	ld (TABST),a		;3353	32 ed e0 	2 . . 
@@ -7089,10 +7089,10 @@ TABCLR:				; TAB CLEAR
 	inc hl			;3361	23 	# 
 	ld a,(TABST)		;3362	3a ed e0 	: . . 
 	rra			;3365	1f 	. 
-	jr c,$+7		;3366	38 05 	8 . 
+	jr c,336dh		;3366	38 05 	8 . 
 	ld a,(hl)		;3368	7e 	~ 
 	and 0bfh		;3369	e6 bf 	. . 
-	jr $+5			;336b	18 03 	. . 
+	jr 3370h			;336b	18 03 	. . 
 	ld a,(hl)		;336d	7e 	~ 
 	or 040h			;336e	f6 40 	. @ 
 	ld (hl),a		;3370	77 	w 
@@ -9634,7 +9634,7 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	ld bc,00400h		;3dc0	01 00 04 	. . . 
 	ld a,055h		;3dc3	3e 55 	> U 
 	cpi			;3dc5	ed a1 	. . 
-	jr nz,$+62		;3dc7	20 3c 	  < 
+	jr nz,3e05h		;3dc7	20 3c 	  < 
 	jp pe,03dc3h		;3dc9	ea c3 3d 	. . = 
 	ld hl,SAVEA		;3dcc	21 e2 e0 	! . . 
 	ld a,0aah		;3dcf	3e aa 	> . 
@@ -9648,7 +9648,7 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	ld bc,00400h		;3de1	01 00 04 	. . . 
 	ld a,0aah		;3de4	3e aa 	> . 
 	cpi			;3de6	ed a1 	. . 
-	jr nz,$+29		;3de8	20 1b 	  . 
+	jr nz,3e05h		;3de8	20 1b 	  . 
 	jp pe,03de4h		;3dea	ea e4 3d 	. . = 
 	ld hl,041a2h		;3ded	21 a2 41 	! . A 
 	ld (0e10eh),hl		;3df0	22 0e e1 	" . . 
@@ -9705,14 +9705,14 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	xor b			;3e59	a8 	. 
 	rlca			;3e5a	07 	. 
 	bit 4,a			;3e5b	cb 67 	. g 
-	jr z,$+4		;3e5d	28 02 	( . 
+	jr z,3e61h		;3e5d	28 02 	( . 
 	or 001h			;3e5f	f6 01 	. . 
 	and 00fh		;3e61	e6 0f 	. . 
 	ld b,a			;3e63	47 	G 
 	inc hl			;3e64	23 	# 
 	ld a,h			;3e65	7c 	| 
 	cp d			;3e66	ba 	. 
-	jr nz,$-22		;3e67	20 e8 	  . 
+	jr nz,3e51h		;3e67	20 e8 	  . 
 	ld a,c			;3e69	79 	y 
 	and a			;3e6a	a7 	. 
 	ret z			;3e6b	c8 	. 
@@ -9724,27 +9724,27 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	ld a,055h		;3e79	3e 55 	> U 
 	ld (hl),a		;3e7b	77 	w 
 	inc hl			;3e7c	23 	# 
-	djnz $-2		;3e7d	10 fc 	. . 
+	djnz 3e7bh		;3e7d	10 fc 	. . 
 	ld hl,0ff00h		;3e7f	21 00 ff 	! . . 
 	ld b,000h		;3e82	06 00 	. . 
 	ld a,055h		;3e84	3e 55 	> U 
 	cp (hl)			;3e86	be 	. 
 	jp nz,03ea9h		;3e87	c2 a9 3e 	. . > 
 	inc hl			;3e8a	23 	# 
-	djnz $-7		;3e8b	10 f7 	. . 
+	djnz 3e84h		;3e8b	10 f7 	. . 
 	ld hl,0ff00h		;3e8d	21 00 ff 	! . . 
 	ld b,000h		;3e90	06 00 	. . 
 	ld a,0aah		;3e92	3e aa 	> . 
 	ld (hl),a		;3e94	77 	w 
 	inc hl			;3e95	23 	# 
-	djnz $-2		;3e96	10 fc 	. . 
+	djnz 3e94h		;3e96	10 fc 	. . 
 	ld hl,0ff00h		;3e98	21 00 ff 	! . . 
 	ld b,000h		;3e9b	06 00 	. . 
 	ld a,0aah		;3e9d	3e aa 	> . 
 	cp (hl)			;3e9f	be 	. 
 	jp nz,03ea9h		;3ea0	c2 a9 3e 	. . > 
 	inc hl			;3ea3	23 	# 
-	djnz $-7		;3ea4	10 f7 	. . 
+	djnz 3e9dh		;3ea4	10 f7 	. . 
 	xor a			;3ea6	af 	. 
 	jp (iy)			;3ea7	fd e9 	. . 
 	ld iy,04054h		;3ea9	fd 21 54 40 	. ! T @ 
@@ -10121,10 +10121,10 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	ld (OBYTE2),a		;403b	32 47 e0 	2 G . 
 	ld (MBYTE2),a		;403e	32 41 e0 	2 A . 
 	call 03da6h		;4041	cd a6 3d 	. . = 
-	jr nc,$+10		;4044	30 08 	0 . 
+	jr nc,404eh		;4044	30 08 	0 . 
 	ld hl,049d1h		;4046	21 d1 49 	! . I 
 	call 04702h		;4049	cd 02 47 	. . G 
-	jr $+26			;404c	18 18 	. . 
+	jr 4066h			;404c	18 18 	. . 
 	jp 03e70h		;404e	c3 70 3e 	. p > 
 	call 04144h		;4051	cd 44 41 	. D A 
 	push af			;4054	f5 	. 
@@ -10148,18 +10148,18 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	call 0429fh		;4080	cd 9f 42 	. . B 
 	ld a,(TBYTE2)		;4083	3a 61 e0 	: a . 
 	bit 2,a			;4086	cb 57 	. W 
-	jr z,$+16		;4088	28 0e 	( . 
+	jr z,4098h		;4088	28 0e 	( . 
 	ld a,028h		;408a	3e 28 	> ( 
 	out (BANKSELECT),a	;408c	d3 70 	. p 
 	ld a,(08009h)		;408e	3a 09 80 	: . . 
 	cp 0c3h			;4091	fe c3 	. . 
-	jr nz,$+5		;4093	20 03 	  . 
+	jr nz,4098h		;4093	20 03 	  . 
 	call 08009h		;4095	cd 09 80 	. . . 
 	ld a,008h		;4098	3e 08 	> . 
 	out (BANKSELECT),a	;409a	d3 70 	. p 
 	ld a,(TBYTE1)		;409c	3a 60 e0 	: ` . 
 	bit 2,a			;409f	cb 57 	. W 
-	jr z,$+31		;40a1	28 1d 	( . 
+	jr z,40c0h		;40a1	28 1d 	( . 
 	ld hl,04a04h		;40a3	21 04 4a 	! . J 
 	xor a			;40a6	af 	. 
 	out (084h),a		;40a7	d3 84 	. . 
@@ -10169,13 +10169,13 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	in a,(096h)		;40ae	db 96 	. . 
 	or c			;40b0	b1 	. 
 	bit 6,a			;40b1	cb 77 	. w 
-	jr z,$+13		;40b3	28 0b 	( . 
+	jr z,40c0h		;40b3	28 0b 	( . 
 	call 00063h		;40b5	cd 63 00 	. c . 
 	ld hl,ERRORF		;40b8	21 ff e0 	! . . 
 	set 0,(hl)		;40bb	cb c6 	. . 
 	call 04b05h		;40bd	cd 05 4b 	. . K 
 	call 046ebh		;40c0	cd eb 46 	. . F 
-	jr z,$+37		;40c3	28 23 	( # 
+	jr z,40e8h		;40c3	28 23 	( # 
 	ld hl,ERRORF		;40c5	21 ff e0 	! . . 
 	set 0,(hl)		;40c8	cb c6 	. . 
 	call 04b05h		;40ca	cd 05 4b 	. . K 
@@ -10191,15 +10191,15 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	call 00063h		;40e5	cd 63 00 	. c . 
 	in a,(026h)		;40e8	db 26 	. & 
 	and 040h		;40ea	e6 40 	. @ 
-	jr z,$+10		;40ec	28 08 	( . 
+	jr z,40f6h		;40ec	28 08 	( . 
 	ld a,(08003h)		;40ee	3a 03 80 	: . . 
 	cp 0c3h			;40f1	fe c3 	. . 
 	call z,08003h		;40f3	cc 03 80 	. . . 
 	ld a,(ERRORF)		;40f6	3a ff e0 	: . . 
 	bit 2,a			;40f9	cb 57 	. W 
-	jr z,$+12		;40fb	28 0a 	( . 
+	jr z,4107h		;40fb	28 0a 	( . 
 	bit 0,a			;40fd	cb 47 	. G 
-	jr nz,$+0		;40ff	20 fe 	  . 
+	jr nz,40ffh		;40ff	20 fe 	  . 
 	call 00042h		;4101	cd 42 00 	. B . 
 	jp 043d3h		;4104	c3 d3 43 	. . C 
 	call 04311h		;4107	cd 11 43 	. . C 
@@ -10240,22 +10240,22 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	ld h,0c0h		;415d	26 c0 	& . 
 	call 04165h		;415f	cd 65 41 	. e A 
 	di			;4162	f3 	. 
-	jr $+87			;4163	18 55 	. U 
+	jr 41bah			;4163	18 55 	. U 
 	ld l,000h		;4165	2e 00 	. . 
 	push hl			;4167	e5 	. 
 	ld (hl),b		;4168	70 	p 
 	inc hl			;4169	23 	# 
 	ld a,h			;416a	7c 	| 
 	cp d			;416b	ba 	. 
-	jr nz,$-4		;416c	20 fa 	  . 
+	jr nz,4168h		;416c	20 fa 	  . 
 	pop hl			;416e	e1 	. 
 	ld a,(hl)		;416f	7e 	~ 
 	cp b			;4170	b8 	. 
-	jr nz,$+49		;4171	20 2f 	  / 
+	jr nz,41a2h		;4171	20 2f 	  / 
 	inc hl			;4173	23 	# 
 	ld a,h			;4174	7c 	| 
 	cp d			;4175	ba 	. 
-	jr nz,$-7		;4176	20 f7 	  . 
+	jr nz,416fh		;4176	20 f7 	  . 
 	ret			;4178	c9 	. 
 	ld a,01eh		;4179	3e 1e 	> . 
 	out (BANKSELECT),a	;417b	d3 70 	. p 
@@ -10301,7 +10301,7 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	xor a			;41ce	af 	. 
 	ld a,(TBYTE3)		;41cf	3a 62 e0 	: b . 
 	bit 0,a			;41d2	cb 47 	. G 
-	jr z,$-28		;41d4	28 e2 	( . 
+	jr z,41b8h		;41d4	28 e2 	( . 
 	ld a,060h		;41d6	3e 60 	> ` 
 	out (030h),a		;41d8	d3 30 	. 0 
 	out (0fdh),a		;41da	d3 fd 	. . 
@@ -10321,20 +10321,20 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	ld hl,00fffh		;41f9	21 ff 0f 	! . . 
 	in a,(0fdh)		;41fc	db fd 	. . 
 	bit 0,a			;41fe	cb 47 	. G 
-	jr z,$+31		;4200	28 1d 	( . 
+	jr z,421fh		;4200	28 1d 	( . 
 	in a,(0fdh)		;4202	db fd 	. . 
 	bit 0,a			;4204	cb 47 	. G 
-	jr z,$+9		;4206	28 07 	( . 
+	jr z,420fh		;4206	28 07 	( . 
 	call 04725h		;4208	cd 25 47 	. % G 
-	jr nz,$-9		;420b	20 f5 	  . 
-	jr $+18			;420d	18 10 	. . 
+	jr nz,4202h		;420b	20 f5 	  . 
+	jr 421fh			;420d	18 10 	. . 
 	ld hl,08000h		;420f	21 00 80 	! . . 
 	ld bc,08000h		;4212	01 00 80 	. . . 
 	xor a			;4215	af 	. 
 	cpi			;4216	ed a1 	. . 
-	jr nz,$+7		;4218	20 05 	  . 
+	jr nz,421fh		;4218	20 05 	  . 
 	jp po,04229h		;421a	e2 29 42 	. ) B 
-	jr $-7			;421d	18 f7 	. . 
+	jr 4216h			;421d	18 f7 	. . 
 	ld a,008h		;421f	3e 08 	> . 
 	out (BANKSELECT),a	;4221	d3 70 	. p 
 	ld hl,04863h		;4223	21 63 48 	! c H 
@@ -10359,7 +10359,7 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	ld (0cfe1h),a		;4251	32 e1 cf 	2 . . 
 	ld a,(0cffch)		;4254	3a fc cf 	: . . 
 	and a			;4257	a7 	. 
-	jr z,$+24		;4258	28 16 	( . 
+	jr z,4270h		;4258	28 16 	( . 
 	ld hl,0486dh		;425a	21 6d 48 	! m H 
 	call 04702h		;425d	cd 02 47 	. . G 
 	ld hl,0cfe3h		;4260	21 e3 cf 	! . . 
@@ -10371,7 +10371,7 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	pop hl			;426b	e1 	. 
 	dec hl			;426c	2b 	+ 
 	pop bc			;426d	c1 	. 
-	djnz $-9		;426e	10 f5 	. . 
+	djnz 4265h		;426e	10 f5 	. . 
 	ld hl,04000h		;4270	21 00 40 	! . @ 
 	ld d,041h		;4273	16 41 	. A 
 	call 03e0ch		;4275	cd 0c 3e 	. . > 
@@ -10424,7 +10424,7 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	ret z			;42e8	c8 	. 
 	inc de			;42e9	13 	. 
 	bit 7,d			;42ea	cb 7a 	. z 
-	jr z,$-9		;42ec	28 f5 	( . 
+	jr z,42e3h		;42ec	28 f5 	( . 
 	ret			;42ee	c9 	. 
 	push af			;42ef	f5 	. 
 	ld a,033h		;42f0	3e 33 	> 3 
@@ -10453,7 +10453,7 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	out (024h),a		;4320	d3 24 	. $ 
 	ld hl,04fffh		;4322	21 ff 4f 	! . O 
 	call 04725h		;4325	cd 25 47 	. % G 
-	jr nz,$-3		;4328	20 fb 	  . 
+	jr nz,4325h		;4328	20 fb 	  . 
 	ret			;432a	c9 	. 
 	di			;432b	f3 	. 
 	ld a,004h		;432c	3e 04 	> . 
@@ -10467,7 +10467,7 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	call 043b4h		;433b	cd b4 43 	. . C 
 	ld a,b			;433e	78 	x 
 	cp 055h			;433f	fe 55 	. U 
-	jr nz,$+125		;4341	20 7b 	  { 
+	jr nz,43beh		;4341	20 7b 	  { 
 	ld a,00ah		;4343	3e 0a 	> . 
 	out (0abh),a		;4345	d3 ab 	. . 
 	ld a,0aah		;4347	3e aa 	> . 
@@ -10477,10 +10477,10 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	call 043b4h		;434e	cd b4 43 	. . C 
 	ld a,b			;4351	78 	x 
 	xor 0aah		;4352	ee aa 	. . 
-	jr nz,$+106		;4354	20 68 	  h 
+	jr nz,43beh		;4354	20 68 	  h 
 	ld a,e			;4356	7b 	{ 
 	bit 1,a			;4357	cb 4f 	. O 
-	jr z,$+101		;4359	28 63 	( c 
+	jr z,43beh		;4359	28 63 	( c 
 	ld a,002h		;435b	3e 02 	> . 
 	out (0abh),a		;435d	d3 ab 	. . 
 	ret			;435f	c9 	. 
@@ -10489,40 +10489,40 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	ld a,008h		;4363	3e 08 	> . 
 	out (0afh),a		;4365	d3 af 	. . 
 	dec b			;4367	05 	. 
-	jr z,$+86		;4368	28 54 	( T 
+	jr z,43beh		;4368	28 54 	( T 
 	call 04bc8h		;436a	cd c8 4b 	. . K 
 	call 043b1h		;436d	cd b1 43 	. . C 
 	xor 048h		;4370	ee 48 	. H 
-	jr nz,$-11		;4372	20 f3 	  . 
+	jr nz,4367h		;4372	20 f3 	  . 
 	ld a,0f7h		;4374	3e f7 	> . 
 	out (0afh),a		;4376	d3 af 	. . 
 	ld de,0ffffh		;4378	11 ff ff 	. . . 
 	dec de			;437b	1b 	. 
 	ld a,d			;437c	7a 	z 
 	or e			;437d	b3 	. 
-	jr z,$+64		;437e	28 3e 	( > 
+	jr z,43beh		;437e	28 3e 	( > 
 	call 04bc8h		;4380	cd c8 4b 	. . K 
 	call 043b1h		;4383	cd b1 43 	. . C 
 	cp 040h			;4386	fe 40 	. @ 
-	jr nz,$-13		;4388	20 f1 	  . 
+	jr nz,437bh		;4388	20 f1 	  . 
 	ld b,a			;438a	47 	G 
 	ld a,004h		;438b	3e 04 	> . 
 	out (0afh),a		;438d	d3 af 	. . 
 	dec b			;438f	05 	. 
-	jr z,$+46		;4390	28 2c 	( , 
+	jr z,43beh		;4390	28 2c 	( , 
 	call 04bc8h		;4392	cd c8 4b 	. . K 
 	call 043b1h		;4395	cd b1 43 	. . C 
 	xor 048h		;4398	ee 48 	. H 
-	jr nz,$-11		;439a	20 f3 	  . 
+	jr nz,438fh		;439a	20 f3 	  . 
 	ld b,040h		;439c	06 40 	. @ 
 	ld a,0fbh		;439e	3e fb 	> . 
 	out (0afh),a		;43a0	d3 af 	. . 
 	dec b			;43a2	05 	. 
-	jr z,$+27		;43a3	28 19 	( . 
+	jr z,43beh		;43a3	28 19 	( . 
 	call 04bc8h		;43a5	cd c8 4b 	. . K 
 	call 043b1h		;43a8	cd b1 43 	. . C 
 	xor 04ah		;43ab	ee 4a 	. J 
-	jr nz,$-11		;43ad	20 f3 	  . 
+	jr nz,43a2h		;43ad	20 f3 	  . 
 	xor a			;43af	af 	. 
 	ret			;43b0	c9 	. 
 	in a,(0afh)		;43b1	db af 	. . 
@@ -10530,7 +10530,7 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	in a,(088h)		;43b4	db 88 	. . 
 	ld e,a			;43b6	5f 	_ 
 	bit 0,a			;43b7	cb 47 	. G 
-	jr nz,$+4		;43b9	20 02 	  . 
+	jr nz,43bdh		;43b9	20 02 	  . 
 	ld a,c			;43bb	79 	y 
 	ret			;43bc	c9 	. 
 	pop hl			;43bd	e1 	. 
@@ -10538,10 +10538,10 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	ret			;43bf	c9 	. 
 	ld a,(KBINP)		;43c0	3a c9 e0 	: . . 
 	bit 0,a			;43c3	cb 47 	. G 
-	jr z,$+14		;43c5	28 0c 	( . 
+	jr z,43d3h		;43c5	28 0c 	( . 
 	ld a,(OBYTE1)		;43c7	3a 46 e0 	: F . 
 	bit 0,a			;43ca	cb 47 	. G 
-	jr z,$+22		;43cc	28 14 	( . 
+	jr z,43e2h		;43cc	28 14 	( . 
 	ld a,004h		;43ce	3e 04 	> . 
 	ld (ERRORF),a		;43d0	32 ff e0 	2 . . 
 	di			;43d3	f3 	. 
@@ -10586,7 +10586,7 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	ld a,033h		;4421	3e 33 	> 3 
 	out (PPIC+PPIC_PORTA),a		;4423	d3 00 	. . 
 	ret			;4425	c9 	. 
-	jr nz,$+67		;4426	20 41 	  A 
+	jr nz,4469h		;4426	20 41 	  A 
 	ld h,c			;4428	61 	a 
 	add a,b			;4429	80 	. 
 	and b			;442a	a0 	. 
@@ -10600,7 +10600,7 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	call 0001eh		;443a	cd 1e 00 	. . . 
 	ld a,(TBYTE3)		;443d	3a 62 e0 	: b . 
 	bit 0,a			;4440	cb 47 	. G 
-	jr z,$+47		;4442	28 2d 	( - 
+	jr z,4471h		;4442	28 2d 	( - 
 	call 04518h		;4444	cd 18 45 	. . E 
 	ei			;4447	fb 	. 
 	ld a,040h		;4448	3e 40 	> @ 
@@ -10615,10 +10615,10 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	out (0fch),a		;445b	d3 fc 	. . 
 	out (0feh),a		;445d	d3 fe 	. . 
 	call 045f6h		;445f	cd f6 45 	. . E 
-	jr nz,$+9		;4462	20 07 	  . 
+	jr nz,446bh		;4462	20 07 	  . 
 	in a,(0feh)		;4464	db fe 	. . 
 	call 045f6h		;4466	cd f6 45 	. . E 
-	jr z,$-12		;4469	28 f2 	( . 
+	jr z,445dh		;4469	28 f2 	( . 
 	out (0ffh),a		;446b	d3 ff 	. . 
 	ld a,0c0h		;446d	3e c0 	> . 
 	out (030h),a		;446f	d3 30 	. 0 
@@ -10650,7 +10650,7 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	call 04736h		;44ae	cd 36 47 	. 6 G 
 	call 00054h		;44b1	cd 54 00 	. T . 
 	pop bc			;44b4	c1 	. 
-	djnz $-8		;44b5	10 f6 	. . 
+	djnz 44adh		;44b5	10 f6 	. . 
 	call 0007eh		;44b7	cd 7e 00 	. ~ . 
 	call 00054h		;44ba	cd 54 00 	. T . 
 	call 046c5h		;44bd	cd c5 46 	. . F 
@@ -10665,7 +10665,7 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	inc hl			;44ce	23 	# 
 	pop de			;44cf	d1 	. 
 	dec e			;44d0	1d 	. 
-	jr nz,$-10		;44d1	20 f4 	  . 
+	jr nz,44c7h		;44d1	20 f4 	  . 
 	ld hl,04806h		;44d3	21 06 48 	! . H 
 	call 00063h		;44d6	cd 63 00 	. c . 
 	call 046c5h		;44d9	cd c5 46 	. . F 
@@ -10685,14 +10685,14 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	cp 000h			;4500	fe 00 	. . 
 	call nz,046ach		;4502	c4 ac 46 	. . F 
 	call 046ebh		;4505	cd eb 46 	. . F 
-	jr nz,$+26		;4508	20 18 	  . 
+	jr nz,4522h		;4508	20 18 	  . 
 	pop hl			;450a	e1 	. 
 	call 04725h		;450b	cd 25 47 	. % G 
-	jr nz,$-18		;450e	20 ec 	  . 
+	jr nz,44fch		;450e	20 ec 	  . 
 	ld a,(0cff3h)		;4510	3a f3 cf 	: . . 
 	out (050h),a		;4513	d3 50 	. P 
 	rlca			;4515	07 	. 
-	jr $-32			;4516	18 de 	. . 
+	jr 44f6h			;4516	18 de 	. . 
 	ld a,05fh		;4518	3e 5f 	> _ 
 	out (013h),a		;451a	d3 13 	. . 
 	xor a			;451c	af 	. 
@@ -10709,17 +10709,17 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	call nz,04702h		;4536	c4 02 47 	. . G 
 	ld a,(TBYTE1)		;4539	3a 60 e0 	: ` . 
 	bit 3,a			;453c	cb 5f 	. _ 
-	jr z,$+7		;453e	28 05 	( . 
+	jr z,4545h		;453e	28 05 	( . 
 	call 0432bh		;4540	cd 2b 43 	. + C 
-	jr $+12			;4543	18 0a 	. . 
+	jr 454fh			;4543	18 0a 	. . 
 	ld a,(TBYTE2)		;4545	3a 61 e0 	: a . 
 	bit 0,a			;4548	cb 47 	. G 
-	jr z,$+18		;454a	28 10 	( . 
+	jr z,455ch		;454a	28 10 	( . 
 	call 04360h		;454c	cd 60 43 	. ` C 
 	ld hl,04932h		;454f	21 32 49 	! 2 I 
-	jr nc,$+7		;4552	30 05 	0 . 
+	jr nc,4559h		;4552	30 05 	0 . 
 	call 0470dh		;4554	cd 0d 47 	. . G 
-	jr $+5			;4557	18 03 	. . 
+	jr 455ch			;4557	18 03 	. . 
 	call 00063h		;4559	cd 63 00 	. c . 
 	call 04750h		;455c	cd 50 47 	. P G 
 	call 047c6h		;455f	cd c6 47 	. . G 
@@ -10733,7 +10733,7 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	call 045e5h		;4573	cd e5 45 	. . E 
 	ld a,(TBYTE1)		;4576	3a 60 e0 	: ` . 
 	bit 2,a			;4579	cb 57 	. W 
-	jr z,$+22		;457b	28 14 	( . 
+	jr z,4591h		;457b	28 14 	( . 
 	ld hl,0491ah		;457d	21 1a 49 	! . I 
 	ld c,086h		;4580	0e 86 	. . 
 	ld b,040h		;4582	06 40 	. @ 
@@ -10757,7 +10757,7 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	call nz,0470dh		;45af	c4 0d 47 	. . G 
 	ld a,(TBYTE1)		;45b2	3a 60 e0 	: ` . 
 	bit 2,a			;45b5	cb 57 	. W 
-	jr z,$+29		;45b7	28 1b 	( . 
+	jr z,45d4h		;45b7	28 1b 	( . 
 	ld a,0b0h		;45b9	3e b0 	> . 
 	ld (0cff3h),a		;45bb	32 f3 cf 	2 . . 
 	ld c,080h		;45be	0e 80 	. . 
@@ -10770,7 +10770,7 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	call nz,0470dh		;45d1	c4 0d 47 	. . G 
 	call 046ebh		;45d4	cd eb 46 	. . F 
 	jp z,0442dh		;45d7	ca 2d 44 	. - D 
-	jr $-73			;45da	18 b5 	. . 
+	jr 4591h			;45da	18 b5 	. . 
 	out (024h),a		;45dc	d3 24 	. $ 
 	out (044h),a		;45de	d3 44 	. D 
 	out (094h),a		;45e0	d3 94 	. . 
@@ -10788,7 +10788,7 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	ret z			;45fc	c8 	. 
 	ld a,(KBCNT)		;45fd	3a 89 e0 	: . . 
 	bit 1,a			;4600	cb 4f 	. O 
-	jr z,$-9		;4602	28 f5 	( . 
+	jr z,45f9h		;4602	28 f5 	( . 
 	ret			;4604	c9 	. 
 	ld a,c			;4605	79 	y 
 	ld (CHRCNT),a		;4606	32 b1 e0 	2 . . 
@@ -10823,11 +10823,11 @@ VFYCOM:				; Verify COMM
 	ld c,a			;4638 C now points to LSR
 	ld hl,07fffh		;4639
 	call 04725h		;463c
-	jr z,$+92		;463f	28 5a 	( Z 
+	jr z,469bh		;463f	28 5a 	( Z 
 	in a,(c)		;4641	ed 78 	. x 
 	and 060h		;4643	e6 60 	. ` 
 	cp 060h			;4645	fe 60 	. ` 
-	jr nz,$-11		;4647	20 f3 	  . 
+	jr nz,463ch		;4647	20 f3 	  . 
 	ld a,006h		;4649	3e 06 	> . 
 	add a,b			;464b	80 	. 
 	ld c,a			;464c	4f 	O 
@@ -10836,44 +10836,44 @@ VFYCOM:				; Verify COMM
 	ld l,a			;4651	6f 	o 
 	ld a,(0cff3h)		;4652	3a f3 cf 	: . . 
 	cp l			;4655	bd 	. 
-	jr z,$+7		;4656	28 05 	( . 
+	jr z,465dh		;4656	28 05 	( . 
 	ld a,b			;4658	78 	x 
 	cp 020h			;4659	fe 20 	.   
-	jr nz,$+64		;465b	20 3e 	  > 
+	jr nz,469bh		;465b	20 3e 	  > 
 	ld c,b			;465d	48 	H 
 	out (c),d		;465e	ed 51 	. Q 
 	ld hl,07fffh		;4660	21 ff 7f 	! .  
 	call 04725h		;4663	cd 25 47 	. % G 
-	jr z,$+53		;4666	28 33 	( 3 
+	jr z,469bh		;4666	28 33 	( 3 
 	ld a,(0cfe5h)		;4668	3a e5 cf 	: . . 
 	xor 0aah		;466b	ee aa 	. . 
-	jr nz,$-10		;466d	20 f4 	  . 
+	jr nz,4663h		;466d	20 f4 	  . 
 	ld (0cfe5h),a		;466f	32 e5 cf 	2 . . 
 	ld a,002h		;4672	3e 02 	> . 
 	add a,b			;4674	80 	. 
 	ld c,a			;4675	4f 	O 
 	in a,(c)		;4676	ed 78 	. x 
 	and 006h		;4678	e6 06 	. . 
-	jr z,$+33		;467a	28 1f 	( . 
+	jr z,469bh		;467a	28 1f 	( . 
 	ld a,005h		;467c	3e 05 	> . 
 	add a,b			;467e	80 	. 
 	ld c,a			;467f	4f 	O 
 	in a,(c)		;4680	ed 78 	. x 
 	bit 0,a			;4682	cb 47 	. G 
-	jr z,$+23		;4684	28 15 	( . 
+	jr z,469bh		;4684	28 15 	( . 
 	and 01eh		;4686	e6 1e 	. . 
 	and a			;4688	a7 	. 
-	jr nz,$+18		;4689	20 10 	  . 
+	jr nz,469bh		;4689	20 10 	  . 
 	ld c,b			;468b	48 	H 
 	in a,(c)		;468c	ed 78 	. x 
 	and 07fh		;468e	e6 7f 	.  
 	xor d			;4690	aa 	. 
 	ei			;4691	fb 	. 
-	jr nz,$+9		;4692	20 07 	  . 
+	jr nz,469bh		;4692	20 07 	  . 
 	inc d			;4694	14 	. 
 	bit 7,d			;4695	cb 7a 	. z 
-	jr nz,$+10		;4697	20 08 	  . 
-	jr $-100		;4699	18 9a 	. . 
+	jr nz,46a1h		;4697	20 08 	  . 
+	jr 4635h		;4699	18 9a 	. . 
 	ld c,b			;469b	48 	H 
 	in a,(c)		;469c	ed 78 	. x 
 	ei			;469e	fb 	. 
@@ -10897,7 +10897,7 @@ VFYCOM:				; Verify COMM
 	inc b			;46c0	04 	. 
 	ld a,b			;46c1	78 	x 
 	cp c			;46c2	b9 	. 
-	jr nz,$-8		;46c3	20 f6 	  . 
+	jr nz,46bbh		;46c3	20 f6 	  . 
 	ld a,(LNCNT)		;46c5	3a d1 e0 	: . . 
 	add a,002h		;46c8	c6 02 	. . 
 	ld (LNCNT),a		;46ca	32 d1 e0 	2 . . 
@@ -10957,7 +10957,7 @@ VFYCOM:				; Verify COMM
 	call 0005ah		;472e	cd 5a 00 	. Z . 
 	pop de			;4731	d1 	. 
 	dec d			;4732	15 	. 
-	jr nz,$-8		;4733	20 f6 	  . 
+	jr nz,472bh		;4733	20 f6 	  . 
 	ret			;4735	c9 	. 
 	ld a,003h		;4736	3e 03 	> . 
 	ld (CHRCNT),a		;4738	32 b1 e0 	2 . . 
@@ -11006,7 +11006,7 @@ VFYCOM:				; Verify COMM
 	out (094h),a		;479b	d3 94 	. . 
 	ld hl,07fffh		;479d	21 ff 7f 	! .  
 	call 04725h		;47a0	cd 25 47 	. % G 
-	jr nz,$-3		;47a3	20 fb 	  . 
+	jr nz,47a0h		;47a3	20 fb 	  . 
 	ld (0cfe5h),a		;47a5	32 e5 cf 	2 . . 
 	in a,(045h)		;47a8	db 45 	. E 
 	in a,(040h)		;47aa	db 40 	. @ 
@@ -11042,7 +11042,7 @@ VFYCOM:				; Verify COMM
 	ld b,004h		;47ec	06 04 	. . 
 	ld de,046a3h		;47ee	11 a3 46 	. . F 
 	call 0001eh		;47f1	cd 1e 00 	. . . 
-	jr $-93			;47f4	18 a1 	. . 
+	jr 4797h			;47f4	18 a1 	. . 
 	push af			;47f6	f5 	. 
 	exx			;47f7	d9 	. 
 	call 0009fh		;47f8	cd 9f 00 	. . . 
@@ -11188,7 +11188,7 @@ VFYCOM:				; Verify COMM
 	call 03e17h		;4a44	cd 17 3e 	. . > 
 	ld a,(MBYTE1)		;4a47	3a 40 e0 	: @ . 
 	bit 2,a			;4a4a	cb 57 	. W 
-	jr z,$+72		;4a4c	28 46 	( F 
+	jr z,4a94h		;4a4c	28 46 	( F 
 	xor a			;4a4e	af 	. 
 	ld (0cffdh),a		;4a4f	32 fd cf 	2 . . 
 	ld c,004h		;4a52	0e 04 	. . 
@@ -11199,29 +11199,29 @@ VFYCOM:				; Verify COMM
 	ld hl,04948h		;4a5d	21 48 49 	! H I 
 	call 04cbah		;4a60	cd ba 4c 	. . L 
 	call 04f72h		;4a63	cd 72 4f 	. r O 
-	jr c,$+26		;4a66	38 18 	8 . 
+	jr c,4a80h		;4a66	38 18 	8 . 
 	ld hl,0cffdh		;4a68	21 fd cf 	! . . 
 	ld a,(hl)		;4a6b	7e 	~ 
 	ld (hl),000h		;4a6c	36 00 	6 . 
 	cp 063h			;4a6e	fe 63 	. c 
-	jr z,$+84		;4a70	28 52 	( R 
+	jr z,4ac4h		;4a70	28 52 	( R 
 	cp 073h			;4a72	fe 73 	. s 
 	jp z,04bdch		;4a74	ca dc 4b 	. . K 
 	cp 093h			;4a77	fe 93 	. . 
-	jr z,$+31		;4a79	28 1d 	( . 
+	jr z,4a98h		;4a79	28 1d 	( . 
 	call 0007eh		;4a7b	cd 7e 00 	. ~ . 
-	jr $-27			;4a7e	18 e3 	. . 
+	jr 4a63h			;4a7e	18 e3 	. . 
 	cp 064h			;4a80	fe 64 	. d 
-	jr z,$+66		;4a82	28 40 	( @ 
+	jr z,4ac4h		;4a82	28 40 	( @ 
 	cp 072h			;4a84	fe 72 	. r 
-	jr z,$+18		;4a86	28 10 	( . 
+	jr z,4a98h		;4a86	28 10 	( . 
 	cp 068h			;4a88	fe 68 	. h 
 	jp z,04bdch		;4a8a	ca dc 4b 	. . K 
 	cp 0e3h			;4a8d	fe e3 	. . 
-	jr nz,$-44		;4a8f	20 d2 	  . 
+	jr nz,4a63h		;4a8f	20 d2 	  . 
 	ld a,(MBYTE1)		;4a91	3a 40 e0 	: @ . 
 	bit 3,a			;4a94	cb 5f 	. _ 
-	jr nz,$+39		;4a96	20 25 	  % 
+	jr nz,4abdh		;4a96	20 25 	  % 
 	ld a,(MBYTE6)		;4a98	3a 45 e0 	: E . 
 	bit 3,a			;4a9b	cb 5f 	. _ 
 	call z,04fe7h		;4a9d	cc e7 4f 	. . O 
@@ -11238,21 +11238,21 @@ VFYCOM:				; Verify COMM
 	jp 08000h		;4aba	c3 00 80 	. . . 
 	ld a,(MBYTE2)		;4abd	3a 41 e0 	: A . 
 	bit 0,a			;4ac0	cb 47 	. G 
-	jr z,$+20		;4ac2	28 12 	( . 
+	jr z,4ad6h		;4ac2	28 12 	( . 
 	ld a,(TBYTE2)		;4ac4	3a 61 e0 	: a . 
 	bit 0,a			;4ac7	cb 47 	. G 
 	jp z,00072h		;4ac9	ca 72 00 	. r . 
 	ld ix,00000h		;4acc	dd 21 00 00 	. ! . . 
 	ld iy,00072h		;4ad0	fd 21 72 00 	. ! r . 
-	jr $+66			;4ad4	18 40 	. @ 
+	jr 4b16h			;4ad4	18 40 	. @ 
 	jp 04bdch		;4ad6	c3 dc 4b 	. . K 
 	ld a,(MBYTE2)		;4ad9	3a 41 e0 	: A . 
 	and 002h		;4adc	e6 02 	. . 
-	jr nz,$+4		;4ade	20 02 	  . 
+	jr nz,4ae2h		;4ade	20 02 	  . 
 	jp (ix)			;4ae0	dd e9 	. . 
 	ld a,(TBYTE2)		;4ae2	3a 61 e0 	: a . 
 	and 004h		;4ae5	e6 04 	. . 
-	jr nz,$+4		;4ae7	20 02 	  . 
+	jr nz,4aebh		;4ae7	20 02 	  . 
 	jp (ix)			;4ae9	dd e9 	. . 
 	ld a,028h		;4aeb	3e 28 	> ( 
 	out (BANKSELECT),a	;4aed	d3 70 	. p 
@@ -11269,7 +11269,7 @@ VFYCOM:				; Verify COMM
 	ret			;4b04	c9 	. 
 	ld a,(LIGHTS)		;4b05	3a ce e0 	: . . 
 	or 001h			;4b08	f6 01 	. . 
-	jr $-12			;4b0a	18 f2 	. . 
+	jr 4afeh			;4b0a	18 f2 	. . 
 	ld a,(0e0fch)		;4b0c	3a fc e0 	: . . 
 	and 0f8h		;4b0f	e6 f8 	. . 
 	or b			;4b11	b0 	. 
@@ -11284,30 +11284,30 @@ VFYCOM:				; Verify COMM
 	in a,(0afh)		;4b23	db af 	. . 
 	pop hl			;4b25	e1 	. 
 	xor 040h		;4b26	ee 40 	. @ 
-	jr z,$+10		;4b28	28 08 	( . 
+	jr z,4b32h		;4b28	28 08 	( . 
 	dec hl			;4b2a	2b 	+ 
 	ld a,h			;4b2b	7c 	| 
 	or l			;4b2c	b5 	. 
-	jr nz,$-14		;4b2d	20 f0 	  . 
+	jr nz,4b1fh		;4b2d	20 f0 	  . 
 	jp 04bb2h		;4b2f	c3 b2 4b 	. . K 
 	ld b,040h		;4b32	06 40 	. @ 
 	ld a,00eh		;4b34	3e 0e 	> . 
 	out (0afh),a		;4b36	d3 af 	. . 
 	dec b			;4b38	05 	. 
-	jr z,$+114		;4b39	28 70 	( p 
+	jr z,4babh		;4b39	28 70 	( p 
 	call 04bc8h		;4b3b	cd c8 4b 	. . K 
 	in a,(0afh)		;4b3e	db af 	. . 
 	xor 048h		;4b40	ee 48 	. H 
-	jr nz,$-10		;4b42	20 f4 	  . 
+	jr nz,4b38h		;4b42	20 f4 	  . 
 	ld a,0f1h		;4b44	3e f1 	> . 
 	out (0afh),a		;4b46	d3 af 	. . 
 	ld b,040h		;4b48	06 40 	. @ 
 	dec b			;4b4a	05 	. 
-	jr z,$+96		;4b4b	28 5e 	( ^ 
+	jr z,4babh		;4b4b	28 5e 	( ^ 
 	call 04bc8h		;4b4d	cd c8 4b 	. . K 
 	in a,(0afh)		;4b50	db af 	. . 
 	xor 04ah		;4b52	ee 4a 	. J 
-	jr nz,$-10		;4b54	20 f4 	  . 
+	jr nz,4b4ah		;4b54	20 f4 	  . 
 	call 04af9h		;4b56	cd f9 4a 	. . J 
 	in a,(0aeh)		;4b59	db ae 	. . 
 	nop			;4b5b	00 	. 
@@ -11340,13 +11340,13 @@ VFYCOM:				; Verify COMM
 	dec bc			;4b80	0b 	. 
 	ld a,b			;4b81	78 	x 
 	or c			;4b82	b1 	. 
-	jr nz,$-18		;4b83	20 ec 	  . 
+	jr nz,4b71h		;4b83	20 ec 	  . 
 	in a,(0aeh)		;4b85	db ae 	. . 
 	xor l			;4b87	ad 	. 
-	jr nz,$+35		;4b88	20 21 	  ! 
+	jr nz,4babh		;4b88	20 21 	  ! 
 	in a,(0aeh)		;4b8a	db ae 	. . 
 	xor h			;4b8c	ac 	. 
-	jr nz,$+30		;4b8d	20 1c 	  . 
+	jr nz,4babh		;4b8d	20 1c 	  . 
 	ld b,002h		;4b8f	06 02 	. . 
 	call 04b0ch		;4b91	cd 0c 4b 	. . K 
 	call 04fe7h		;4b94	cd e7 4f 	. . O 
@@ -11355,7 +11355,7 @@ VFYCOM:				; Verify COMM
 	pop hl			;4b9b	e1 	. 
 	ld a,h			;4b9c	7c 	| 
 	or l			;4b9d	b5 	. 
-	jr z,$+6		;4b9e	28 04 	( . 
+	jr z,4ba4h		;4b9e	28 04 	( . 
 	exx			;4ba0	d9 	. 
 	jp 03d9dh		;4ba1	c3 9d 3d 	. . = 
 	exx			;4ba4	d9 	. 
@@ -11377,7 +11377,7 @@ VFYCOM:				; Verify COMM
 	dec hl			;4bcb	2b 	+ 
 	ld a,h			;4bcc	7c 	| 
 	or l			;4bcd	b5 	. 
-	jr nz,$-3		;4bce	20 fb 	  . 
+	jr nz,4bcbh		;4bce	20 fb 	  . 
 	ret			;4bd0	c9 	. 
 	call z,00000h		;4bd1	cc 00 00 	. . . 
 	adc a,l			;4bd4	8d 	. 
@@ -11416,26 +11416,26 @@ VFYCOM:				; Verify COMM
 	ld (FILEN),a		;4c17	32 fd e0 	2 . . 
 	ld a,(MBYTE1)		;4c1a	3a 40 e0 	: @ . 
 	bit 2,a			;4c1d	cb 57 	. W 
-	jr z,$+8		;4c1f	28 06 	( . 
+	jr z,4c27h		;4c1f	28 06 	( . 
 	call 04f85h		;4c21	cd 85 4f 	. . O 
 	call 00042h		;4c24	cd 42 00 	. B . 
 	ld b,014h		;4c27	06 14 	. . 
 	ld de,0ffffh		;4c29	11 ff ff 	. . . 
 	ld a,(MBYTE4)		;4c2c	3a 43 e0 	: C . 
 	and 008h		;4c2f	e6 08 	. . 
-	jr nz,$+27		;4c31	20 19 	  . 
+	jr nz,4c4ch		;4c31	20 19 	  . 
 	call 04f31h		;4c33	cd 31 4f 	. 1 O 
 	and 080h		;4c36	e6 80 	. . 
-	jr nz,$+20		;4c38	20 12 	  . 
+	jr nz,4c4ch		;4c38	20 12 	  . 
 	dec de			;4c3a	1b 	. 
 	ld a,d			;4c3b	7a 	z 
 	or e			;4c3c	b3 	. 
-	jr nz,$-17		;4c3d	20 ed 	  . 
+	jr nz,4c2ch		;4c3d	20 ed 	  . 
 	push bc			;4c3f	c5 	. 
 	ld hl,049b2h		;4c40	21 b2 49 	! . I 
 	call 04cbah		;4c43	cd ba 4c 	. . L 
 	pop bc			;4c46	c1 	. 
-	djnz $-30		;4c47	10 e0 	. . 
+	djnz 4c29h		;4c47	10 e0 	. . 
 	jp 04cc5h		;4c49	c3 c5 4c 	. . L 
 	call 04f31h		;4c4c	cd 31 4f 	. 1 O 
 	and 020h		;4c4f	e6 20 	.   
@@ -11471,15 +11471,15 @@ VFYCOM:				; Verify COMM
 	ld ix,04c9fh		;4c94	dd 21 9f 4c 	. ! . L 
 	call 04ecbh		;4c98	cd cb 4e 	. . N 
 	cp 0afh			;4c9b	fe af 	. . 
-	jr nz,$-5		;4c9d	20 f9 	  . 
+	jr nz,4c98h		;4c9d	20 f9 	  . 
 	ld a,002h		;4c9f	3e 02 	> . 
 	ld (0d90bh),a		;4ca1	32 0b d9 	2 . . 
 	ld ix,04cebh		;4ca4	dd 21 eb 4c 	. ! . L 
-	jr $+70			;4ca8	18 44 	. D 
+	jr 4ceeh			;4ca8	18 44 	. D 
 	call 04b05h		;4caa	cd 05 4b 	. . K 
 	ld a,(0d90bh)		;4cad	3a 0b d9 	: . . 
 	or a			;4cb0	b7 	. 
-	jr z,$+20		;4cb1	28 12 	( . 
+	jr z,4cc5h		;4cb1	28 12 	( . 
 	dec a			;4cb3	3d 	= 
 	ld (0d90bh),a		;4cb4	32 0b d9 	2 . . 
 	ld hl,0499eh		;4cb7	21 9e 49 	! . I 
@@ -11503,7 +11503,7 @@ VFYCOM:				; Verify COMM
 	jp 03d94h		;4ce8	c3 94 3d 	. . = 
 	call 04caah		;4ceb	cd aa 4c 	. . L 
 	call 04e9ch		;4cee	cd 9c 4e 	. . N 
-	jr nc,$-44		;4cf1	30 d2 	0 . 
+	jr nc,4cc5h		;4cf1	30 d2 	0 . 
 	ld hl,0498dh		;4cf3	21 8d 49 	! . I 
 	call 04cbah		;4cf6	cd ba 4c 	. . L 
 	ld a,(0d902h)		;4cf9	3a 02 d9 	: . . 
@@ -11522,11 +11522,11 @@ VFYCOM:				; Verify COMM
 	ld (0d909h),a		;4d1d	32 09 d9 	2 . . 
 	call 04ecbh		;4d20	cd cb 4e 	. . N 
 	cp 090h			;4d23	fe 90 	. . 
-	jr nz,$-5		;4d25	20 f9 	  . 
+	jr nz,4d20h		;4d25	20 f9 	  . 
 	call 04ecbh		;4d27	cd cb 4e 	. . N 
 	ld a,(0d90ch)		;4d2a	3a 0c d9 	: . . 
 	cp 082h			;4d2d	fe 82 	. . 
-	jr nz,$-12		;4d2f	20 f2 	  . 
+	jr nz,4d23h		;4d2f	20 f2 	  . 
 	call 04af9h		;4d31	cd f9 4a 	. . J 
 	ld a,001h		;4d34	3e 01 	> . 
 	ld (0d906h),a		;4d36	32 06 d9 	2 . . 
@@ -11549,38 +11549,38 @@ VFYCOM:				; Verify COMM
 	call 04ecbh		;4d65	cd cb 4e 	. . N 
 	ld c,a			;4d68	4f 	O 
 	cp 090h			;4d69	fe 90 	. . 
-	jr z,$+36		;4d6b	28 22 	( " 
+	jr z,4d8fh		;4d6b	28 22 	( " 
 	ld a,e			;4d6d	7b 	{ 
 	or a			;4d6e	b7 	. 
-	jr nz,$+43		;4d6f	20 29 	  ) 
+	jr nz,4d9ah		;4d6f	20 29 	  ) 
 	ld a,(0d916h)		;4d71	3a 16 d9 	: . . 
 	cp 000h			;4d74	fe 00 	. . 
-	jr nz,$+10		;4d76	20 08 	  . 
+	jr nz,4d80h		;4d76	20 08 	  . 
 	ld a,b			;4d78	78 	x 
 	cp 004h			;4d79	fe 04 	. . 
-	jr z,$+5		;4d7b	28 03 	( . 
+	jr z,4d80h		;4d7b	28 03 	( . 
 	ld (hl),c		;4d7d	71 	q 
-	jr $+6			;4d7e	18 04 	. . 
+	jr 4d84h			;4d7e	18 04 	. . 
 	ld a,(hl)		;4d80	7e 	~ 
 	cp c			;4d81	b9 	. 
-	jr nz,$+34		;4d82	20 20 	    
+	jr nz,4da4h		;4d82	20 20 	    
 	push de			;4d84	d5 	. 
 	call 04f3ah		;4d85	cd 3a 4f 	. : O 
 	pop de			;4d88	d1 	. 
 	dec b			;4d89	05 	. 
-	jr z,$+61		;4d8a	28 3b 	( ; 
+	jr z,4dc7h		;4d8a	28 3b 	( ; 
 	inc hl			;4d8c	23 	# 
-	jr $-40			;4d8d	18 d6 	. . 
+	jr 4d65h			;4d8d	18 d6 	. . 
 	call 04ecbh		;4d8f	cd cb 4e 	. . N 
 	ld c,a			;4d92	4f 	O 
 	cp 090h			;4d93	fe 90 	. . 
-	jr z,$-40		;4d95	28 d6 	( . 
+	jr z,4d6dh		;4d95	28 d6 	( . 
 	jp 04e05h		;4d97	c3 05 4e 	. . N 
 	ld a,(hl)		;4d9a	7e 	~ 
 	cp c			;4d9b	b9 	. 
-	jr nz,$+5		;4d9c	20 03 	  . 
+	jr nz,4da1h		;4d9c	20 03 	  . 
 	dec e			;4d9e	1d 	. 
-	jr $-27			;4d9f	18 e3 	. . 
+	jr 4d84h			;4d9f	18 e3 	. . 
 	jp nc,04d20h		;4da1	d2 20 4d 	.   M 
 	call 04b05h		;4da4	cd 05 4b 	. . K 
 	ld hl,(0d900h)		;4da7	2a 00 d9 	* . . 
@@ -11597,7 +11597,7 @@ VFYCOM:				; Verify COMM
 	call 04f13h		;4dbb	cd 13 4f 	. . O 
 	jp nc,04cc5h		;4dbe	d2 c5 4c 	. . L 
 	inc hl			;4dc1	23 	# 
-	djnz $-7		;4dc2	10 f7 	. . 
+	djnz 4dbbh		;4dc2	10 f7 	. . 
 	jp 04d20h		;4dc4	c3 20 4d 	.   M 
 	ld hl,(0d904h)		;4dc7	2a 04 d9 	* . . 
 	ld a,h			;4dca	7c 	| 
@@ -11609,14 +11609,14 @@ VFYCOM:				; Verify COMM
 	ld (0d906h),a		;4dd2	32 06 d9 	2 . . 
 	call 04ecbh		;4dd5	cd cb 4e 	. . N 
 	cp 090h			;4dd8	fe 90 	. . 
-	jr nz,$+10		;4dda	20 08 	  . 
+	jr nz,4de4h		;4dda	20 08 	  . 
 	call 04ecbh		;4ddc	cd cb 4e 	. . N 
 	cp 090h			;4ddf	fe 90 	. . 
-	jr nz,$+36		;4de1	20 22 	  " 
+	jr nz,4e05h		;4de1	20 22 	  " 
 	inc b			;4de3	04 	. 
 	ld a,b			;4de4	78 	x 
 	cp 0f0h			;4de5	fe f0 	. . 
-	jr nc,$-67		;4de7	30 bb 	0 . 
+	jr nc,4da4h		;4de7	30 bb 	0 . 
 	ld a,(0d90ch)		;4de9	3a 0c d9 	: . . 
 	ld c,a			;4dec	4f 	O 
 	call 03d7eh		;4ded	cd 7e 3d 	. ~ = 
@@ -11629,14 +11629,14 @@ VFYCOM:				; Verify COMM
 	ld a,(0d90fh)		;4dfc	3a 0f d9 	: . . 
 	inc a			;4dff	3c 	< 
 	ld (0d90fh),a		;4e00	32 0f d9 	2 . . 
-	jr $-46			;4e03	18 d0 	. . 
+	jr 4dd5h			;4e03	18 d0 	. . 
 	cp 017h			;4e05	fe 17 	. . 
-	jr z,$+18		;4e07	28 10 	( . 
+	jr z,4e19h		;4e07	28 10 	( . 
 	cp 003h			;4e09	fe 03 	. . 
-	jr z,$+9		;4e0b	28 07 	( . 
+	jr z,4e14h		;4e0b	28 07 	( . 
 	cp 082h			;4e0d	fe 82 	. . 
 	jp z,04d31h		;4e0f	ca 31 4d 	. 1 M 
-	jr $-110		;4e12	18 90 	. . 
+	jr 4da4h		;4e12	18 90 	. . 
 	ld a,001h		;4e14	3e 01 	> . 
 	ld (0d90ah),a		;4e16	32 0a d9 	2 . . 
 	call 04f3ah		;4e19	cd 3a 4f 	. : O 
@@ -11653,7 +11653,7 @@ VFYCOM:				; Verify COMM
 	jp nz,04da4h		;4e34	c2 a4 4d 	. . M 
 	ld a,(0d916h)		;4e37	3a 16 d9 	: . . 
 	or a			;4e3a	b7 	. 
-	jr nz,$+16		;4e3b	20 0e 	  . 
+	jr nz,4e4bh		;4e3b	20 0e 	  . 
 	ld hl,(0d904h)		;4e3d	2a 04 d9 	* . . 
 	ld a,h			;4e40	7c 	| 
 	ld h,l			;4e41	65 	e 
@@ -11665,13 +11665,13 @@ VFYCOM:				; Verify COMM
 	ld hl,0d905h		;4e4e	21 05 d9 	! . . 
 	add a,(hl)		;4e51	86 	. 
 	ld (hl),a		;4e52	77 	w 
-	jr nc,$+4		;4e53	30 02 	0 . 
+	jr nc,4e57h		;4e53	30 02 	0 . 
 	dec hl			;4e55	2b 	+ 
 	inc (hl)		;4e56	34 	4 
 	ld hl,0d901h		;4e57	21 01 d9 	! . . 
 	inc (hl)		;4e5a	34 	4 
 	dec hl			;4e5b	2b 	+ 
-	jr nz,$+3		;4e5c	20 01 	  . 
+	jr nz,4e5fh		;4e5c	20 01 	  . 
 	inc (hl)		;4e5e	34 	4 
 	ld a,(0d910h)		;4e5f	3a 10 d9 	: . . 
 	ld hl,0d911h		;4e62	21 11 d9 	! . . 
@@ -11688,18 +11688,18 @@ VFYCOM:				; Verify COMM
 	call 04f13h		;4e7c	cd 13 4f 	. . O 
 	jp nc,04cc5h		;4e7f	d2 c5 4c 	. . L 
 	inc hl			;4e82	23 	# 
-	djnz $-7		;4e83	10 f7 	. . 
+	djnz 4e7ch		;4e83	10 f7 	. . 
 	ld a,078h		;4e85	3e 78 	> x 
 	ld (0d909h),a		;4e87	32 09 d9 	2 . . 
 	call 04ecbh		;4e8a	cd cb 4e 	. . N 
 	cp 0afh			;4e8d	fe af 	. . 
-	jr nz,$-5		;4e8f	20 f9 	  . 
+	jr nz,4e8ah		;4e8f	20 f9 	  . 
 	ld a,(0d911h)		;4e91	3a 11 d9 	: . . 
 	ld c,a			;4e94	4f 	O 
 	or a			;4e95	b7 	. 
 	ret			;4e96	c9 	. 
 	call 04caah		;4e97	cd aa 4c 	. . L 
-	jr $-35			;4e9a	18 db 	. . 
+	jr 4e77h			;4e9a	18 db 	. . 
 	ld hl,0d91eh		;4e9c	21 1e d9 	! . . 
 	ld a,(0d902h)		;4e9f	3a 02 d9 	: . . 
 	ld c,a			;4ea2	4f 	O 
@@ -11715,7 +11715,7 @@ VFYCOM:				; Verify COMM
 	call 04f13h		;4eb3	cd 13 4f 	. . O 
 	ret nc			;4eb6	d0 	. 
 	inc hl			;4eb7	23 	# 
-	djnz $-5		;4eb8	10 f9 	. . 
+	djnz 4eb3h		;4eb8	10 f9 	. . 
 	ret			;4eba	c9 	. 
 	and 00fh		;4ebb	e6 0f 	. . 
 	add a,090h		;4ebd	c6 90 	. . 
@@ -11734,15 +11734,15 @@ VFYCOM:				; Verify COMM
 	or h			;4ed1	b4 	. 
 	dec hl			;4ed2	2b 	+ 
 	ld (0d907h),hl		;4ed3	22 07 d9 	" . . 
-	jr nz,$+26		;4ed6	20 18 	  . 
+	jr nz,4ef0h		;4ed6	20 18 	  . 
 	ld hl,019c8h		;4ed8	21 c8 19 	! . . 
 	ld (0d907h),hl		;4edb	22 07 d9 	" . . 
 	ld hl,0d909h		;4ede	21 09 d9 	! . . 
 	ld a,(hl)		;4ee1	7e 	~ 
 	or a			;4ee2	b7 	. 
-	jr z,$+13		;4ee3	28 0b 	( . 
+	jr z,4ef0h		;4ee3	28 0b 	( . 
 	dec (hl)		;4ee5	35 	5 
-	jr nz,$+10		;4ee6	20 08 	  . 
+	jr nz,4ef0h		;4ee6	20 08 	  . 
 	pop hl			;4ee8	e1 	. 
 	pop bc			;4ee9	c1 	. 
 	ex (sp),ix		;4eea	dd e3 	. . 
@@ -11750,14 +11750,14 @@ VFYCOM:				; Verify COMM
 	jp (ix)			;4eee	dd e9 	. . 
 	ld a,(MBYTE4)		;4ef0	3a 43 e0 	: C . 
 	and 008h		;4ef3	e6 08 	. . 
-	jr nz,$+10		;4ef5	20 08 	  . 
+	jr nz,4effh		;4ef5	20 08 	  . 
 	call 04f31h		;4ef7	cd 31 4f 	. 1 O 
 	bit 7,a			;4efa	cb 7f 	.  
 	jp z,04cc5h		;4efc	ca c5 4c 	. . L 
 	ld hl,(BFCNT)		;4eff	2a 83 e0 	* . . 
 	ld a,l			;4f02	7d 	} 
 	or h			;4f03	b4 	. 
-	jr z,$-55		;4f04	28 c7 	( . 
+	jr z,4ecdh		;4f04	28 c7 	( . 
 	push de			;4f06	d5 	. 
 	call 0003ch		;4f07	cd 3c 00 	. < . 
 	pop de			;4f0a	d1 	. 
@@ -11785,7 +11785,7 @@ VFYCOM:				; Verify COMM
 	pop bc			;4f28	c1 	. 
 	ld a,(TXCNT)		;4f29	3a 8e e0 	: . . 
 	and a			;4f2c	a7 	. 
-	jr nz,$-17		;4f2d	20 ed 	  . 
+	jr nz,4f1ch		;4f2d	20 ed 	  . 
 	scf			;4f2f	37 	7 
 	ret			;4f30	c9 	. 
 	ld a,(CDATAR)		;4f31	3a 81 e0 	: . . 
@@ -11841,7 +11841,7 @@ VFYCOM:				; Verify COMM
 	ret z			;4f77	c8 	. 
 	call 0006fh		;4f78	cd 6f 00 	. o . 
 	bit 7,b			;4f7b	cb 78 	. x 
-	jr nz,$-11		;4f7d	20 f3 	  . 
+	jr nz,4f72h		;4f7d	20 f3 	  . 
 	call 0006ch		;4f7f	cd 6c 00 	. l . 
 	ld b,a			;4f82	47 	G 
 	scf			;4f83	37 	7 
@@ -11854,23 +11854,23 @@ VFYCOM:				; Verify COMM
 	push de			;4f91	d5 	. 
 	call 04f72h		;4f92	cd 72 4f 	. r O 
 	pop de			;4f95	d1 	. 
-	jr nc,$-5		;4f96	30 f9 	0 . 
+	jr nc,4f91h		;4f96	30 f9 	0 . 
 	cp 0e3h			;4f98	fe e3 	. . 
-	jr nz,$+18		;4f9a	20 10 	  . 
+	jr nz,4fach		;4f9a	20 10 	  . 
 	ld a,d			;4f9c	7a 	z 
 	cp 002h			;4f9d	fe 02 	. . 
-	jr nz,$+6		;4f9f	20 04 	  . 
+	jr nz,4fa5h		;4f9f	20 04 	  . 
 	ld a,(FILEN)		;4fa1	3a fd e0 	: . . 
 	ret			;4fa4	c9 	. 
 	ld a,(0d91dh)		;4fa5	3a 1d d9 	: . . 
 	ld (FILEN),a		;4fa8	32 fd e0 	2 . . 
 	ret			;4fab	c9 	. 
 	cp 0e2h			;4fac	fe e2 	. . 
-	jr nz,$+4		;4fae	20 02 	  . 
-	jr $-43			;4fb0	18 d3 	. . 
+	jr nz,4fb2h		;4fae	20 02 	  . 
+	jr 4f85h			;4fb0	18 d3 	. . 
 	ld a,d			;4fb2	7a 	z 
 	or a			;4fb3	b7 	. 
-	jr z,$-4		;4fb4	28 fa 	( . 
+	jr z,4fb0h		;4fb4	28 fa 	( . 
 	push bc			;4fb6	c5 	. 
 	push de			;4fb7	d5 	. 
 	ld hl,04977h		;4fb8	21 77 49 	! w I 
@@ -11879,12 +11879,12 @@ VFYCOM:				; Verify COMM
 	pop bc			;4fbf	c1 	. 
 	ld a,b			;4fc0	78 	x 
 	sub 030h		;4fc1	d6 30 	. 0 
-	jr c,$-19		;4fc3	38 eb 	8 . 
+	jr c,4fb0h		;4fc3	38 eb 	8 . 
 	cp 00ah			;4fc5	fe 0a 	. . 
-	jr c,$+8		;4fc7	38 06 	8 . 
+	jr c,4fcfh		;4fc7	38 06 	8 . 
 	sub 027h		;4fc9	d6 27 	. ' 
 	cp 010h			;4fcb	fe 10 	. . 
-	jr nc,$-29		;4fcd	30 e1 	0 . 
+	jr nc,4fb0h		;4fcd	30 e1 	0 . 
 	ld e,a			;4fcf	5f 	_ 
 	ld a,(0d91dh)		;4fd0	3a 1d d9 	: . . 
 	rlca			;4fd3	07 	. 
@@ -11893,13 +11893,13 @@ VFYCOM:				; Verify COMM
 	rlca			;4fd6	07 	. 
 	or e			;4fd7	b3 	. 
 	cp 040h			;4fd8	fe 40 	. @ 
-	jr nc,$-42		;4fda	30 d4 	0 . 
+	jr nc,4fb0h		;4fda	30 d4 	0 . 
 	ld (0d91dh),a		;4fdc	32 1d d9 	2 . . 
 	dec d			;4fdf	15 	. 
 	push de			;4fe0	d5 	. 
 	call 04716h		;4fe1	cd 16 47 	. . G 
 	pop de			;4fe4	d1 	. 
-	jr $-84			;4fe5	18 aa 	. . 
+	jr 4f91h			;4fe5	18 aa 	. . 
 	ld a,(0d91bh)		;4fe7	3a 1b d9 	: . . 
 	ld (MBYTE5),a		;4fea	32 44 e0 	2 D . 
 	ld a,(0d91ch)		;4fed	3a 1c d9 	: . . 
