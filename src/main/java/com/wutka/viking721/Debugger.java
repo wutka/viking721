@@ -5,14 +5,15 @@ import com.codingrodent.microprocessor.ProcessorException;
 import com.codingrodent.microprocessor.Z80.CPUConstants;
 import com.codingrodent.microprocessor.Z80.Z80Core;
 
-import java.io.BufferedReader;
-import java.io.Console;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.*;
 
 public class Debugger {
@@ -27,7 +28,8 @@ public class Debugger {
     JPanel display;
     Console console;
     BufferedReader reader;
-
+    Map<Integer,String> commentMap = new HashMap<>();
+    Pattern commentPattern;
 
     public Debugger(Z80Core z80, IMemory mem, Memory[] banks, int[] blockBankNums, JPanel display) {
         this.z80 = z80;
@@ -42,6 +44,22 @@ public class Debugger {
         this.console = System.console();
         if (this.console == null) {
             this.reader = new BufferedReader(new InputStreamReader(System.in));
+        }
+        commentPattern = Pattern.compile("^.*;([0-9a-f][0-9a-f][0-9a-f][0-9a-f])([^h].*)$");
+        try (BufferedReader fileIn = new BufferedReader(new FileReader("viking_rom.asm"))) {
+            for (;;) {
+                String line = fileIn.readLine();
+                if (line == null) {
+                    break;
+                }
+                Matcher match = commentPattern.matcher(line.strip());
+                if (match.matches()) {
+                    Integer addr = Integer.parseInt(match.group(1), 16);
+                    commentMap.put(addr, match.group(2));
+                }
+            }
+        } catch (IOException exc) {
+            System.out.println("No comment file available");
         }
     }
 
@@ -99,7 +117,12 @@ public class Debugger {
                     z80.getRegisterValue(CPUConstants.RegisterNames.SP),
                     z80.getRegisterValue(CPUConstants.RegisterNames.F_ALT) & 0xff,
                     z80.getRegisterValue(CPUConstants.RegisterNames.I));
-            System.out.print(inst.str);
+            String comment = commentMap.get(z80.getProgramCounter());
+            if (comment == null) {
+                System.out.print(inst.str);
+            } else {
+                System.out.print(inst.str.strip() + "   ; " + comment+"\n");
+            }
             System.out.print("> ");
             System.out.flush();
             try {
@@ -155,7 +178,12 @@ public class Debugger {
                         }
                         while (len > 0) {
                             inst = decoder.get(addr);
-                            System.out.print(inst.str);
+                            comment = commentMap.get(addr);
+                            if (comment == null) {
+                                System.out.print(inst.str);
+                            } else {
+                                System.out.print(inst.str.strip() + "   ; " + comment+"\n");
+                            }
                             addr = inst.nextAddr;
                             len -= 1;
                         }

@@ -250,9 +250,13 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
                 data = data >> 2;
             }
         } else if (address >= 0x40 && address <= 0x47) {
-//            System.out.printf("Writing %02x to commUART reg %1d at pc = %04x\n",
-//                    data, address - 0x40, z80.getProgramCounter());
+            System.out.printf("Writing %02x to commUART reg %1d at pc = %04x\n",
+                    data, address - 0x40, z80.getProgramCounter());
             commUart.writeRegister(address - 0x40, data);
+            if (address == 0x41 && data == 6) {
+                System.out.println("Switching to ready");
+                ready = true;
+            }
         } else if (address >= 0x20 && address <= 0x27) {
 //            System.out.printf("Writing %02x to kbdUART reg %1d at pc = %04x\n",
 //                    data, address - 0x20, z80.getProgramCounter());
@@ -316,6 +320,9 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
             long lastTicks = z80.getTStates();
 
             for (;;) {
+                if (connected) {
+                    System.out.printf("PC = %04x\n", z80.getProgramCounter());
+                }
                 if (this.debug) {
                     this.debugger.step();
                 } else {
@@ -326,22 +333,16 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
                     timers[i].tick(ticksNow-lastTicks);
                 }
                 lastTicks = ticksNow;
-                if (ready && z80.intEnabled()) {
+                if (ready && connected && z80.intEnabled()) {
+                    writeByte(0xe081, 0x40);
                     commUart.checkTxQueue();
-                    if (readWord(0xe083) < 32) {
+                    if (readWord(0xe083) < 5) {
                         int numCharsInBuffer = readWord(0xe083);
                         commUart.checkRxQueue();
                     }
                     kbdUart.checkRxQueue();
-                } else {
-                    // HACK - need to figure out how to tell when the terminal is ready
-                    if (z80.getProgramCounter() == 0x0416) {
-                        numCommInit += 1;
-                        if (numCommInit == 2) {
-                            connect("localhost", 23);
-                            ready = true;
-                        }
-                    }
+                } else if (!connected) {
+                    connect("localhost", 23);
                 }
 
                 if (writeToVideoRam) {
@@ -389,6 +390,7 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
     public void connect(String host, int port) {
         try {
             Socket sock = new Socket(host, port);
+            connected = true;
             connIn = sock.getInputStream();
             connOut = sock.getOutputStream();
             CommReceiver receiver = new CommReceiver();
@@ -407,7 +409,12 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
             if ((keyEvent.getKeyChar() == 0x0a) || (keyEvent.getKeyChar() == 0x0d)) {
                 kbQueue.offer(0x66);
             } else {
-                kbQueue.offer((int) keyEvent.getKeyChar());
+                if (keyEvent.getKeyChar() == 0xa1) {
+                    kbQueue.offer(0x1e);
+                    kbQueue.offer(0x71);
+                } else {
+                    kbQueue.offer((int) keyEvent.getKeyChar());
+                }
             }
         }
 

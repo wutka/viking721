@@ -186,7 +186,7 @@ public class Uart8250 {
         } else if (regNum == 2) {
             return intIdRegister;
         } else if (regNum == 4) {
-            return modemStatusRegister;
+            return modemControlRegister;
         } else if (regNum == 5) {
             return lineStatusRegister;
         } else if (regNum == 6) {
