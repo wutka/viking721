@@ -229,6 +229,8 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
         } else if (address >= 0x20 && address <= 0x27) {
             int result = kbdUart.readRegister(address - 0x20);
             return result & 0xff;
+        } else if (address >= 0 && address < 4) {
+            return timers[address].readRegister();
         }
         return portData[address] & 0xff;
     }
@@ -320,6 +322,7 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
                 for (int i=0; i < 4; i++) {
                     timers[i].tick(ticksNow-lastTicks);
                 }
+                lastTicks = ticksNow;
                 if (ready) {
                     commUart.checkTxQueue();
                     commUart.checkRxQueue();

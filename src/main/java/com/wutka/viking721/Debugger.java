@@ -45,6 +45,17 @@ public class Debugger {
         }
     }
 
+    protected String flagsToString(int flags) {
+        StringBuilder result = new StringBuilder();
+        if ((flags & 0x80) == 0x80) result.append('S');
+        if ((flags & 0x40) == 0x40) result.append('Z');
+        if ((flags & 0x10) == 0x10) result.append('H');
+        if ((flags & 0x4) == 0x4) result.append('V');
+        if ((flags & 0x2) == 0x2) result.append('N');
+        if ((flags & 0x1) == 0x1) result.append('C');
+        if (result.isEmpty()) result.append("-");
+        return result.toString();
+    }
     public void step() {
         if (!this.enabled) {
             try {
@@ -72,10 +83,10 @@ public class Debugger {
         }
         while (true) {
             Decoder.Instr inst = decoder.get(z80.getProgramCounter());
-            System.out.printf("PC:%04x OP: %02x  Flags: %02x  A: %02x  B: %02x  C: %02x  D: %02x  E: %02x  H: %02x  L: %02x  IX: %04x  IY: %04x  SP: %04x  SF: %02x  I: %02x\n",
+            System.out.printf("PC:%04x OP: %02x  Flags: %s  A: %02x  B: %02x  C: %02x  D: %02x  E: %02x  H: %02x  L: %02x  IX: %04x  IY: %04x  SP: %04x  SF: %02x  I: %02x\n",
                     z80.getRegisterValue(CPUConstants.RegisterNames.PC),
                     mem.readByte(z80.getRegisterValue(CPUConstants.RegisterNames.PC)),
-                    z80.getRegisterValue(CPUConstants.RegisterNames.F),
+                    flagsToString(z80.getRegisterValue(CPUConstants.RegisterNames.F)),
                     z80.getRegisterValue(CPUConstants.RegisterNames.A),
                     (z80.getRegisterValue(CPUConstants.RegisterNames.BC) >> 8) & 0xff,
                     z80.getRegisterValue(CPUConstants.RegisterNames.BC) & 0xff,

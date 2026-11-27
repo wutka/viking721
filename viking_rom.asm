@@ -10144,7 +10144,7 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	out (031h),a		;4075	d3 31 	. 1 
 	call 04232h		;4077	cd 32 42 	. 2 B 
 	call 042bfh		;407a	cd bf 42 	. . B 
-	call 042feh		;407d	cd fe 42 	. . B 
+	call 042feh		;407d	verify timer function
 	call 0429fh		;4080	cd 9f 42 	. . B 
 	ld a,(TBYTE2)		;4083	3a 61 e0 	: a . 
 	bit 2,a			;4086	cb 57 	. W 
@@ -10416,21 +10416,21 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	ld hl,0488dh		;42d5 fetch addr of "TIMER"
 	call nz,04702h		;42d8 if timer failed, print err
 	ret			;42db	c9 	. 
-	ld de,0ffffh		;42dc	11 ff ff 	. . . 
-	xor a			;42df	af 	. 
-	ld (0cfe5h),a		;42e0	32 e5 cf 	2 . . 
-	ld a,(0cfe5h)		;42e3	3a e5 cf 	: . . 
-	cp 055h			;42e6	fe 55 	. U 
-	ret z			;42e8	c8 	. 
-	inc de			;42e9	13 	. 
-	bit 7,d			;42ea	cb 7a 	. z 
-	jr z,42e3h		;42ec	28 f5 	( . 
-	ret			;42ee	c9 	. 
-	push af			;42ef	f5 	. 
+	ld de,0ffffh		;42dc	start a counter
+	xor a			;42df	clear a
+	ld (0cfe5h),a		;42e0	store 0 in cfe5
+	ld a,(0cfe5h)		;42e3	example cfe5
+	cp 055h			;42e6	is it 55?
+	ret z			;42e8	if so, return
+	inc de			;42e9	increment counter
+	bit 7,d			;42ea	has the timer run out
+	jr z,42e3h		;42ec	if not, go back and examine cfe5 again
+	ret			;42ee	otherwise return
+	push af			;42ef timer interrupt handler for verification
 	ld a,033h		;42f0	3e 33 	> 3 
-	out (Z80CRTC+3),a	;42f2	d3 03 	. . 
-	out (Z80CRTC),a		;42f4	d3 00 	. . 
-	ld a,055h		;42f6	3e 55 	> U 
+	out (Z80CRTC+3),a	;42f2	reset timer 3
+	out (Z80CRTC),a		;42f4	reset timer 0
+	ld a,055h		;42f6	store a value that shows the interrupt fires
 	ld (0cfe5h),a		;42f8	32 e5 cf 	2 . . 
 	pop af			;42fb	f1 	. 
 	retn			;42fc	ed 45 	. E 
@@ -10577,12 +10577,13 @@ TBLKKY:				; TEST IF BLOCK MODE + KEYBOARD INPUT
 	xor a			;440f	af 	. 
 	out (Z80CTC),a		;4410	d3 00 	. . 
 	ld a,033h		;4412	3e 33 	> 3 
-	out (Z80CTC),a		;4414	d3 00 	. . 
-	ld a,0f7h		;4416	3e f7 	> . 
-	out (Z80CTC),a		;4418	d3 00 	. . 
+	out (Z80CTC),a		;4414	reset timer 0
+	ld a,0f7h		;4416	
+	out (Z80CTC),a		;4418	set timer 0 with int, counter mode
+	                        ;       256 prescale, reset, time constant follows
 	ld a,0bbh		;441a	3e bb 	> . 
-	out (Z80CTC),a		;441c	d3 00 	. . 
-	call 042dch		;441e	cd dc 42 	. . B 
+	out (Z80CTC),a		;441c	set timer 0 time constant to bb
+	call 042dch		;441e	
 	ld a,033h		;4421	3e 33 	> 3 
 	out (Z80CTC),a		;4423	d3 00 	. . 
 	ret			;4425	c9 	. 
