@@ -228,6 +228,11 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
             return result & 0xff;
         } else if (address >= 0x20 && address <= 0x27) {
             int result = kbdUart.readRegister(address - 0x20);
+            // Bit 7 of KBD UART register 6 is the battery indicator
+            // A value of 1 indicates low battery, set it to 0
+            if (address == 0x26) {
+                result = result & 0x7f;
+            }
             return result & 0xff;
         } else if (address >= 0 && address < 4) {
             return timers[address].readRegister();
@@ -255,8 +260,8 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
 //                    data, address - 0x20, z80.getProgramCounter());
             kbdUart.writeRegister(address - 0x20, data);
         } else if (address < 0x04) {
-            System.out.printf("Writing %02x to timer reg %1d at pc = %04x\n",
-                    data, address, z80.getProgramCounter());
+//            System.out.printf("Writing %02x to timer reg %1d at pc = %04x\n",
+//                    data, address, z80.getProgramCounter());
             timers[address].writeRegister(data);
         } else {
             portData[address] = (byte) data;
