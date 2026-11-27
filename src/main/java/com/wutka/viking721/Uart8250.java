@@ -83,6 +83,9 @@ public class Uart8250 {
 //            System.out.printf("Cleared %s UART rxEmpty\n", name);
             lineStatusRegister = lineStatusRegister & 0xbf;
             lineStatusRegister = lineStatusRegister | 1;
+            if (!loopback()) {
+                modemControlRegister |= 1;
+            }
             sendRxAvailable();
         }
     }

@@ -42,6 +42,7 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
     Timer[] timers;
     boolean connected;
     boolean ready;
+    int numCommInit;
 
     BlockingQueue<Integer> txQueue = new ArrayBlockingQueue<>(256);
     BlockingQueue<Integer> rxQueue = new ArrayBlockingQueue<>(256);
@@ -114,6 +115,7 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
 
             writeToVideoRam = false;
             ready = false;
+            numCommInit = 0;
 
         } catch (Exception exc) {
             exc.printStackTrace();
@@ -324,15 +326,21 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
                     timers[i].tick(ticksNow-lastTicks);
                 }
                 lastTicks = ticksNow;
-                if (ready) {
+                if (ready && z80.intEnabled()) {
                     commUart.checkTxQueue();
-                    commUart.checkRxQueue();
+                    if (readWord(0xe083) < 32) {
+                        int numCharsInBuffer = readWord(0xe083);
+                        commUart.checkRxQueue();
+                    }
                     kbdUart.checkRxQueue();
                 } else {
                     // HACK - need to figure out how to tell when the terminal is ready
-                    if (z80.getProgramCounter() == 0x40e2) {
-                        connect("localhost", 23);
-                        ready = true;
+                    if (z80.getProgramCounter() == 0x0416) {
+                        numCommInit += 1;
+                        if (numCommInit == 2) {
+                            connect("localhost", 23);
+                            ready = true;
+                        }
                     }
                 }
 

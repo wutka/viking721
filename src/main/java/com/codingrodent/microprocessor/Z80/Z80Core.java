@@ -102,6 +102,10 @@ public class Z80Core implements ICPUData {
         processorReset();
     }
 
+    public boolean intEnabled() {
+        return IFF1;
+    }
+
     /**
      * Initiate an NMI request
      */
@@ -284,7 +288,8 @@ public class Z80Core implements ICPUData {
                 ram.writeWord(reg_SP, reg_PC);
                 reg_PC = 0x0066; // NMI routine location
             }
-        } else if (IRQ_FF) {
+        } else if (IRQ_FF && IFF1) {
+            DI();
             int vec_lower = io.getINTACK() & 0xff;
             int vec = vec_lower | (reg_I << 8);
             dec2SP();
