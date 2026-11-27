@@ -19,6 +19,7 @@ public class Uart8250 {
     boolean sentTxEmpty;
     boolean sentRxAvailable;
     int lastMSR;
+    boolean lastMCRZero;
 
     InterruptBus bus;
     int irq;
@@ -45,6 +46,7 @@ public class Uart8250 {
         this.sentRxAvailable = false;
         this.txQueue = txQueue;
         this.rxQueue = rxQueue;
+        this.lastMCRZero = false;
     }
 
     protected boolean latchAccess() {
@@ -98,6 +100,7 @@ public class Uart8250 {
     }
 
     public void writeRegister(int regNum, int value) {
+        lastMCRZero = false;
         if (regNum == 0) {
             if (!latchAccess() && (txQueue != null || loopback())) {
                 if (txEmpty()) {
@@ -128,6 +131,13 @@ public class Uart8250 {
             lineControlRegister = value;
         } else if (regNum == 4){
             modemControlRegister = value;
+            // Keyboard uart always loops back
+            if (txQueue == null) {
+                modemControlRegister |= 0x10;
+            }
+            if (value == 0) {
+                lastMCRZero = true;
+            }
             if (loopback()) {
                 modemStatusRegister = modemStatusRegister |
                         ((modemControlRegister & 2) << 3) |
@@ -178,7 +188,11 @@ public class Uart8250 {
             return lineStatusRegister;
         } else if (regNum == 6) {
             lastMSR = modemStatusRegister;
-            return modemStatusRegister;
+            if (lastMCRZero) {
+                return modemStatusRegister & 0x7f;
+            } else {
+                return modemStatusRegister;
+            }
         }
         return 0;
     }

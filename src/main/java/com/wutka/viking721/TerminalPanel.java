@@ -114,7 +114,6 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
 
             writeToVideoRam = false;
             ready = false;
-//            connect("localhost", 23);
 
         } catch (Exception exc) {
             exc.printStackTrace();
@@ -230,9 +229,6 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
             int result = kbdUart.readRegister(address - 0x20);
             // Bit 7 of KBD UART register 6 is the battery indicator
             // A value of 1 indicates low battery, set it to 0
-            if (address == 0x26) {
-                result = result & 0x7f;
-            }
             return result & 0xff;
         } else if (address >= 0 && address < 4) {
             return timers[address].readRegister();
@@ -333,11 +329,11 @@ public class TerminalPanel extends JPanel implements Runnable, IMemory, IBaseDev
                     commUart.checkRxQueue();
                     kbdUart.checkRxQueue();
                 } else {
-                    if (z80.getProgramCounter() == 0x2925) {
-//                        ready = true;
-//                        connect("localhost", 23);
+                    // HACK - need to figure out how to tell when the terminal is ready
+                    if (z80.getProgramCounter() == 0x40e2) {
+                        connect("localhost", 23);
+                        ready = true;
                     }
-//                    System.out.printf("PC = %04x\n", z80.getProgramCounter());
                 }
 
                 if (writeToVideoRam) {
